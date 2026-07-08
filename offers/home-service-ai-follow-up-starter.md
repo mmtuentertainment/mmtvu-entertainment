@@ -91,3 +91,40 @@ A pilot is successful if it produces at least one of:
 - Less manual staff follow-up
 - Owner says the daily hot-lead list is useful
 - One testimonial or measurable before/after result
+
+
+## V0 Delivery Stack
+
+- Google Sheets or Airtable for lead tracking
+- Make.com or Zapier for automation
+- Gmail/Google Workspace or SendGrid for email
+- Twilio for SMS only when consent is explicit
+- Google Calendar or existing booking link
+- Daily summary by email
+
+V0 does not replace the client's CRM. Start with one capture mode: website form forwarding, quote-request email forwarding, or manual staff entry.
+
+## Follow-Up Cadence
+
+- Immediate acknowledgement
+- 2-hour nudge
+- 1-day nudge
+- 3-day nudge
+- 7-day close-the-loop message
+- Quote follow-up at 1, 3, 7, and optionally 14 days
+
+## Compliance Rules
+
+- Client approves scripts before go-live
+- SMS only with consent or expected service-request follow-up
+- STOP/HELP handling required for SMS
+- Avoid emergency, legal, angry, warranty, or sensitive cases
+- Keep message and opt-out logs
+- Send during reasonable business hours
+
+## Pilot Types
+
+- Discovery only: unpaid workflow interview
+- Free pilot: 14 days, one lead source, one success metric
+- Paid pilot: discounted setup with monthly continuation
+- Full setup: $500 setup + $300/month price test

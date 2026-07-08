@@ -214,11 +214,240 @@ Not included at first:
 - Custom SaaS dashboard
 - Replacing staff
 
+
+
+## V0 Fulfillment Stack
+
+Default v0 stack:
+
+- Intake database: Google Sheets first, Airtable if the client needs richer views.
+- Automation: Make.com or Zapier, whichever connects fastest to the client’s existing tools.
+- Email: client’s Gmail/Google Workspace or SendGrid for higher volume.
+- SMS: Twilio only when consent is explicit and A2P 10DLC requirements are handled.
+- Calendar: Google Calendar or the client’s existing booking link.
+- Reporting: daily email summary plus the tracking sheet.
+
+V0 rule:
+Do not migrate the client’s CRM. Do not integrate every lead source. Start with one capture mode:
+
+1. Website form forwarding to a dedicated inbox, or
+2. Manual lead entry by office staff into a simple form/sheet, or
+3. Forwarded quote-request emails from an existing system.
+
+CRM integrations like ServiceTitan, Housecall Pro, Jobber, Angi, Thumbtack, Facebook Lead Ads, and Google Business Profile are out of scope for the first 3 clients unless the client already has easy email forwarding or Zapier support.
+
+## Client Onboarding Checklist
+
+Before setup, collect:
+
+1. Business name, service area, hours, and emergency-service policy.
+2. List of service categories and which ones are worth pursuing.
+3. Current lead sources.
+4. Current follow-up process and where leads are tracked.
+5. Example quote request messages and estimate follow-up messages.
+6. Staff contact who approves scripts and receives summaries.
+7. Booking link or calendar process.
+8. Consent source for SMS/email follow-up.
+9. Brand voice: formal, friendly, urgent, premium, or local-neighbor style.
+10. “Do not automate” rules: angry customers, insurance claims, warranty disputes, legal threats, emergencies, or anything staff wants to handle manually.
+
+7-day implementation plan:
+
+- Day 1: intake call and workflow mapping.
+- Day 2: write scripts, statuses, and follow-up cadence.
+- Day 3: build sheet/database and automation draft.
+- Day 4: internal testing with fake leads.
+- Day 5: staff review and compliance check.
+- Day 6: limited live pilot with one lead source.
+- Day 7: go-live review and daily summary check.
+
+Maintenance SLA v0:
+
+- Check automation health weekly.
+- Fix broken workflow issues within 1 business day when possible.
+- Optimize scripts once after 30 days using reply/booked data.
+- Do not promise 24/7 emergency support in v0.
+
+## Follow-Up Workflow Spec
+
+Lead statuses:
+
+- New: just entered system.
+- Contacted: first automated or manual touch sent.
+- Engaged: lead replied, clicked, asked pricing, requested estimate, or provided details.
+- Booked: appointment or estimate scheduled.
+- Quoted: estimate sent.
+- Won: job accepted.
+- Lost: lead declined, picked competitor, out of area, unqualified, or no response after cadence.
+- Needs human: automation cannot safely answer.
+
+Qualifying questions:
+
+1. What service do you need?
+2. What ZIP code or city is the property in?
+3. Is this urgent, this week, or flexible timing?
+4. Residential or commercial property?
+5. Best phone/email and preferred contact time?
+6. If relevant: photos, model number, roof type, system age, or project details.
+
+Default follow-up cadence:
+
+- Immediate: acknowledgement and one qualifying question.
+- +2 hours: helpful nudge if no reply.
+- +1 day: ask if they still want help scheduling.
+- +3 days: mention availability or next step.
+- +7 days: final polite close-the-loop message.
+- Quote follow-up: +1 day, +3 days, +7 days, +14 days after estimate if the client wants longer nurture.
+
+Hot lead definition:
+
+A lead is hot if they replied positively, asked about price, requested an estimate, clicked a booking link, gave scheduling details, or has a high-value/urgent job type.
+
+Stale lead definition:
+
+A lead is stale if there is no reply after 3 touches, or a quote is older than 7 days with no decision.
+
+Daily summary format:
+
+| Lead | Source | Status | Last touch | Why it matters | Recommended next action |
+|---|---|---|---|---|---|
+
+30-day optimization means:
+
+- Remove messages with low response.
+- Improve qualifying questions that confuse leads.
+- Adjust cadence if staff says it is too aggressive or too slow.
+- Compare hot-lead summaries with booked appointments.
+- Identify one case-study metric.
+
+## Compliance v0
+
+This is operational guidance, not legal advice. The client owns legal approval for customer communications.
+
+Rules:
+
+1. Use email first when consent is uncertain.
+2. Use SMS only when the lead provided a phone number in a context where follow-up is expected, or the client already has consent language.
+3. Every SMS path must support STOP/HELP handling.
+4. Messages should identify the business, not pretend to be a human if automated.
+5. Do not send outside reasonable business hours unless the customer initiated an emergency request.
+6. Keep an audit log of lead source, opt-in source, message timestamps, and unsubscribe events.
+7. Do not automate emergencies, legal threats, angry customers, warranty disputes, or sensitive claims.
+8. If using Twilio SMS at scale, complete A2P 10DLC registration before serious volume.
+9. Email messages must include the business identity and a clear way to opt out of marketing-style follow-up.
+10. Staff approves scripts before go-live.
+
+Default consent line for website forms:
+
+“By submitting this form, you agree that [Business Name] may contact you by phone, text, or email about your service request. Message/data rates may apply. Reply STOP to opt out.”
+
+## Tracking & Case Study Metrics
+
+Minimum tracking columns:
+
+- Lead ID
+- Lead name
+- Phone/email
+- Source
+- Service type
+- ZIP/city
+- Created timestamp
+- First response timestamp
+- First response time in minutes
+- Follow-up count
+- Current status
+- Booked appointment? yes/no
+- Quote sent? yes/no
+- Won/lost/unknown
+- Revenue if client provides it
+- Notes
+
+Case study metrics should start simple:
+
+- Average first response time before vs after.
+- Number of follow-ups sent that staff did not manually send.
+- Number of stale leads revived.
+- Number of booked appointments influenced.
+- Staff hours saved estimate.
+- Owner/staff testimonial.
+
+Do not guarantee revenue lift in early pilots. Track influenced bookings and operational consistency first.
+
+## Pilot Definitions
+
+Discovery only:
+Unpaid interview. Goal is learning the workflow and pain.
+
+Free pilot:
+14-day limited proof, one lead source, one workflow, clear end date. Use only if it creates a strong case study opportunity.
+
+Paid pilot:
+Discounted setup with a monthly continuation option. Recommended first real sale.
+
+Full setup:
+Normal package: $500 setup + $300/month, or whichever pricing test wins.
+
+Rule:
+A free pilot must still have a defined success metric and a follow-up sales conversation scheduled before it starts.
+
+## 48-Hour Outreach Script + Logging Sheet Format
+
+First outreach channel:
+Google Maps list building plus phone/email. Prioritize businesses with real office staff signals: multiple trucks, many reviews, service area pages, careers page, or office/admin roles.
+
+Cold call opener:
+
+“Hi, this is Matthew with MMTVUEntertainment. Quick question: when a quote request comes in, how many times does your team follow up before giving up?”
+
+If they answer with pain:
+
+“That is exactly the workflow I’m testing. We set up a simple AI follow-up layer that nudges leads, follows up on quotes, and sends your office a daily hot-lead list. I’m looking for one home service company to pilot it with. Would it be worth a 15-minute call to see if it fits your process?”
+
+Cold email subject options:
+
+- Quick question about quote follow-up
+- Do your old estimates get followed up?
+- Simple follow-up system for [Business Name]
+
+Cold email body:
+
+“Hi [Name], quick question: when someone requests a quote, how many times does your office follow up before giving up?
+
+I’m setting up a simple AI follow-up system for home service companies. It follows up with new leads and old quotes, then sends your team a daily hot-lead list so staff only handles the leads that need a person.
+
+Not a CRM replacement and not a phone bot. Just follow-up your team can approve and monitor.
+
+Would you be open to a 15-minute call this week? If it is not useful, I’ll leave you alone.”
+
+Objection handling:
+
+- “We already have office staff.” → “That is who this helps. The goal is not replacing staff. It is making sure routine follow-up happens every time.”
+- “We use a CRM.” → “Good. For v0 I do not need to replace it. We can start with one lead source or forwarded quote emails.”
+- “AI sounds risky.” → “Agreed. That is why scripts are approved by you, sensitive cases go to staff, and we start with follow-up only.”
+- “No budget.” → “Then I’d still love to learn your process. If the pain is real, we can talk about a small pilot later.”
+
+Logging sheet columns:
+
+| Business | Niche | City | Website | Contact | Phone | Email | Staff signal | Lead source clue | Outreach date | Channel | Response | Pain quote | Follow-up count today | Next action | Status |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+
+Status values:
+
+- Not contacted
+- Contacted
+- Replied
+- Discovery booked
+- Not fit
+- Follow up later
+- Pilot proposed
+- Won
+- Lost
+
 ## Open Questions
 
 1. Which exact first sub-niche should be approached first: plumbing, HVAC, roofing, or electricians?
 2. Does Matthew have local contacts in home services to ask for discovery calls?
-3. Which tooling stack should be used for fulfillment: GoHighLevel, Zapier/Make, Twilio, Airtable, Google Sheets, HubSpot, or a simpler custom stack?
+3. After the first 3 clients, should the v0 stack stay Google Sheets/Airtable + Make/Zapier, or graduate into GoHighLevel/CRM-specific integrations?
 4. Should the first offer be sold under MMTVUEntertainment or a more niche brand name?
 5. What compliance language and opt-in workflow should be used for SMS follow-up?
 
@@ -260,6 +489,20 @@ Channels:
 6. AI Tool Hub article later: “How Home Service Businesses Use AI to Follow Up With Leads.”
 
 The first distribution artifact should be a landing page and outreach script, not a full application.
+
+
+
+## Later, Only After 3 Paying Customers
+
+Only consider these after 3 paying customers or one strong case study:
+
+- SaaS dashboard
+- CRM-specific integrations
+- AI phone agent
+- Template pack or course
+- Vertical content site for home service AI
+- Affiliate partnerships for the exact tools used in fulfillment
+- White-labeled niche brand separate from MMTVUEntertainment
 
 ## Dependencies
 
