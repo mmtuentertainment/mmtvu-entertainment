@@ -25,6 +25,7 @@ Use ~/.claude/skills/gstack/... for gstack file paths (the global path).
 ## GBrain Configuration (configured by /setup-gbrain)
 - Mode: local-stdio
 - Engine: pglite
+- Embeddings: local Ollama `nomic-embed-text` at 768 dimensions
 - Config file: ~/.gbrain/config.json (mode 0600)
 - Setup date: 2026-07-08
 - MCP registered: no (Claude Code CLI not installed in this WSL session)
