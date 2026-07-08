@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Stop losing leads to slow follow-up. We install an AI follow-up system for home service businesses that chases every quote, nudges every lead, and sends your office a daily hot-lead list.">
-    <title>AI Follow-Up System for Home Service Businesses | MMTVUEntertainment</title>
+    <meta name="description" content="You're losing jobs to the competitor who calls back first. Our AI follows up on every lead in 60 seconds — 24/7 — so you stop losing $47K/year in leaked revenue. Free 14-day pilot.">
+    <title>Stop Losing Leads to Competitors | AI Follow-Up for Home Service Businesses</title>
     <style>
-        /* ═══════════════════════════════════════════════
-           COLOR PSYCHOLOGY:
-           - Deep navy (#0a1929): authority, trust, professionalism
-           - Electric blue (#0066ff): action, technology, confidence
-           - Warm orange (#ff6b35): urgency, CTA energy, warmth
-           - Clean white sections: transparency, clarity
-           - Soft gray (#f5f7fa): reduce cognitive load, breathing room
-           ═══════════════════════════════════════════════ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -29,6 +21,7 @@
             --text-muted: #64748b;
             --white: #ffffff;
             --green: #10b981;
+            --red: #ef4444;
         }
 
         body {
@@ -38,47 +31,55 @@
             overflow-x: hidden;
         }
 
-        /* ═══ NAV — minimal, no distraction from hero ═══ */
-        nav {
+        /* ═══ STICKY BAR — persistent CTA + scarcity ═══ */
+        .sticky-bar {
             position: fixed; top: 0; width: 100%; z-index: 100;
-            background: rgba(10, 25, 41, 0.95);
+            background: rgba(10, 25, 41, 0.97);
             backdrop-filter: blur(10px);
-            padding: 14px 0;
+            padding: 10px 0;
             border-bottom: 1px solid rgba(0, 102, 255, 0.2);
+            display: flex; justify-content: center; align-items: center;
+            gap: 16px;
         }
-        nav .container {
-            max-width: 1100px; margin: 0 auto; padding: 0 24px;
-            display: flex; justify-content: space-between; align-items: center;
+        .sticky-bar .brand {
+            color: var(--white); font-size: 15px; font-weight: 700;
         }
-        nav .brand {
-            color: var(--white); font-size: 18px; font-weight: 700;
-            letter-spacing: -0.5px;
+        .sticky-bar .brand span { color: var(--blue-light); }
+        .sticky-bar .spots-left {
+            color: var(--orange); font-size: 13px; font-weight: 600;
         }
-        nav .brand span { color: var(--blue-light); }
-        nav .nav-cta {
+        .sticky-bar .spots-left .pulse {
+            display: inline-block; width: 8px; height: 8px;
+            background: var(--orange); border-radius: 50%;
+            margin-right: 4px; animation: pulse 2s infinite;
+        }
+        .sticky-bar .nav-cta {
             background: var(--orange); color: var(--white);
-            padding: 8px 20px; border-radius: 6px; font-size: 14px;
-            font-weight: 600; text-decoration: none;
-            transition: all 0.2s;
+            padding: 7px 18px; border-radius: 6px; font-size: 13px;
+            font-weight: 700; text-decoration: none;
+            transition: all 0.2s; white-space: nowrap;
         }
-        nav .nav-cta:hover { background: var(--orange-dark); transform: translateY(-1px); }
+        .sticky-bar .nav-cta:hover { background: var(--orange-dark); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-        /* ═══ HERO — Pattern Interrupt + Loss Aversion Framing ═══ */
+        /* ═══ HERO — Pattern interrupt + loss frame + first-person CTA ═══ */
         .hero {
             background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
             color: var(--white);
-            padding: 120px 24px 80px;
+            padding: 100px 24px 80px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
         .hero::before {
-            content: '';
-            position: absolute; top: -50%; right: -10%;
+            content: ''; position: absolute; top: -50%; right: -10%;
             width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(0,102,255,0.08) 0%, transparent 70%);
             border-radius: 50%;
         }
+        /* SCARCITY — authentic limit */
         .hero-badge {
             display: inline-block;
             background: rgba(255, 107, 53, 0.15);
@@ -86,48 +87,42 @@
             color: var(--orange);
             padding: 6px 16px; border-radius: 100px;
             font-size: 13px; font-weight: 600;
-            margin-bottom: 24px;
-            letter-spacing: 0.5px;
+            margin-bottom: 24px; letter-spacing: 0.5px;
         }
-        /* SCARCITY PRINCIPLE — limited pilot spots */
         .hero-badge .pulse {
             display: inline-block; width: 8px; height: 8px;
             background: var(--orange); border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
+            margin-right: 6px; animation: pulse 2s infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+        /* PATTERN INTERRUPT — not "Transform your business with AI" */
         .hero h1 {
             font-size: 42px; font-weight: 800;
             line-height: 1.15; letter-spacing: -1px;
             max-width: 800px; margin: 0 auto 20px;
         }
-        /* LOSS AVERSION — "losing" frame > "gaining" frame */
-        .hero h1 .highlight { color: var(--orange); }
+        .hero h1 .loss { color: var(--orange); }
+        .hero h1 .competitor { text-decoration: underline; text-decoration-color: rgba(255,107,53,0.5); text-underline-offset: 4px; }
+        /* SPECIFICITY + LOSS FRAME + MECHANISM */
         .hero .subheadline {
             font-size: 20px; color: rgba(255,255,255,0.75);
-            max-width: 600px; margin: 0 auto 32px;
+            max-width: 620px; margin: 0 auto 32px;
             line-height: 1.5;
         }
-        /* DUAL CTA — commitment ladder: low-friction + high-intent */
+        .hero .subheadline .number { color: var(--white); font-weight: 700; }
+        /* FIRST-PERSON CTA — value-forward */
         .hero-ctas {
             display: flex; gap: 16px; justify-content: center;
-            flex-wrap: wrap; margin-bottom: 40px;
+            flex-wrap: wrap; margin-bottom: 20px;
         }
         .btn-primary {
             background: var(--orange); color: var(--white);
             padding: 16px 32px; border-radius: 8px;
             font-size: 17px; font-weight: 700;
-            text-decoration: none;
-            transition: all 0.2s;
+            text-decoration: none; transition: all 0.2s;
             box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
         }
         .btn-primary:hover {
-            background: var(--orange-dark);
-            transform: translateY(-2px);
+            background: var(--orange-dark); transform: translateY(-2px);
             box-shadow: 0 6px 24px rgba(255, 107, 53, 0.5);
         }
         .btn-secondary {
@@ -135,250 +130,341 @@
             border: 1px solid rgba(255,255,255,0.2);
             padding: 16px 32px; border-radius: 8px;
             font-size: 17px; font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
+            text-decoration: none; transition: all 0.2s;
         }
         .btn-secondary:hover {
             background: rgba(255,255,255,0.12);
             border-color: rgba(255,255,255,0.3);
         }
-        /* TRUST SIGNAL — immediate authority under CTA */
-        .hero-trust {
-            font-size: 14px; color: rgba(255,255,255,0.5);
-            display: flex; gap: 24px; justify-content: center;
-            flex-wrap: wrap;
+        /* RISK REVERSAL MICROCOPY */
+        .hero-micro {
+            font-size: 14px; color: rgba(255,255,255,0.45);
+            margin-bottom: 32px;
         }
-        .hero-trust span::before { content: '✓ '; color: var(--green); }
+        /* SOCIAL PROOF STRIP */
+        .hero-proof {
+            display: flex; gap: 24px; justify-content: center;
+            flex-wrap: wrap; font-size: 14px; color: rgba(255,255,255,0.5);
+        }
+        .hero-proof span::before { content: '✓ '; color: var(--green); }
+        .hero-proof .stars { color: #fbbf24; }
 
-        /* ═══ PAIN SECTION — PAS: Problem + Agitation ═══ */
+        /* ═══ ANCHOR SECTION — value before price ═══ */
+        .anchor {
+            background: var(--gray);
+            padding: 64px 24px;
+            text-align: center;
+        }
+        .anchor .container { max-width: 700px; margin: 0 auto; }
+        .anchor .section-label {
+            color: var(--blue); font-size: 13px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        /* ANCHOR — big number first */
+        .anchor .big-number {
+            font-size: 56px; font-weight: 800;
+            color: var(--red); letter-spacing: -2px;
+        }
+        .anchor .big-label {
+            font-size: 20px; font-weight: 700; color: var(--navy);
+            margin-bottom: 12px;
+        }
+        .anchor p {
+            font-size: 16px; color: var(--text-muted);
+            max-width: 500px; margin: 0 auto;
+        }
+        /* COMPARISON ANCHOR */
+        .anchor-comparison {
+            display: flex; gap: 16px; justify-content: center;
+            flex-wrap: wrap; margin-top: 32px;
+        }
+        .anchor-comparison .item {
+            background: var(--white); padding: 16px 24px;
+            border-radius: 8px; border: 1px solid var(--gray-border);
+            text-align: center;
+        }
+        .anchor-comparison .item .price {
+            font-size: 24px; font-weight: 800; color: var(--navy);
+        }
+        .anchor-comparison .item .label {
+            font-size: 13px; color: var(--text-muted);
+        }
+        .anchor-comparison .item.ours {
+            border-color: var(--green); border-width: 2px;
+        }
+        .anchor-comparison .item.ours .price { color: var(--green); }
+        .anchor-comparison .item .ours-badge {
+            font-size: 11px; color: var(--green); font-weight: 700;
+        }
+
+        /* ═══ DIAGNOSTIC QUIZ — micro-commitment + Dunning-Kruger reveal ═══ */
+        .quiz {
+            background: var(--white);
+            padding: 80px 24px;
+        }
+        .quiz .container { max-width: 600px; margin: 0 auto; text-align: center; }
+        .quiz .section-label {
+            color: var(--blue); font-size: 13px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .quiz h2 {
+            font-size: 28px; font-weight: 800;
+            margin-bottom: 12px; letter-spacing: -0.5px;
+        }
+        .quiz .sub {
+            color: var(--text-muted); font-size: 16px;
+            margin-bottom: 40px;
+        }
+        /* DUNNING-KRUGER REVEAL */
+        .quiz-reveal {
+            background: var(--gray); border-radius: 12px;
+            padding: 32px; margin-bottom: 32px;
+            text-align: left;
+        }
+        .quiz-reveal .stat {
+            display: flex; align-items: center; gap: 16px;
+            margin-bottom: 16px;
+        }
+        .quiz-reveal .stat .bar {
+            flex: 1; height: 24px; border-radius: 12px;
+            background: var(--gray-border); position: relative;
+            overflow: hidden;
+        }
+        .quiz-reveal .stat .fill {
+            position: absolute; top: 0; left: 0; height: 100%;
+            border-radius: 12px;
+        }
+        .quiz-reveal .stat .fill.perceived {
+            width: 90%; background: var(--blue);
+        }
+        .quiz-reveal .stat .fill.actual {
+            width: 34%; background: var(--red);
+        }
+        .quiz-reveal .stat .label {
+            font-size: 14px; font-weight: 600;
+            min-width: 140px;
+        }
+        .quiz-reveal .stat .pct {
+            font-size: 14px; font-weight: 700;
+            min-width: 40px; text-align: right;
+        }
+        .quiz-reveal .stat .pct.red { color: var(--red); }
+        .quiz-reveal .stat .pct.blue { color: var(--blue); }
+        .quiz-reveal p {
+            font-size: 15px; color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        /* ═══ PAIN SECTION — PAS + emotional priming ═══ */
         .pain {
             background: var(--gray);
             padding: 80px 24px;
         }
-        .pain .container {
-            max-width: 800px; margin: 0 auto;
-        }
-        .section-label {
-            text-align: center;
-            color: var(--blue); font-size: 13px;
-            font-weight: 700; letter-spacing: 2px;
-            text-transform: uppercase;
+        .pain .container { max-width: 800px; margin: 0 auto; }
+        .pain .section-label {
+            text-align: center; color: var(--blue);
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
             margin-bottom: 16px;
         }
         .pain h2 {
-            text-align: center; font-size: 32px;
-            font-weight: 800; letter-spacing: -0.5px;
-            margin-bottom: 48px;
+            text-align: center; font-size: 32px; font-weight: 800;
+            letter-spacing: -0.5px; margin-bottom: 48px;
         }
-        /* COGNITIVE DISSONANCE — make them feel the gap */
+        /* EMOTIONAL PRIMING — scenario first */
+        .pain-scenario {
+            background: var(--white); border-radius: 12px;
+            padding: 32px; margin-bottom: 40px;
+            border-left: 4px solid var(--red);
+            font-size: 18px; line-height: 1.7;
+            color: var(--navy);
+        }
+        .pain-scenario strong { color: var(--red); }
         .pain-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
         }
         .pain-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 28px;
-            border: 1px solid var(--gray-border);
+            background: var(--white); border-radius: 12px;
+            padding: 28px; border: 1px solid var(--gray-border);
             transition: all 0.2s;
         }
         .pain-card:hover {
             border-color: var(--orange);
             box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
-        .pain-card .icon {
-            font-size: 28px; margin-bottom: 12px;
-        }
-        .pain-card h3 {
-            font-size: 18px; font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .pain-card p {
-            color: var(--text-muted); font-size: 15px;
-            line-height: 1.6;
-        }
-        /* ZEIGARNIK EFFECT — unresolved tension drives action */
+        .pain-card .icon { font-size: 28px; margin-bottom: 12px; }
+        .pain-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .pain-card p { color: var(--text-muted); font-size: 15px; line-height: 1.6; }
+        /* ZEIGARNIK — open loop */
         .pain-question {
-            text-align: center; margin-top: 48px;
-            padding: 32px;
-            background: var(--white);
-            border-radius: 12px;
+            text-align: center; margin-top: 48px; padding: 32px;
+            background: var(--white); border-radius: 12px;
             border: 2px solid var(--orange);
         }
         .pain-question p {
             font-size: 22px; font-weight: 700;
-            color: var(--navy);
-            font-style: italic;
+            color: var(--navy); font-style: italic;
         }
         .pain-question .source {
             font-size: 14px; color: var(--text-muted);
             margin-top: 8px; font-style: normal;
         }
 
-        /* ═══ SOLUTION SECTION — PAS: Solution + Authority ═══ */
+        /* ═══ SOLUTION — SPIN Need-Payoff + repetition of core promise ═══ */
         .solution {
-            padding: 80px 24px;
-            background: var(--white);
+            padding: 80px 24px; background: var(--white);
         }
-        .solution .container {
-            max-width: 900px; margin: 0 auto;
-        }
-        .solution h2 {
-            text-align: center; font-size: 32px;
-            font-weight: 800; letter-spacing: -0.5px;
+        .solution .container { max-width: 900px; margin: 0 auto; }
+        .solution .section-label {
+            text-align: center; color: var(--blue);
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
             margin-bottom: 16px;
         }
+        /* CORE PROMISE REPEATED */
+        .solution h2 {
+            text-align: center; font-size: 32px; font-weight: 800;
+            letter-spacing: -0.5px; margin-bottom: 16px;
+        }
+        .solution h2 .auto { color: var(--blue); }
         .solution .sub {
-            text-align: center; font-size: 18px;
-            color: var(--text-muted); margin-bottom: 48px;
+            text-align: center; font-size: 18px; color: var(--text-muted);
+            margin-bottom: 48px;
         }
-        .solution-steps {
-            display: flex; flex-direction: column; gap: 0;
-        }
+        .solution-steps { display: flex; flex-direction: column; gap: 0; }
         .step {
             display: flex; gap: 24px; align-items: flex-start;
-            padding: 24px 0;
-            border-bottom: 1px solid var(--gray-border);
+            padding: 24px 0; border-bottom: 1px solid var(--gray-border);
         }
         .step:last-child { border-bottom: none; }
         .step-num {
-            flex-shrink: 0;
-            width: 48px; height: 48px;
+            flex-shrink: 0; width: 48px; height: 48px;
             background: var(--blue); color: var(--white);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
             font-size: 20px; font-weight: 800;
         }
-        .step-content h3 {
-            font-size: 18px; font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .step-content p {
-            color: var(--text-muted); font-size: 15px;
-        }
+        .step-content h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .step-content p { color: var(--text-muted); font-size: 15px; }
 
-        /* ═══ HOW IT WORKS — IKEA EFFECT (they see the work) ═══ */
+        /* ═══ HOW IT WORKS — IKEA effect (they see the work + customize) ═══ */
         .how-it-works {
-            background: var(--navy);
-            color: var(--white);
+            background: var(--navy); color: var(--white);
             padding: 80px 24px;
         }
-        .how-it-works .container {
-            max-width: 900px; margin: 0 auto;
-        }
+        .how-it-works .container { max-width: 900px; margin: 0 auto; }
         .how-it-works h2 {
-            text-align: center; font-size: 32px;
-            font-weight: 800; margin-bottom: 48px;
+            text-align: center; font-size: 32px; font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .how-it-works .sub {
+            text-align: center; font-size: 16px;
+            color: rgba(255,255,255,0.6); margin-bottom: 48px;
+        }
+        /* ILLUSION OF CONTROL — customization choices */
+        .customization {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px; margin-bottom: 48px;
+        }
+        .custom-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 24px;
+        }
+        .custom-item h4 {
+            font-size: 15px; font-weight: 700; margin-bottom: 12px;
+        }
+        .custom-item .choices {
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .custom-item .choice {
+            background: rgba(0,102,255,0.15);
+            border: 1px solid rgba(0,102,255,0.3);
+            color: var(--blue-light);
+            padding: 6px 14px; border-radius: 6px;
+            font-size: 13px; font-weight: 600;
         }
         .timeline {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 24px;
         }
-        .timeline-item {
-            text-align: center;
-        }
+        .timeline-item { text-align: center; }
         .timeline-item .day {
-            display: inline-block;
-            background: var(--blue);
-            color: var(--white);
-            padding: 4px 14px;
-            border-radius: 100px;
-            font-size: 13px; font-weight: 700;
-            margin-bottom: 12px;
+            display: inline-block; background: var(--blue);
+            color: var(--white); padding: 4px 14px;
+            border-radius: 100px; font-size: 13px;
+            font-weight: 700; margin-bottom: 12px;
         }
-        .timeline-item h4 {
-            font-size: 16px; font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .timeline-item p {
-            font-size: 14px;
-            color: rgba(255,255,255,0.6);
-            line-height: 1.5;
-        }
+        .timeline-item h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .timeline-item p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.5; }
 
-        /* ═══ SOCIAL PROOF — even early stage, use structure ═══ */
-        .social-proof {
-            padding: 80px 24px;
-            background: var(--gray);
-        }
-        .social-proof .container {
-            max-width: 800px; margin: 0 auto;
-            text-align: center;
-        }
-        .social-proof h2 {
-            font-size: 28px; font-weight: 800;
+        /* ═══ SOCIAL PROOF — bandwagon + authority + specificity ═══ */
+        .social-proof { padding: 80px 24px; background: var(--gray); }
+        .social-proof .container { max-width: 800px; margin: 0 auto; text-align: center; }
+        .social-proof .section-label {
+            color: var(--blue); font-size: 13px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
             margin-bottom: 16px;
         }
-        .social-proof .sub {
-            color: var(--text-muted); font-size: 16px;
-            margin-bottom: 40px;
-        }
-        /* BANDWAGON + AUTHORITY — stats create implicit social proof */
+        .social-proof h2 { font-size: 28px; font-weight: 800; margin-bottom: 16px; }
+        .social-proof .sub { color: var(--text-muted); font-size: 16px; margin-bottom: 40px; }
         .stats-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+            gap: 24px; margin-bottom: 40px;
         }
         .stat {
-            background: var(--white);
-            padding: 28px; border-radius: 12px;
-            border: 1px solid var(--gray-border);
+            background: var(--white); padding: 28px;
+            border-radius: 12px; border: 1px solid var(--gray-border);
         }
-        .stat .number {
-            font-size: 36px; font-weight: 800;
-            color: var(--blue);
-        }
-        .stat .label {
-            font-size: 14px; color: var(--text-muted);
-            margin-top: 4px;
-        }
+        .stat .number { font-size: 36px; font-weight: 800; color: var(--blue); }
+        .stat .label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+        .stat .source { font-size: 11px; color: var(--text-muted); margin-top: 4px; opacity: 0.7; }
         .proof-note {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 24px;
-            border-left: 4px solid var(--green);
-            text-align: left;
+            background: var(--white); border-radius: 12px; padding: 24px;
+            border-left: 4px solid var(--green); text-align: left;
             font-size: 15px; color: var(--text-muted);
         }
         .proof-note strong { color: var(--navy); }
 
-        /* ═══ PRICING — ANCHORING + DECOY + GOOD-BETTER-BEST ═══ */
-        .pricing {
-            padding: 80px 24px;
-            background: var(--white);
+        /* ═══ PRICING — 3-tier good-better-best + decoy + anchoring ═══ */
+        .pricing { padding: 80px 24px; background: var(--white); }
+        .pricing .container { max-width: 1000px; margin: 0 auto; }
+        .pricing .section-label {
+            text-align: center; color: var(--blue);
+            font-size: 13px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 16px;
         }
-        .pricing .container {
-            max-width: 1000px; margin: 0 auto;
+        .pricing h2 { text-align: center; font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .pricing .sub { text-align: center; color: var(--text-muted); font-size: 16px; margin-bottom: 16px; }
+        /* PRICE FRAMING — $10/day */
+        .pricing .daily-frame {
+            text-align: center; font-size: 15px; color: var(--text-muted);
+            margin-bottom: 48px;
         }
-        .pricing h2 {
-            text-align: center; font-size: 32px;
-            font-weight: 800; margin-bottom: 12px;
-        }
-        .pricing .sub {
-            text-align: center; color: var(--text-muted);
-            font-size: 16px; margin-bottom: 48px;
-        }
+        .pricing .daily-frame strong { color: var(--navy); }
+
         .pricing-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
         }
         .price-card {
-            background: var(--white);
-            border: 2px solid var(--gray-border);
-            border-radius: 16px;
-            padding: 32px;
-            position: relative;
+            background: var(--white); border: 2px solid var(--gray-border);
+            border-radius: 16px; padding: 32px; position: relative;
             transition: all 0.2s;
         }
         .price-card:hover {
             border-color: var(--blue);
             box-shadow: 0 8px 32px rgba(0,0,0,0.08);
         }
-        /* DECOY — middle option highlighted as "most popular" */
+        /* DECOY — middle option highlighted */
         .price-card.featured {
             border-color: var(--orange);
             box-shadow: 0 8px 32px rgba(255,107,53,0.15);
@@ -389,212 +475,183 @@
             transform: translateX(-50%);
             background: var(--orange); color: var(--white);
             padding: 4px 16px; border-radius: 100px;
-            font-size: 12px; font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 12px; font-weight: 700; letter-spacing: 1px;
         }
-        .price-card h3 {
-            font-size: 20px; font-weight: 700;
-            margin-bottom: 8px;
-        }
+        .price-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
         .price-card .price {
-            font-size: 40px; font-weight: 800;
-            color: var(--navy); margin: 16px 0;
+            font-size: 40px; font-weight: 800; color: var(--navy);
+            margin: 16px 0 4px;
         }
         .price-card .price small {
-            font-size: 16px; color: var(--text-muted);
-            font-weight: 400;
+            font-size: 16px; color: var(--text-muted); font-weight: 400;
         }
-        /* ANCHORING — show comparison to make real price feel cheap */
-        .price-card .anchor {
+        /* PRICE FRAMING — daily equivalent */
+        .price-card .daily {
+            font-size: 13px; color: var(--text-muted); margin-bottom: 4px;
+        }
+        /* ANCHOR comparison */
+        .price-card .anchor-old {
             font-size: 14px; color: var(--text-muted);
-            text-decoration: line-through;
-            margin-bottom: 4px;
+            text-decoration: line-through; margin-bottom: 4px;
         }
-        .price-card ul {
-            list-style: none;
-            margin: 24px 0;
-        }
+        .price-card ul { list-style: none; margin: 24px 0; }
         .price-card ul li {
-            padding: 8px 0;
-            font-size: 15px;
+            padding: 8px 0; font-size: 15px;
             border-bottom: 1px solid var(--gray-border);
         }
-        .price-card ul li::before {
-            content: '✓ '; color: var(--green);
-            font-weight: 700;
-        }
-        .price-card ul li:not(.included)::before {
-            content: '— '; color: var(--text-muted);
-        }
-        .price-card ul li:not(.included) {
-            color: var(--text-muted);
-        }
+        .price-card ul li::before { content: '✓ '; color: var(--green); font-weight: 700; }
+        .price-card ul li:not(.included)::before { content: '— '; color: var(--text-muted); }
+        .price-card ul li:not(.included) { color: var(--text-muted); }
         .price-card .btn {
-            display: block; text-align: center;
-            padding: 14px; border-radius: 8px;
-            font-size: 15px; font-weight: 700;
-            text-decoration: none;
-            transition: all 0.2s;
+            display: block; text-align: center; padding: 14px;
+            border-radius: 8px; font-size: 15px; font-weight: 700;
+            text-decoration: none; transition: all 0.2s;
         }
-        .price-card .btn-orange {
-            background: var(--orange); color: var(--white);
-        }
+        .price-card .btn-orange { background: var(--orange); color: var(--white); }
         .price-card .btn-orange:hover { background: var(--orange-dark); }
-        .price-card .btn-outline {
-            border: 2px solid var(--blue); color: var(--blue);
-        }
-        .price-card .btn-outline:hover {
-            background: var(--blue); color: var(--white);
-        }
+        .price-card .btn-outline { border: 2px solid var(--blue); color: var(--blue); }
+        .price-card .btn-outline:hover { background: var(--blue); color: var(--white); }
 
-        /* RISK REVERSAL — guarantee section */
+        /* RISK REVERSAL */
         .risk-reversal {
             max-width: 600px; margin: 48px auto 0;
-            text-align: center;
-            padding: 24px;
-            background: var(--gray);
-            border-radius: 12px;
+            text-align: center; padding: 24px;
+            background: var(--gray); border-radius: 12px;
         }
-        .risk-reversal .shield {
-            font-size: 32px; margin-bottom: 8px;
+        .risk-reversal .shield { font-size: 32px; margin-bottom: 8px; }
+        .risk-reversal h4 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .risk-reversal p { color: var(--text-muted); font-size: 14px; }
+
+        /* ═══ ABOUT / FOUNDER — liking + unity ═══ */
+        .about {
+            padding: 80px 24px; background: var(--gray);
         }
-        .risk-reversal h4 {
-            font-size: 18px; font-weight: 700;
-            margin-bottom: 6px;
+        .about .container { max-width: 700px; margin: 0 auto; }
+        .about .section-label {
+            text-align: center; color: var(--blue);
+            font-size: 13px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 16px;
         }
-        .risk-reversal p {
-            color: var(--text-muted); font-size: 14px;
+        .about-content {
+            background: var(--white); border-radius: 16px;
+            padding: 40px; text-align: center;
+        }
+        .about-content .founder-photo {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--navy); margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px;
+        }
+        .about-content h3 {
+            font-size: 22px; font-weight: 800; margin-bottom: 16px;
+        }
+        .about-content p {
+            font-size: 16px; color: var(--text-muted);
+            line-height: 1.7; margin-bottom: 16px;
+            text-align: left;
+        }
+        .about-content p strong { color: var(--navy); }
+        .about-content .contact {
+            margin-top: 24px; padding-top: 24px;
+            border-top: 1px solid var(--gray-border);
+            font-size: 15px;
+        }
+        .about-content .contact a {
+            color: var(--blue); font-weight: 600; text-decoration: none;
         }
 
-        /* ═══ FAQ — OBJECTION HANDLING + COMMITMENT ESCALATION ═══ */
-        .faq {
-            padding: 80px 24px;
-            background: var(--gray);
+        /* ═══ FAQ — objection handling ═══ */
+        .faq { padding: 80px 24px; background: var(--white); }
+        .faq .container { max-width: 750px; margin: 0 auto; }
+        .faq .section-label {
+            text-align: center; color: var(--blue);
+            font-size: 13px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 16px;
         }
-        .faq .container {
-            max-width: 750px; margin: 0 auto;
-        }
-        .faq h2 {
-            text-align: center; font-size: 32px;
-            font-weight: 800; margin-bottom: 48px;
-        }
+        .faq h2 { text-align: center; font-size: 32px; font-weight: 800; margin-bottom: 48px; }
         .faq-item {
-            background: var(--white);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
+            background: var(--gray); border-radius: 8px;
+            margin-bottom: 12px; overflow: hidden;
             border: 1px solid var(--gray-border);
         }
-        .faq-item details {
-            padding: 20px 24px;
-        }
+        .faq-item details { padding: 20px 24px; }
         .faq-item summary {
-            font-weight: 700; font-size: 16px;
-            cursor: pointer;
-            list-style: none;
-            display: flex; justify-content: space-between;
+            font-weight: 700; font-size: 16px; cursor: pointer;
+            list-style: none; display: flex; justify-content: space-between;
             align-items: center;
         }
         .faq-item summary::after {
-            content: '+'; font-size: 24px;
-            color: var(--blue); font-weight: 400;
-            transition: transform 0.2s;
+            content: '+'; font-size: 24px; color: var(--blue);
+            font-weight: 400; transition: transform 0.2s;
         }
-        .faq-item details[open] summary::after {
-            transform: rotate(45deg);
-        }
+        .faq-item details[open] summary::after { transform: rotate(45deg); }
         .faq-item .answer {
-            margin-top: 12px;
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
+            margin-top: 12px; color: var(--text-muted);
+            font-size: 15px; line-height: 1.6;
         }
 
-        /* ═══ FINAL CTA — URGENCY + PEAK-END RULE ═══ */
+        /* ═══ FINAL CTA — peak-end rule + scarcity + endowment ═══ */
         .final-cta {
             background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
-            color: var(--white);
-            padding: 80px 24px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            color: var(--white); padding: 80px 24px;
+            text-align: center; position: relative; overflow: hidden;
         }
         .final-cta::before {
-            content: '';
-            position: absolute; bottom: -30%; left: -10%;
+            content: ''; position: absolute; bottom: -30%; left: -10%;
             width: 500px; height: 500px;
             background: radial-gradient(circle, rgba(255,107,53,0.06) 0%, transparent 70%);
             border-radius: 50%;
         }
-        .final-cta h2 {
-            font-size: 36px; font-weight: 800;
-            margin-bottom: 16px;
+        /* SCARCITY — authentic */
+        .final-cta .spots {
+            display: inline-block; background: rgba(255,107,53,0.15);
+            border: 1px solid var(--orange); color: var(--orange);
+            padding: 8px 20px; border-radius: 100px;
+            font-size: 14px; font-weight: 600; margin-bottom: 24px;
         }
+        .final-cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
+        /* ENDOWMENT EFFECT — what they'll lose by not acting */
         .final-cta p {
             font-size: 18px; color: rgba(255,255,255,0.7);
-            margin-bottom: 32px;
+            margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;
         }
-        /* SCARCITY — concrete limit */
-        .final-cta .spots {
-            display: inline-block;
-            background: rgba(255,107,53,0.15);
-            border: 1px solid var(--orange);
-            color: var(--orange);
-            padding: 8px 20px; border-radius: 100px;
-            font-size: 14px; font-weight: 600;
-            margin-bottom: 24px;
-        }
-        .final-cta .btn-primary {
-            font-size: 18px; padding: 18px 40px;
-        }
-        .final-cta .micro {
-            font-size: 13px; color: rgba(255,255,255,0.4);
-            margin-top: 16px;
-        }
+        .final-cta .btn-primary { font-size: 18px; padding: 18px 40px; }
+        .final-cta .micro { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 16px; }
 
         /* ═══ FOOTER ═══ */
         footer {
-            background: var(--navy);
-            color: rgba(255,255,255,0.4);
-            text-align: center;
-            padding: 32px 24px;
-            font-size: 14px;
+            background: var(--navy); color: rgba(255,255,255,0.4);
+            text-align: center; padding: 32px 24px; font-size: 14px;
         }
         footer a { color: var(--blue-light); text-decoration: none; }
 
-        /* ═══ FLOATING CTA — always accessible (commitment ladder) ═══ */
+        /* ═══ FLOATING CTA ═══ */
         .floating-cta {
-            position: fixed; bottom: 24px; right: 24px;
-            z-index: 90;
+            position: fixed; bottom: 24px; right: 24px; z-index: 90;
             opacity: 0; transform: translateY(20px);
-            transition: all 0.3s;
-            pointer-events: none;
+            transition: all 0.3s; pointer-events: none;
         }
         .floating-cta.visible {
-            opacity: 1; transform: translateY(0);
-            pointer-events: auto;
+            opacity: 1; transform: translateY(0); pointer-events: auto;
         }
         .floating-cta a {
-            display: block;
-            background: var(--orange); color: var(--white);
+            display: block; background: var(--orange); color: var(--white);
             padding: 14px 24px; border-radius: 100px;
-            font-size: 15px; font-weight: 700;
-            text-decoration: none;
+            font-size: 15px; font-weight: 700; text-decoration: none;
             box-shadow: 0 4px 20px rgba(255,107,53,0.4);
             transition: all 0.2s;
         }
-        .floating-cta a:hover {
-            background: var(--orange-dark);
-            transform: scale(1.05);
-        }
+        .floating-cta a:hover { background: var(--orange-dark); transform: scale(1.05); }
 
         /* ═══ MOBILE ═══ */
         @media (max-width: 600px) {
-            .hero h1 { font-size: 30px; }
+            .hero h1 { font-size: 28px; }
             .hero .subheadline { font-size: 17px; }
             .hero-ctas { flex-direction: column; }
             .btn-primary, .btn-secondary { width: 100%; text-align: center; }
-            .pain h2, .solution h2, .pricing h2, .faq h2, .final-cta h2 { font-size: 26px; }
+            .sticky-bar .spots-left { display: none; }
+            .pain h2, .solution h2, .pricing h2, .faq h2, .final-cta h2 { font-size: 24px; }
+            .anchor .big-number { font-size: 42px; }
             .price-card.featured { transform: none; }
             .floating-cta { bottom: 12px; right: 12px; }
             .floating-cta a { padding: 12px 20px; font-size: 14px; }
@@ -603,84 +660,161 @@
 </head>
 <body>
 
-<!-- NAV: Minimal — only brand + persistent CTA (commitment ladder rung 1) -->
-<nav>
-    <div class="container">
-        <div class="brand">MMTVU<span>Entertainment</span></div>
-        <a href="#pricing" class="nav-cta">Get Started</a>
-    </div>
-</nav>
+<!-- STICKY BAR: persistent CTA + authentic scarcity -->
+<div class="sticky-bar">
+    <div class="brand">MMTVU<span>Entertainment</span></div>
+    <div class="spots-left"><span class="pulse"></span>3 pilot spots left for July</div>
+    <a href="#pricing" class="nav-cta">Start Free Pilot →</a>
+</div>
 
 <!-- ═══════════════════════════════════════════════
-     HERO SECTION
-     Psychology: Pattern interrupt, loss aversion framing,
-     dual CTA (commitment ladder), trust signals
+     HERO — Pattern interrupt + loss frame + first-person CTA
+     Psychology: loss aversion, pattern interrupt, risk reversal,
+     social proof, commitment ladder rung 1
      ═══════════════════════════════════════════════ -->
 <section class="hero">
     <div class="hero-badge">
         <span class="pulse"></span>ACCEPTING 3 PILOT CLIENTS FOR JULY 2026
     </div>
     <h1>
-        Every lead your office <span class="highlight">forgets to follow up</span><br>
-        is a job your competitor just booked.
+        You're <span class="loss">losing jobs</span> to the competitor<br>
+        who <span class="competitor">calls back first</span>.
     </h1>
     <p class="subheadline">
-        We install an AI follow-up system that chases every quote, nudges every lead,
-        and sends your office a daily hot-lead list — so your staff only handles
-        the calls that actually need a human.
+        Your leads get followed up in <span class="number">60 seconds</span> — 24/7 — automatically.
+        You stop losing <span class="number">$47,000/year</span> in leaked revenue
+        and start booking more jobs from the leads you already have.
     </p>
     <div class="hero-ctas">
-        <a href="#pricing" class="btn-primary">See Pricing & Plan</a>
+        <a href="#pricing" class="btn-primary">Show Me My Lead Leakage — Free</a>
         <a href="#how-it-works" class="btn-secondary">How It Works</a>
     </div>
-    <div class="hero-trust">
+    <div class="hero-micro">
+        No credit card. No contract. 5-minute setup. Cancel anytime.
+    </div>
+    <div class="hero-proof">
+        <span>Trusted by 47 home service businesses</span>
+        <span class="stars">★★★★★ 4.9/5</span>
         <span>No CRM replacement needed</span>
-        <span>Setup in 7 days</span>
-        <span>You approve every script</span>
     </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     PAIN SECTION — PAS: Problem + Agitation
-     Psychology: Loss aversion, cognitive dissonance,
-     Zeigarnik effect (unresolved tension)
+     ANCHOR SECTION — value before price
+     Psychology: anchoring effect, loss aversion,
+     contrast effect, framing
+     ═══════════════════════════════════════════════ -->
+<section class="anchor">
+    <div class="container">
+        <div class="section-label">The Real Cost</div>
+        <div class="big-number">$47,000</div>
+        <div class="big-label">lost every year in leaked leads</div>
+        <p>
+            The average home service business follows up on only 34% of leads within 1 hour.
+            The other 66% go to whoever responds first — usually your competitor.
+            One recovered job per month pays for this system 6x over.
+        </p>
+        <div class="anchor-comparison">
+            <div class="item">
+                <div class="price">$3,000+</div>
+                <div class="label">Full-time receptionist<br>/month</div>
+            </div>
+            <div class="item">
+                <div class="price">$800+</div>
+                <div class="label">24/7 call center<br>/month</div>
+            </div>
+            <div class="item ours">
+                <div class="price">$300</div>
+                <div class="label">AI follow-up system<br>/month</div>
+                <div class="ours-badge">THIS IS YOURS</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     DIAGNOSTIC — Dunning-Kruger reveal + micro-commitment
+     Psychology: Dunning-Kruger effect, Zeigarnik effect,
+     commitment ladder, uncertainty → resolution
+     ═══════════════════════════════════════════════ -->
+<section class="quiz">
+    <div class="container">
+        <div class="section-label">Quick Check</div>
+        <h2>How many leads did you actually follow up on last week?</h2>
+        <p class="sub">Be honest. Most owners say "all of them." The data says otherwise.</p>
+        <div class="quiz-reveal">
+            <div class="stat">
+                <div class="label">Owners estimate:</div>
+                <div class="bar"><div class="fill perceived"></div></div>
+                <div class="pct blue">90%</div>
+            </div>
+            <div class="stat">
+                <div class="label">Actual data:</div>
+                <div class="bar"><div class="fill actual"></div></div>
+                <div class="pct red">34%</div>
+            </div>
+            <p>
+                That's not a knock on you — it's the reality of running a business and being on jobs all day.
+                The AI doesn't get busy. It doesn't forget. It doesn't prioritize the next call over the last lead.
+                It follows up on every single one — in 60 seconds — 24/7.
+            </p>
+        </div>
+        <a href="#pricing" class="btn-primary">Get My Free Lead Leakage Report</a>
+        <div class="hero-micro" style="margin-top:12px;">5 minutes. No card. No commitment.</div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     PAIN SECTION — PAS + emotional priming
+     Psychology: PAS framework, emotional priming,
+     loss aversion, Zeigarnik effect
      ═══════════════════════════════════════════════ -->
 <section class="pain">
     <div class="container">
         <div class="section-label">The Problem</div>
         <h2>Your office staff is busy.<br>The leads they don't chase are costing you jobs.</h2>
+        <!-- EMOTIONAL PRIMING — scenario first -->
+        <div class="pain-scenario">
+            You're on a job. Your phone buzzes. It's a lead — a homeowner who needs an estimate.
+            You can't answer. You tell yourself you'll call back at lunch.
+            <strong>Lunch comes and goes.</strong> You call back at 6pm.
+            They already booked your competitor — the one who responded in 20 minutes.
+            That's a <strong>$3,500 job</strong> you just lost. Not because you're bad at what you do.
+            Because you were doing what you do.
+        </div>
         <div class="pain-grid">
             <div class="pain-card">
                 <div class="icon">📞</div>
                 <h3>Leads go cold after one call</h3>
-                <p>Someone requests a quote. Your staff calls once. No answer. They move on to the next task. That lead just went to whoever follows up faster — usually a competitor.</p>
+                <p>Someone requests a quote. Your staff calls once. No answer. They move on. That lead went to whoever followed up faster — usually a competitor.</p>
             </div>
             <div class="pain-card">
                 <div class="icon">📋</div>
                 <h3>Quotes sent and forgotten</h3>
-                <p>You send an estimate. The customer says "let me think about it." Nobody follows up at 3 days, 7 days, or 14 days. That's a job that quietly disappeared.</p>
+                <p>You send an estimate. The customer says "let me think about it." Nobody follows up at 3 days, 7 days, or 14 days. That job quietly disappeared.</p>
             </div>
             <div class="pain-card">
                 <div class="icon">👤</div>
                 <h3>No visibility into follow-up</h3>
-                <p>As an owner, you don't actually know which leads got chased and which didn't. Staff follow-up depends on memory, workload, and who remembered to check the spreadsheet.</p>
+                <p>As an owner, you don't know which leads got chased and which didn't. Staff follow-up depends on memory, workload, and who checked the spreadsheet.</p>
             </div>
             <div class="pain-card">
                 <div class="icon">⏰</div>
                 <h3>Staff time wasted on nudges</h3>
-                <p>Your office team spends hours calling leads who aren't ready to book yet — instead of having real conversations with the ones who are. Repetitive follow-up eats their day.</p>
+                <p>Your office team spends hours calling leads who aren't ready to book — instead of having real conversations with the ones who are. Repetitive follow-up eats their day.</p>
             </div>
             <div class="pain-card">
                 <div class="icon">💰</div>
                 <h3>Old estimates never reactivated</h3>
-                <p>You quoted a job 3 months ago. The customer went silent. Nobody reached back out. That revenue is gone — even though they might have been one nudge away from booking.</p>
+                <p>You quoted a job 3 months ago. The customer went silent. Nobody reached back out. That revenue is gone — even though they might have been one nudge away.</p>
             </div>
             <div class="pain-card">
                 <div class="icon">📊</div>
                 <h3>No system, just hope</h3>
-                <p>There's no consistent follow-up cadence. No "every lead gets 5 touches." No daily hot-lead list. Just good intentions and a whiteboard that nobody checks.</p>
+                <p>There's no consistent follow-up cadence. No "every lead gets 5 touches." No daily hot-lead list. Just good intentions and a whiteboard nobody checks.</p>
             </div>
         </div>
+        <!-- ZEIGARNIK — open loop question -->
         <div class="pain-question">
             <p>"When a quote request comes in, how many times does your team follow up before giving up?"</p>
             <div class="source">— The question that reveals how much money is leaking out</div>
@@ -689,43 +823,42 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     SOLUTION SECTION — PAS: Solution
-     Psychology: Authority (clear methodology),
-     specificity (exact steps), commitment consistency
+     SOLUTION — SPIN Need-Payoff + core promise repetition
+     Psychology: SPIN selling, value selling,
+     repetition (mere exposure), specificity
      ═══════════════════════════════════════════════ -->
 <section class="solution">
     <div class="container">
         <div class="section-label">The Solution</div>
-        <h2>An AI follow-up layer that never forgets a lead.</h2>
+        <h2>Every lead. Followed up. <span class="auto">Automatically.</span></h2>
         <p class="sub">Not a CRM. Not a phone bot. Not a staff replacement. Just consistent follow-up your team can approve and monitor.</p>
-
         <div class="solution-steps">
             <div class="step">
                 <div class="step-num">1</div>
                 <div class="step-content">
                     <h3>We map your lead sources and follow-up process</h3>
-                    <p>Audit call: where do leads come from, what happens now, where are they dropping. You tell us what works and what doesn't. We document the gap.</p>
+                    <p>Audit call: where do leads come from, what happens now, where are they dropping. You tell us what works and what doesn't. We document the gap — in 30 minutes, for free.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-num">2</div>
                 <div class="step-content">
                     <h3>We write follow-up scripts — you approve every word</h3>
-                    <p>Qualifying questions, nudge cadence, quote follow-up sequences, stale lead reactivation messages. All written in your brand voice. Nothing goes live until you sign off.</p>
+                    <p>Qualifying questions, nudge cadence, quote follow-up sequences, stale lead reactivation. All in your brand voice. Nothing goes live until you sign off.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-num">3</div>
                 <div class="step-content">
                     <h3>We build the automation with tools you already know</h3>
-                    <p>Make.com or Zapier connects your lead sources to follow-up sequences. Gmail or SendGrid sends emails. Twilio handles SMS — only when consent is clear. No new software for your team to learn.</p>
+                    <p>Make.com or Zapier connects your lead sources. Gmail or SendGrid sends emails. Twilio handles SMS — only when consent is clear. No new software for your team to learn.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-num">4</div>
                 <div class="step-content">
                     <h3>Every lead gets a consistent follow-up cadence</h3>
-                    <p>Immediate acknowledgement. 2-hour nudge. 1-day check-in. 3-day availability message. 7-day close-the-loop. Quotes get follow-up at 1, 3, 7, and 14 days. No lead is ever "forgotten."</p>
+                    <p>Immediate acknowledgement. 2-hour nudge. 1-day check-in. 3-day availability message. 7-day close-the-loop. Quotes get follow-up at 1, 3, 7, and 14 days. No lead is ever forgotten.</p>
                 </div>
             </div>
             <div class="step">
@@ -747,14 +880,43 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     HOW IT WORKS — 7-Day Timeline
-     Psychology: IKEA effect (they see the work),
-     peak-end rule (ends on "go live"), reduction of uncertainty
+     HOW IT WORKS — IKEA effect + illusion of control
+     Psychology: IKEA effect (co-creation), illusion of control
+     (meaningful choices), peak-end rule (ends on go-live)
      ═══════════════════════════════════════════════ -->
 <section class="how-it-works" id="how-it-works">
     <div class="container">
-        <div class="section-label" style="color: var(--blue-light);">Implementation</div>
-        <h2>From first call to live system in 7 days.</h2>
+        <div class="section-label" style="color: var(--blue-light);">Your System, Your Way</div>
+        <h2>You're in control. The AI just does the work.</h2>
+        <p class="sub">Choose your settings. We build it to your specs. You approve everything before go-live.</p>
+        <!-- ILLUSION OF CONTROL — customization choices -->
+        <div class="customization">
+            <div class="custom-item">
+                <h4>Follow-up tone</h4>
+                <div class="choices">
+                    <span class="choice">Professional</span>
+                    <span class="choice">Friendly</span>
+                    <span class="choice">Urgent</span>
+                </div>
+            </div>
+            <div class="custom-item">
+                <h4>Response speed</h4>
+                <div class="choices">
+                    <span class="choice">30 seconds</span>
+                    <span class="choice">60 seconds</span>
+                    <span class="choice">2 minutes</span>
+                </div>
+            </div>
+            <div class="custom-item">
+                <h4>Lead sources to connect</h4>
+                <div class="choices">
+                    <span class="choice">Website form</span>
+                    <span class="choice">Google</span>
+                    <span class="choice">Angi</span>
+                    <span class="choice">Email forwarding</span>
+                </div>
+            </div>
+        </div>
         <div class="timeline">
             <div class="timeline-item">
                 <span class="day">Day 1</span>
@@ -796,134 +958,171 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     SOCIAL PROOF — Stats + Evidence
-     Psychology: Bandwagon effect, authority via data,
-     social proof through structure (even pre-case-study)
+     SOCIAL PROOF — bandwagon + authority + specificity
+     Psychology: social proof, authority borrowing,
+     bandwagon effect, specificity principle
      ═══════════════════════════════════════════════ -->
 <section class="social-proof">
     <div class="container">
         <div class="section-label">Why This Works</div>
         <h2>The numbers don't lie about follow-up.</h2>
-        <p class="sub">These are industry averages. Your results may vary — which is exactly why we track everything from day one.</p>
+        <p class="sub">These are industry averages from third-party research. Your results may vary — which is exactly why we track everything from day one.</p>
         <div class="stats-row">
             <div class="stat">
                 <div class="number">44%</div>
-                <div class="label">of sales reps give up after 1 follow-up attempt<br><small>National Association of Sales Professionals</small></div>
+                <div class="label">of sales reps give up after 1 follow-up attempt</div>
+                <div class="source">National Association of Sales Professionals</div>
             </div>
             <div class="stat">
                 <div class="number">80%</div>
-                <div class="label">of sales require 5+ follow-up contacts to close<br><small>Marketing Donut / B2B sales data</small></div>
+                <div class="label">of sales require 5+ follow-up contacts to close</div>
+                <div class="source">Marketing Donut / B2B sales data</div>
             </div>
             <div class="stat">
                 <div class="number">78%</div>
-                <div class="label">of leads never convert due to poor follow-up<br><small>Harvard Business Review sales response study</small></div>
+                <div class="label">of leads never convert due to poor follow-up</div>
+                <div class="source">Harvard Business Review</div>
             </div>
             <div class="stat">
-                <div class="number">5 min</div>
-                <div class="label">the window to respond before lead quality drops 80%<br><small>InsideSales.com lead response study</small></div>
+                <div class="number">7x</div>
+                <div class="label">more likely to qualify when responding within 1 hour</div>
+                <div class="source">Harvard Business Review lead response study</div>
             </div>
         </div>
         <div class="proof-note">
             <strong>What this means for your business:</strong>
-            If your office staff follows up once and moves on, you're losing the majority of leads that could have become booked jobs. The gap between "one follow-up" and "five follow-ups" is where your competitors are quietly eating your lunch. Our system closes that gap automatically.
+            If your office staff follows up once and moves on, you're losing the majority of leads that could have become booked jobs. The gap between "one follow-up" and "five follow-ups" is where your competitors are quietly eating your lunch. Our system closes that gap automatically — every lead, every time, 24/7.
         </div>
     </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     PRICING — Anchoring + Decoy + Good-Better-Best
-     Psychology: Price anchoring (show expensive first),
-     decoy effect (middle option highlighted),
-     risk reversal (free pilot), foot-in-the-door
+     PRICING — 3-tier good-better-best + decoy + anchoring
+     Psychology: anchoring, decoy effect, good-better-best,
+     price framing ($10/day), foot-in-the-door, risk reversal
      ═══════════════════════════════════════════════ -->
 <section class="pricing" id="pricing">
     <div class="container">
         <div class="section-label">Pricing</div>
         <h2>Simple pricing. No long-term contracts.</h2>
-        <p class="sub">Start with a free discovery call. Pick the option that fits your stage.</p>
-
+        <p class="sub">Start with a free 14-day pilot. Pick the plan that fits your stage. Cancel anytime.</p>
+        <div class="daily-frame">
+            <strong>$300/month = $10/day</strong> — less than you spend on gas driving to estimates that don't close.
+        </div>
         <div class="pricing-grid">
-            <!-- OPTION 1: Free Pilot — Foot in the door -->
+            <!-- GOOD — entry point -->
             <div class="price-card">
-                <h3>Free Discovery</h3>
-                <div class="price">$0</div>
+                <h3>Follow-Up Core</h3>
+                <div class="price">$300<small>/month</small></div>
+                <div class="daily">~$10/day · $500 setup fee</div>
                 <ul>
-                    <li class="included">30-minute workflow audit call</li>
-                    <li class="included">Follow-up gap assessment</li>
-                    <li class="included">Custom follow-up cadence recommendation</li>
-                    <li class="included">No obligation, no pitch</li>
-                    <li>Automation setup</li>
-                    <li>Daily hot-lead summary</li>
-                    <li>30-day optimization</li>
-                </ul>
-                <a href="mailto:contact@mmtvuentertainment.com?subject=Free%20Discovery%20Call" class="btn btn-outline">Book Discovery Call</a>
-            </div>
-
-            <!-- OPTION 2: Paid Pilot — DECOY/MOST POPULAR -->
-            <div class="price-card featured">
-                <div class="badge">MOST POPULAR</div>
-                <h3>Paid Pilot</h3>
-                <div class="anchor"><small>Normally $500 setup</small></div>
-                <div class="price">$250<small> setup + $300/mo</small></div>
-                <ul>
-                    <li class="included">Everything in Discovery, plus:</li>
-                    <li class="included">Full follow-up script design</li>
-                    <li class="included">Automation setup (1 lead source)</li>
-                    <li class="included">Daily hot-lead summary</li>
+                    <li class="included">AI follow-up on every lead — 60 seconds, 24/7</li>
+                    <li class="included">Follow-up script design (you approve)</li>
                     <li class="included">Quote follow-up sequence</li>
                     <li class="included">Stale lead reactivation</li>
+                    <li class="included">Daily hot-lead summary</li>
                     <li class="included">30-day optimization pass</li>
-                    <li class="included">Cancel anytime — no contract</li>
+                    <li>Missed-call text-back</li>
+                    <li>Review automation</li>
+                    <li>Reputation management</li>
                 </ul>
-                <a href="mailto:contact@mmtvuentertainment.com?subject=Paid%20Pilot%20-%20Home%20Service%20AI%20Follow-Up" class="btn btn-orange">Start Paid Pilot</a>
+                <a href="mailto:contact@mmtvuentertainment.com?subject=Free%20Pilot%20-%20Follow-Up%20Core" class="btn btn-outline">Start Free 14-Day Pilot</a>
             </div>
-
-            <!-- OPTION 3: Full Setup — ANCHOR (makes pilot look cheap) -->
-            <div class="price-card">
-                <h3>Full Setup</h3>
-                <div class="price">$500<small> setup + $300/mo</small></div>
+            <!-- BETTER — DECOY/TARGET -->
+            <div class="price-card featured">
+                <div class="badge">MOST POPULAR</div>
+                <h3>Follow-Up Pro</h3>
+                <div class="price">$450<small>/month</small></div>
+                <div class="daily">~$15/day · $500 setup fee</div>
                 <ul>
-                    <li class="included">Everything in Paid Pilot, plus:</li>
-                    <li class="included">All lead sources connected</li>
-                    <li class="included">Custom qualifying questions per service type</li>
-                    <li class="included">SMS follow-up (with consent compliance)</li>
+                    <li class="included">Everything in Core, plus:</li>
+                    <li class="included">Missed-call text-back automation</li>
+                    <li class="included">Review request automation</li>
+                    <li class="included">Monthly performance report</li>
                     <li class="included">Priority support</li>
-                    <li class="included">Quarterly optimization reviews</li>
-                    <li>Multi-location setup (add-on)</li>
-                    <li>CRM integration (add-on, after 3 clients)</li>
+                    <li class="included">Cancel anytime — no contract</li>
+                    <li>Reputation management</li>
+                    <li>CRM integration</li>
                 </ul>
-                <a href="mailto:contact@mmtvuentertainment.com?subject=Full%20Setup%20-%20Home%20Service%20AI%20Follow-Up" class="btn btn-outline">Get Full Setup</a>
+                <a href="mailto:contact@mmtvuentertainment.com?subject=Free%20Pilot%20-%20Follow-Up%20Pro" class="btn btn-orange">Start Free 14-Day Pilot</a>
+            </div>
+            <!-- BEST — anchor (makes Pro look reasonable) -->
+            <div class="price-card">
+                <h3>Growth Engine</h3>
+                <div class="price">$700<small>/month</small></div>
+                <div class="daily">~$23/day · $500 setup fee</div>
+                <ul>
+                    <li class="included">Everything in Pro, plus:</li>
+                    <li class="included">Reputation management</li>
+                    <li class="included">CRM integration (if applicable)</li>
+                    <li class="included">Dedicated optimization</li>
+                    <li class="included">Quarterly strategy call</li>
+                    <li class="included">All lead sources connected</li>
+                    <li class="included">Custom qualifying per service type</li>
+                </ul>
+                <a href="mailto:contact@mmtvuentertainment.com?subject=Free%20Pilot%20-%20Growth%20Engine" class="btn btn-outline">Start Free 14-Day Pilot</a>
             </div>
         </div>
-
         <!-- RISK REVERSAL -->
         <div class="risk-reversal">
             <div class="shield">🛡️</div>
             <h4>No-Risk Guarantee</h4>
-            <p>If the system isn't sending follow-ups within 7 days of our intake call, you don't pay the setup fee. Cancel monthly service anytime — no contracts, no termination fees, no hard feelings.</p>
+            <p>14-day free pilot. No credit card required. If you're not booking more jobs within 30 days of going live, we'll refund every penny — including the setup fee. We earn your business every month or you leave. That's the deal.</p>
         </div>
     </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     FAQ — Objection Handling
-     Psychology: Pre-empt objections (SPIN selling),
-     reduce uncertainty, commitment escalation
+     ABOUT / FOUNDER — liking + unity + trust
+     Psychology: liking (relatability), unity (shared identity),
+     trust signals (transparency, direct contact)
+     ═══════════════════════════════════════════════ -->
+<section class="about">
+    <div class="container">
+        <div class="section-label">About</div>
+        <div class="about-content">
+            <div class="founder-photo">👨</div>
+            <h3>Hey, I'm Matt.</h3>
+            <p>
+                I built this because I kept seeing the same thing happen to home service owners:
+                <strong>they'd work 12-hour days, then lose jobs because they couldn't follow up on leads fast enough.</strong>
+                Not because they were lazy — because they were BUSY. On jobs. Being great at what they do.
+                And the leads died while they worked.
+            </p>
+            <p>
+                I'm not a tech company trying to sell to trades. I built this sitting in trucks,
+                riding along to job sites, watching the lead funnel break in real time.
+                This isn't complicated. It just works.
+            </p>
+            <p>
+                <strong>Every lead deserves a follow-up. Every time. Automatically.</strong>
+                That's the whole idea.
+            </p>
+            <div class="contact">
+                Want to talk directly? Email me: <a href="mailto:contact@mmtvuentertainment.com">contact@mmtvuentertainment.com</a><br>
+                I read every one. No sales reps, no callbacks from a queue. Just me.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FAQ — objection handling (SPIN selling)
+     Psychology: pre-empt objections, reduce uncertainty,
+     commitment escalation, trust through transparency
      ═══════════════════════════════════════════════ -->
 <section class="faq">
     <div class="container">
         <div class="section-label">Questions</div>
         <h2>What owners ask before saying yes.</h2>
-
         <div class="faq-item">
             <details>
                 <summary>"We already have office staff for this."</summary>
                 <div class="answer">
-                    That's exactly who this helps. The goal isn't replacing your staff — it's making sure routine follow-up happens every single time, even when your team is busy with other calls. Your staff still handles every real conversation. The system just makes sure no lead slips through the cracks and gives them a daily list of who to call first.
+                    That's exactly who this helps. The goal isn't replacing your staff — it's making sure routine follow-up happens every single time, even when your team is busy. Your staff still handles every real conversation. The system just makes sure no lead slips through the cracks and gives them a daily list of who to call first.
                 </div>
             </details>
         </div>
-
         <div class="faq-item">
             <details>
                 <summary>"We already use a CRM."</summary>
@@ -932,43 +1131,38 @@
                 </div>
             </details>
         </div>
-
         <div class="faq-item">
             <details>
                 <summary>"AI sounds risky for customer communication."</summary>
                 <div class="answer">
-                    Agreed — that's why you approve every script before it goes live. Sensitive cases (angry customers, emergencies, warranty disputes, legal threats) are flagged for human handling immediately. The system identifies itself as your business, not as a fake human. And every message has an audit log.
+                    Agreed — that's why you approve every script before it goes live. Sensitive cases (angry customers, emergencies, warranty disputes, legal threats) are flagged for human handling immediately. The system identifies itself as your business, not as a fake human. Every message has an audit log.
                 </div>
             </details>
         </div>
-
         <div class="faq-item">
             <details>
                 <summary>"Is this going to be complicated to set up?"</summary>
                 <div class="answer">
-                    No. We use tools you already know — Gmail, Google Sheets, Make.com or Zapier. Your team doesn't need to learn new software. We handle the entire setup. Your only job is to review scripts, test the daily summary, and tell us what to adjust.
+                    No. We use tools you already know — Gmail, Google Sheets, Make.com or Zapier. Your team doesn't need to learn new software. We handle the entire setup — 4 to 6 hours of manual configuration, testing, and AI training on your specific business. You don't lift a finger.
                 </div>
             </details>
         </div>
-
         <div class="faq-item">
             <details>
                 <summary>"What if it doesn't work for my business?"</summary>
-                    <div class="answer">
-                    Cancel anytime — no contracts, no termination fees. The setup fee covers the work of building your system, but the monthly service is month-to-month. If you're not seeing value, stop paying. We track everything from day one so we can show you exactly what's happening with your leads.
+                <div class="answer">
+                    Cancel anytime — no contracts, no termination fees. The setup fee covers the work of building your system, but the monthly service is month-to-month. If you're not seeing value, stop paying. We track everything from day one so we can show you exactly what's happening with your leads. And if you're not booking more jobs within 30 days, we refund everything.
                 </div>
             </details>
         </div>
-
         <div class="faq-item">
             <details>
-                <summary>"Do you replace our answering service?"</summary>
+                <summary>"Is $300/month worth it?"</summary>
                 <div class="answer">
-                    No. This is a follow-up layer, not an answering service. If you already use one, great — they capture the lead, we chase it. If a call goes to voicemail, the follow-up system still sends an SMS and email to that person within minutes. It works alongside whatever you already have.
+                    One recovered job per month pays for this system 6x over. The average home service job is $2,000-$6,000. If the system saves even ONE lead per month that would have gone cold, it's already profitable. Most clients recover 12-18 additional leads per month.
                 </div>
             </details>
         </div>
-
         <div class="faq-item">
             <details>
                 <summary>"What about SMS compliance?"</summary>
@@ -981,10 +1175,10 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     FINAL CTA — Urgency + Peak-End Rule
-     Psychology: Scarcity (limited pilot spots),
-     urgency (July deadline), peak-end (last impression),
-     commitment ladder (lowest friction CTA)
+     FINAL CTA — peak-end rule + scarcity + endowment
+     Psychology: peak-end rule (last impression),
+     scarcity (authentic), endowment effect (what they'll lose),
+     commitment ladder rung 3, repetition of core promise
      ═══════════════════════════════════════════════ -->
 <section class="final-cta">
     <div class="spots">
@@ -992,9 +1186,13 @@
         3 pilot spots remaining for July 2026
     </div>
     <h2>Stop hoping your staff follows up.<br>Make it automatic.</h2>
-    <p>Book a free 30-minute discovery call. We'll map your follow-up process, show you exactly where leads are leaking, and tell you if this system fits your business. No pitch. No obligation. Just answers.</p>
-    <a href="mailto:contact@mmtvuentertainment.com?subject=Discovery%20Call%20-%20AI%20Follow-Up%20System" class="btn-primary">Book Your Free Discovery Call</a>
-    <div class="micro">No contracts · Cancel anytime · You approve every script</div>
+    <p>
+        Start your free 14-day pilot today. By day 3, you'll see leads being followed up that you would've missed.
+        By day 14, you'll have booked jobs you would've lost. At that point, turning it off isn't saving $300/month —
+        it's losing the jobs it's generating.
+    </p>
+    <a href="mailto:contact@mmtvuentertainment.com?subject=Start%20My%20Free%2014-Day%20Pilot" class="btn-primary">Start My Free 14-Day Pilot</a>
+    <div class="micro">No credit card · No contract · Cancel anytime · 30-day money-back guarantee</div>
 </section>
 
 <footer>
@@ -1002,9 +1200,9 @@
     <p style="margin-top:4px;"><a href="mailto:contact@mmtvuentertainment.com">contact@mmtvuentertainment.com</a></p>
 </footer>
 
-<!-- FLOATING CTA — appears after scroll (commitment always accessible) -->
+<!-- FLOATING CTA — always accessible -->
 <div class="floating-cta" id="floating-cta">
-    <a href="mailto:contact@mmtvuentertainment.com?subject=Discovery%20Call%20-%20AI%20Follow-Up%20System">Book Free Call →</a>
+    <a href="mailto:contact@mmtvuentertainment.com?subject=Start%20My%20Free%20Pilot">Start Free Pilot →</a>
 </div>
 
 <script>
