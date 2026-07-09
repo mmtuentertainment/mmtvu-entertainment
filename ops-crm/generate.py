@@ -57,6 +57,13 @@ def slugify(*parts: str) -> str:
     return raw.strip("-") or "unknown"
 
 
+def anonymize_id(original_id: str, prefix: str) -> str:
+    """Deterministically anonymize an ID to a short hash."""
+    if not original_id:
+        return f"{prefix}-unknown"
+    return f"{prefix}-{hashlib.sha256(original_id.encode('utf-8')).hexdigest()[:12]}"
+
+
 def rel(root: Path, path: Path) -> str:
     return path.relative_to(root).as_posix()
 
@@ -496,11 +503,17 @@ def redact_record(value: Any, *, anonymize_company: bool = False) -> Any:
             if k in SENSITIVE_KEYS:
                 continue
             if k == "company_name" and anonymize_company:
-                city = value.get("city") if isinstance(value, dict) else None
                 out["company_name"] = "Local prospect"
                 continue
+            if k == "website" and anonymize_company:
+                continue
             if k == "source_hashes":
-                out[k] = v
+                # Keep the key for schema compliance but drop private path keys
+                out[k] = {}
+                continue
+            if k == "source_precedence":
+                # Required by prospect schema, but original value can expose private source paths.
+                out[k] = "private-source-redacted"
                 continue
             out[k] = redact_record(v, anonymize_company=anonymize_company)
         return out
@@ -511,7 +524,7 @@ def redact_record(value: Any, *, anonymize_company: bool = False) -> Any:
     return value
 
 
-def anonymize_public_action(action: dict[str, Any], company_names: list[str]) -> dict[str, Any]:
+def anonymize_public_action(action: dict[str, Any], company_names: list[str], prospect_id_map: dict[str, str]) -> dict[str, Any]:
     public_action = redact_record(action)
     replacements = {
         "Retry {company} during business hours": "Retry a local prospect during business hours",
@@ -531,11 +544,11 @@ def anonymize_public_action(action: dict[str, Any], company_names: list[str]) ->
         public_action["action"] = replacements["Prepare direct follow-up angle for {company}"]
     elif "owner-operated business-hours batch" in original_action:
         public_action["action"] = replacements["Call {company} in the owner-operated business-hours batch"]
-    public_action["source_entity_id"] = "redacted-prospect" if action.get("source_entity_type") == "prospect" else public_action.get("source_entity_id")
-    if action.get("source_entity_type") == "prospect":
-        public_action["evidence_link"] = "private-source-redacted"
-        public_action["source_paths"] = ["private-source-redacted"]
-        public_action["source_hashes"] = {}
+    public_action["source_entity_id"] = prospect_id_map.get(action.get("source_entity_id", ""), "redacted-prospect") if action.get("source_entity_type") == "prospect" else public_action.get("source_entity_id")
+    # Always redact source fields for public output regardless of entity type
+    public_action["evidence_link"] = "private-source-redacted"
+    public_action["source_paths"] = ["private-source-redacted"]
+    public_action["source_hashes"] = {}
     return public_action
 
 
@@ -554,22 +567,74 @@ def replace_sensitive_name(value: Any, name: str) -> Any:
 def derive_public(private: dict[str, Any]) -> dict[str, Any]:
     public = deepcopy(private)
     company_names = [p.get("company_name", "") for p in private.get("prospects", [])]
-    public["prospects"] = [redact_record(p, anonymize_company=True) for p in private.get("prospects", [])]
-    public["next_actions"] = [anonymize_public_action(a, company_names) for a in private.get("next_actions", [])]
+
+    # Build deterministic ID mappings for prospects and actions
+    prospect_ids = [p.get("id", "") for p in private.get("prospects", [])]
+    action_ids = [a.get("id", "") for a in private.get("next_actions", [])]
+    prospect_id_map = {pid: anonymize_id(pid, "prospect") for pid in prospect_ids}
+    action_id_map = {aid: anonymize_id(aid, "action") for aid in action_ids}
+
+    # Redact prospects and apply ID mapping
+    public["prospects"] = []
+    for p in private.get("prospects", []):
+        redacted = redact_record(p, anonymize_company=True)
+        old_id = redacted.get("id", "")
+        new_id = prospect_id_map.get(old_id, old_id)
+        redacted["id"] = new_id
+        # Remap next_action_id if present
+        old_next = redacted.get("next_action_id")
+        if old_next:
+            redacted["next_action_id"] = action_id_map.get(old_next, "redacted-action")
+        # Redact source paths and evidence link
+        redacted["source_paths"] = ["private-source-redacted"]
+        redacted["evidence_link"] = "private-source-redacted"
+        public["prospects"].append(redacted)
+
+    # Redact actions and apply ID mapping
+    public["next_actions"] = []
+    for a in private.get("next_actions", []):
+        redacted = anonymize_public_action(a, company_names, prospect_id_map)
+        old_id = redacted.get("id", "")
+        new_id = action_id_map.get(old_id, old_id)
+        redacted["id"] = new_id
+        public["next_actions"].append(redacted)
+
+    # Update summary cross-references
     if isinstance(public.get("summary"), dict):
         if public["next_actions"]:
             public["summary"]["next_best_move"] = public["next_actions"][0].get("action")
-        else:
-            public["summary"]["next_best_move"] = replace_sensitive_name(public["summary"].get("next_best_move", ""), " ".join(company_names))
-    public["assets"] = [redact_record(a) for a in private.get("assets", [])]
-    public["offers"] = [redact_record(o) for o in private.get("offers", [])]
-    public["evidence"] = [redact_record(e) for e in private.get("evidence", [])]
+        old_top = public["summary"].get("top_action_id")
+        if old_top:
+            public["summary"]["top_action_id"] = action_id_map.get(old_top, old_top)
+
+    # Redact assets, offers, evidence (drop source paths for public)
+    public["assets"] = []
+    for a in private.get("assets", []):
+        redacted = redact_record(a)
+        redacted["source_paths"] = ["private-source-redacted"]
+        redacted["evidence_link"] = "private-source-redacted"
+        public["assets"].append(redacted)
+
+    public["offers"] = []
+    for o in private.get("offers", []):
+        redacted = redact_record(o)
+        redacted["source_paths"] = ["private-source-redacted"]
+        redacted["evidence_link"] = "private-source-redacted"
+        public["offers"].append(redacted)
+
+    public["evidence"] = []
+    for e in private.get("evidence", []):
+        redacted = redact_record(e)
+        redacted["source_paths"] = ["private-source-redacted"]
+        redacted["evidence_link"] = "private-source-redacted"
+        public["evidence"].append(redacted)
+
     public["mode"] = "public"
     public["privacy"] = {"status": "public_redacted", "note": "Derived from private data after schema validation; sensitive contact, prospect identity, and call-detail fields are omitted."}
     return public
 
 
-def assert_public_safe(public: dict[str, Any]) -> None:
+def assert_public_safe(public: dict[str, Any], *, private_company_names: list[str] | None = None) -> None:
     text = json.dumps(public, ensure_ascii=False)
     problems = []
     for name, pattern in [("phone", PHONE_RE), ("email", EMAIL_RE), ("credential", CREDENTIAL_RE)]:
@@ -579,6 +644,28 @@ def assert_public_safe(public: dict[str, Any]) -> None:
     for key in forbidden_keys:
         if key in text:
             problems.append(key)
+    # Check for private company names and slug variants
+    if private_company_names:
+        for name in private_company_names:
+            if not name:
+                continue
+            if name.lower() in text.lower():
+                problems.append(f"company-name:{name}")
+            # Check slugified variants
+            slug = slugify(name)
+            if slug and slug in text:
+                problems.append(f"company-slug:{slug}")
+    # Check for internal paths and sqlite references
+    internal_patterns = [
+        (".sqlite", "sqlite-reference"),
+        ("outreach/owner-operated-call-summaries.json", "call-summaries-path"),
+        ("outreach/high-priority-contacts", "high-priority-contacts-path"),
+        ("outreach/outreach-list", "outreach-list-path"),
+        ("ops-crm/data/private", "private-data-path"),
+    ]
+    for pattern, label in internal_patterns:
+        if pattern in text:
+            problems.append(label)
     if problems:
         raise ValueError("public output failed redaction checks: " + ", ".join(sorted(set(problems))))
 
@@ -626,9 +713,10 @@ def generate(root: Path, db_file: Path | None = None) -> tuple[dict[str, Any], d
         private = crm_db.export_dataset(conn, generated_at)
 
     validate_records(root, private)
+    private_company_names = [p.get("company_name", "") for p in private.get("prospects", [])]
     public = derive_public(private)
     validate_records(root, public)
-    assert_public_safe(public)
+    assert_public_safe(public, private_company_names=private_company_names)
     return private, public
 
 
@@ -654,6 +742,7 @@ def main() -> int:
     print(f"Private records: prospects={len(private['prospects'])} assets={len(private['assets'])} actions={len(private['next_actions'])} evidence={len(private['evidence'])}")
     print("Public redaction: PASS")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -17,6 +17,23 @@ from typing import Any, Iterable
 DB_REL_PATH = Path("ops-crm") / "crm.sqlite"
 SCHEMA_VERSION = 1
 
+# P0.7: Table whitelist for safe dynamic SQL in _existing_created_at
+ALLOWED_TABLES = frozenset({
+    "prospects",
+    "actions",
+    "artifacts",
+    "loops",
+    "experiments",
+    "metrics",
+    "interactions",
+    "runs",
+    "notes",
+    "decisions",
+})
+
+# P0.6: Tables that get stale-record archival (is_current/archived_at columns)
+ARCHIVAL_TABLES = frozenset({"prospects", "actions", "artifacts"})
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -55,7 +72,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             owner_operator INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
-            payload_json TEXT NOT NULL
+            payload_json TEXT NOT NULL,
+            is_current INTEGER NOT NULL DEFAULT 1,
+            archived_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS interactions (
@@ -85,7 +104,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             source_entity_id TEXT,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
-            payload_json TEXT NOT NULL
+            payload_json TEXT NOT NULL,
+            is_current INTEGER NOT NULL DEFAULT 1,
+            archived_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS loops (
@@ -120,7 +141,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             status TEXT NOT NULL,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
-            payload_json TEXT NOT NULL
+            payload_json TEXT NOT NULL,
+            is_current INTEGER NOT NULL DEFAULT 1,
+            archived_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS notes (
@@ -163,6 +186,15 @@ def init_db(conn: sqlite3.Connection) -> None:
         );
         """
     )
+
+    # P0.6: Add archival columns to existing tables if missing (migration)
+    for table in ARCHIVAL_TABLES:
+        cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if "is_current" not in cols:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN is_current INTEGER NOT NULL DEFAULT 1")
+        if "archived_at" not in cols:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN archived_at TEXT")
+
     conn.execute(
         "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(?, ?)",
         (SCHEMA_VERSION, utc_now()),
@@ -181,8 +213,17 @@ def _load(value: str | None, default: Any) -> Any:
 
 
 def _existing_created_at(conn: sqlite3.Connection, table: str, record_id: str, fallback: str) -> str:
+    # P0.7: Validate table name against whitelist to prevent SQL injection
+    if table not in ALLOWED_TABLES:
+        raise ValueError(f"unsupported table for created_at lookup: {table}")
     row = conn.execute(f"SELECT created_at FROM {table} WHERE id = ?", (record_id,)).fetchone()
     return row["created_at"] if row else fallback
+
+
+def _existing_prospect_status(conn: sqlite3.Connection, prospect_id: str, fallback: str) -> str:
+    """P0.1: Preserve operator-set prospect status on re-import."""
+    row = conn.execute("SELECT status FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
+    return row["status"] if row and row["status"] else fallback
 
 
 def _existing_action_status(conn: sqlite3.Connection, action_id: str, fallback: str) -> str:
@@ -195,43 +236,61 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
     init_db(conn)
     now = dataset.get("generated_at") or utc_now()
 
+    # P0.1: Preserve prospect status
+    prospect_ids = []
     for p in dataset.get("prospects", []):
+        prospect_ids.append(p["id"])
         created = _existing_created_at(conn, "prospects", p["id"], now)
+        # P0.1: Preserve operator-set prospect status
+        preserved_status = _existing_prospect_status(conn, p["id"], p.get("status", "new"))
+        stored = dict(p)
+        stored["status"] = preserved_status
         conn.execute(
             """
-            INSERT INTO prospects(id, company_name, city, niche, website, priority, status, owner_operator, created_at, updated_at, payload_json)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO prospects(id, company_name, city, niche, website, priority, status, owner_operator, created_at, updated_at, payload_json, is_current, archived_at)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NULL)
             ON CONFLICT(id) DO UPDATE SET
               company_name=excluded.company_name,
               city=excluded.city,
               niche=excluded.niche,
               website=excluded.website,
               priority=excluded.priority,
-              status=excluded.status,
               owner_operator=excluded.owner_operator,
               updated_at=excluded.updated_at,
-              payload_json=excluded.payload_json
+              payload_json=excluded.payload_json,
+              is_current=1,
+              archived_at=NULL
             """,
             (
-                p["id"], p.get("company_name", ""), p.get("city"), p.get("niche"), p.get("website"),
-                p.get("priority", "low"), p.get("status", "new"), 1 if p.get("owner_operator") else 0,
-                created, now, _dump(p),
+                p["id"],
+                p.get("company_name", ""),
+                p.get("city"),
+                p.get("niche"),
+                p.get("website"),
+                p.get("priority", "low"),
+                preserved_status,
+                1 if p.get("owner_operator") else 0,
+                created,
+                now,
+                _dump(stored),
             ),
         )
 
+    # Preserve action status (existing pattern)
+    action_ids = []
     for a in dataset.get("next_actions", []):
+        action_ids.append(a["id"])
         preserved_status = _existing_action_status(conn, a["id"], a.get("status", "open"))
         stored = dict(a)
         stored["status"] = preserved_status
         created = _existing_created_at(conn, "actions", a["id"], now)
         conn.execute(
             """
-            INSERT INTO actions(id, owner, action, status, priority, score, due_at, reason, expected_revenue_path, source_entity_type, source_entity_id, created_at, updated_at, payload_json)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO actions(id, owner, action, status, priority, score, due_at, reason, expected_revenue_path, source_entity_type, source_entity_id, created_at, updated_at, payload_json, is_current, archived_at)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NULL)
             ON CONFLICT(id) DO UPDATE SET
               owner=excluded.owner,
               action=excluded.action,
-              status=actions.status,
               priority=excluded.priority,
               score=excluded.score,
               due_at=excluded.due_at,
@@ -240,22 +299,44 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
               source_entity_type=excluded.source_entity_type,
               source_entity_id=excluded.source_entity_id,
               updated_at=excluded.updated_at,
-              payload_json=excluded.payload_json
+              payload_json=excluded.payload_json,
+              is_current=1,
+              archived_at=NULL
             """,
             (
-                a["id"], a.get("owner", "Hermes"), a.get("action", ""), preserved_status,
-                a.get("priority", "low"), float(a.get("score", 0)), a.get("due_at"), a.get("reason"),
-                a.get("expected_revenue_path"), a.get("source_entity_type"), a.get("source_entity_id"),
-                created, now, _dump(stored),
+                a["id"],
+                a.get("owner", "Hermes"),
+                a.get("action", ""),
+                preserved_status,
+                a.get("priority", "low"),
+                float(a.get("score", 0)),
+                a.get("due_at"),
+                a.get("reason"),
+                a.get("expected_revenue_path"),
+                a.get("source_entity_type"),
+                a.get("source_entity_id"),
+                created,
+                now,
+                _dump(stored),
             ),
         )
 
+    # Artifacts (assets, offers, evidence) - preserve status and archival columns
+    artifact_ids = []
     for asset in dataset.get("assets", []):
+        artifact_ids.append(asset["id"])
         _upsert_artifact(conn, asset, "asset", now)
     for offer in dataset.get("offers", []):
+        artifact_ids.append(offer["id"])
         _upsert_artifact(conn, offer, "offer", now)
     for evidence in dataset.get("evidence", []):
+        artifact_ids.append(evidence["id"])
         _upsert_artifact(conn, evidence, "evidence", now)
+
+    # P0.6: Archive stale records not present in current dataset
+    _archive_missing(conn, "prospects", prospect_ids, now)
+    _archive_missing(conn, "actions", action_ids, now)
+    _archive_missing(conn, "artifacts", artifact_ids, now)
 
     _seed_revenue_os(conn, dataset, now)
     conn.commit()
@@ -265,22 +346,61 @@ def _upsert_artifact(conn: sqlite3.Connection, item: dict[str, Any], typ: str, n
     created = _existing_created_at(conn, "artifacts", item["id"], now)
     conn.execute(
         """
-        INSERT INTO artifacts(id, type, name, path_or_url, status, created_at, updated_at, payload_json)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO artifacts(id, type, name, path_or_url, status, created_at, updated_at, payload_json, is_current, archived_at)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1, NULL)
         ON CONFLICT(id) DO UPDATE SET
           type=excluded.type,
           name=excluded.name,
           path_or_url=excluded.path_or_url,
           status=excluded.status,
           updated_at=excluded.updated_at,
-          payload_json=excluded.payload_json
+          payload_json=excluded.payload_json,
+          is_current=1,
+          archived_at=NULL
         """,
         (
-            item["id"], typ, item.get("name") or item.get("summary") or item["id"],
-            item.get("path_or_url") or item.get("evidence_link"), item.get("status", "active"),
-            created, now, _dump(item),
+            item["id"],
+            typ,
+            item.get("name") or item.get("summary") or item["id"],
+            item.get("path_or_url") or item.get("evidence_link"),
+            item.get("status", "active"),
+            created,
+            now,
+            _dump(item),
         ),
     )
+
+
+def _archive_missing(conn: sqlite3.Connection, table: str, current_ids: Iterable[str], now: str) -> None:
+    """P0.6: Mark records not in current dataset as archived."""
+    if table not in ARCHIVAL_TABLES:
+        raise ValueError(f"unsupported table for archival: {table}")
+
+    ids = [i for i in current_ids if i]
+    if ids:
+        placeholders = ",".join("?" for _ in ids)
+        conn.execute(
+            f"""
+            UPDATE {table}
+            SET is_current = 0,
+                archived_at = COALESCE(archived_at, ?),
+                updated_at = ?
+            WHERE is_current = 1
+              AND id NOT IN ({placeholders})
+            """,
+            (now, now, *ids),
+        )
+    else:
+        conn.execute(
+            f"""
+            UPDATE {table}
+            SET is_current = 0,
+                archived_at = COALESCE(archived_at, ?),
+                updated_at = ?
+            WHERE is_current = 1
+            """,
+            (now, now),
+        )
 
 
 def _seed_revenue_os(conn: sqlite3.Connection, dataset: dict[str, Any], now: str) -> None:
@@ -320,15 +440,23 @@ def _seed_revenue_os(conn: sqlite3.Connection, dataset: dict[str, Any], now: str
         ),
     )
 
-    prospects = [dict(row) for row in conn.execute("SELECT * FROM prospects")]
-    actions = [_record_with_overrides(row, {"status": row["status"]}) for row in conn.execute("SELECT * FROM actions")]
+    prospects = [dict(row) for row in conn.execute("SELECT * FROM prospects WHERE is_current = 1")]
+    actions = [_record_with_overrides(row, {"status": row["status"]}) for row in conn.execute("SELECT * FROM actions WHERE is_current = 1")]
     evidence_text = " ".join(e.get("summary", "") for e in dataset.get("evidence", []))
     open_actions = [a for a in actions if a.get("status") == "open"]
     metric_values = {
         "prospects_total": (len(prospects), "count"),
         "owner_operator_prospects": (sum(1 for p in prospects if p.get("owner_operator")), "count"),
         "open_actions": (len(open_actions), "count"),
-        "money_signal_actions": (sum(1 for a in open_actions if "reply" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower() or "booked" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()), "count"),
+        "money_signal_actions": (
+            sum(
+                1
+                for a in open_actions
+                if "reply" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()
+                or "booked" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()
+            ),
+            "count",
+        ),
         "documented_call_spend": (_extract_spend(evidence_text), "usd"),
     }
     for name, (value, unit) in metric_values.items():
@@ -353,9 +481,24 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
     """Export dashboard-compatible private JSON from SQLite."""
     init_db(conn)
     generated = generated_at or utc_now()
-    prospects = [_record_with_overrides(row, {"status": row["status"]}) for row in conn.execute("SELECT * FROM prospects ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END, owner_operator DESC, company_name")]
-    actions = [_record_with_overrides(row, {"status": row["status"]}) for row in conn.execute("SELECT * FROM actions ORDER BY score DESC, due_at, action")]
-    artifacts = list(conn.execute("SELECT * FROM artifacts ORDER BY type, name"))
+    prospects = [
+        _record_with_overrides(row, {"status": row["status"]})
+        for row in conn.execute(
+            """
+            SELECT * FROM prospects
+            WHERE is_current = 1
+            ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,
+                     owner_operator DESC, company_name
+            """
+        )
+    ]
+    actions = [
+        _record_with_overrides(row, {"status": row["status"]})
+        for row in conn.execute(
+            "SELECT * FROM actions WHERE is_current = 1 ORDER BY score DESC, due_at, action"
+        )
+    ]
+    artifacts = list(conn.execute("SELECT * FROM artifacts WHERE is_current = 1 ORDER BY type, name"))
     offers = [_load(row["payload_json"], {}) for row in artifacts if row["type"] == "offer"]
     assets = [_load(row["payload_json"], {}) for row in artifacts if row["type"] == "asset"]
     evidence = [_load(row["payload_json"], {}) for row in artifacts if row["type"] == "evidence"]
