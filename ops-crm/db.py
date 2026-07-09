@@ -320,14 +320,15 @@ def _seed_revenue_os(conn: sqlite3.Connection, dataset: dict[str, Any], now: str
         ),
     )
 
-    prospects = dataset.get("prospects", [])
-    actions = dataset.get("next_actions", [])
+    prospects = [dict(row) for row in conn.execute("SELECT * FROM prospects")]
+    actions = [_record_with_overrides(row, {"status": row["status"]}) for row in conn.execute("SELECT * FROM actions")]
     evidence_text = " ".join(e.get("summary", "") for e in dataset.get("evidence", []))
+    open_actions = [a for a in actions if a.get("status") == "open"]
     metric_values = {
         "prospects_total": (len(prospects), "count"),
         "owner_operator_prospects": (sum(1 for p in prospects if p.get("owner_operator")), "count"),
-        "open_actions": (sum(1 for a in actions if a.get("status") == "open"), "count"),
-        "money_signal_actions": (sum(1 for a in actions if "reply" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower() or "booked" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()), "count"),
+        "open_actions": (len(open_actions), "count"),
+        "money_signal_actions": (sum(1 for a in open_actions if "reply" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower() or "booked" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()), "count"),
         "documented_call_spend": (_extract_spend(evidence_text), "usd"),
     }
     for name, (value, unit) in metric_values.items():
@@ -361,6 +362,8 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
     loops = [dict(row) for row in conn.execute("SELECT * FROM loops ORDER BY status, name")]
     experiments = [dict(row) for row in conn.execute("SELECT * FROM experiments ORDER BY status, id")]
     metrics = [dict(row) for row in conn.execute("SELECT * FROM metrics ORDER BY metric_name")]
+    active_actions = [a for a in actions if a.get("status") not in {"done", "cancelled"}]
+    next_best_action = active_actions[0] if active_actions else None
 
     dataset = {
         "mode": "private",
@@ -381,8 +384,8 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
             "loops": len(loops),
             "experiments": len(experiments),
             "metrics": len(metrics),
-            "top_action_id": actions[0]["id"] if actions else None,
-            "next_best_move": actions[0]["action"] if actions else "No open action available",
+            "top_action_id": next_best_action["id"] if next_best_action else None,
+            "next_best_move": next_best_action["action"] if next_best_action else "No open action available",
         },
     }
     return dataset
@@ -400,7 +403,9 @@ def daily_brief(dataset: dict[str, Any]) -> str:
     loops = dataset.get("loops", [])
     experiments = dataset.get("experiments", [])
     actions = dataset.get("next_actions", [])
-    top = actions[0] if actions else {}
+    top = next((a for a in actions if a.get("id") == summary.get("top_action_id")), None)
+    if top is None:
+        top = next((a for a in actions if a.get("status") not in {"done", "cancelled"}), actions[0] if actions else {})
     spend = metrics.get("documented_call_spend", {}).get("metric_value", 0)
     owner_targets = metrics.get("owner_operator_prospects", {}).get("metric_value", 0)
     money_signal = metrics.get("money_signal_actions", {}).get("metric_value", 0)

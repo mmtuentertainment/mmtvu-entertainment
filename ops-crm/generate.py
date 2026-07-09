@@ -459,6 +459,27 @@ def validate_records(root: Path, dataset: dict[str, list[dict[str, Any]]]) -> No
             continue
         if sid not in allowed:
             raise ValueError(f"next_actions.{action['id']} references missing {typ} {sid}")
+    validate_revenue_os_records(dataset)
+
+
+def require_keys(kind: str, records: list[dict[str, Any]], keys: list[str]) -> None:
+    for idx, rec in enumerate(records):
+        missing = [key for key in keys if key not in rec or rec[key] in (None, "")]
+        if missing:
+            raise ValueError(f"{kind}[{idx}] missing required keys: {', '.join(missing)}")
+
+
+def validate_revenue_os_records(dataset: dict[str, Any]) -> None:
+    require_keys("loops", dataset.get("loops", []), ["id", "name", "goal", "stage", "status", "created_at", "updated_at"])
+    require_keys("experiments", dataset.get("experiments", []), ["id", "hypothesis", "metric", "status", "created_at", "updated_at"])
+    require_keys("metrics", dataset.get("metrics", []), ["id", "metric_name", "metric_value", "unit", "measured_at", "source"])
+    if "summary" in dataset:
+        summary = dataset["summary"]
+        for key in ["prospects", "next_actions", "top_action_id"]:
+            if key not in summary:
+                raise ValueError(f"summary missing required key: {key}")
+        if (dataset.get("loops") or dataset.get("metrics")) and "next_best_move" not in summary:
+            raise ValueError("summary missing required key: next_best_move")
 
 
 def redact_text(value: str) -> str:

@@ -1,6 +1,6 @@
 # MMTVU Daily Operator Brief
 
-Generated: 2026-07-09T03:38:20Z
+Generated: 2026-07-09T03:41:40Z
 
 ## Are we closer to money than yesterday?
 - Money-signal actions in queue: 16

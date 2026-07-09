@@ -63,6 +63,7 @@ def test_action_status_survives_regeneration_from_sqlite(tmp_path):
     db_file = tmp_path / "crm.sqlite"
     private, _ = crm_generate.generate(ROOT, db_file=db_file)
     action_id = private["next_actions"][0]["id"]
+    expected_next = private["next_actions"][1]
 
     with crm_db.connect(ROOT, db_file) as conn:
         conn.execute("UPDATE actions SET status = 'done' WHERE id = ?", (action_id,))
@@ -70,8 +71,12 @@ def test_action_status_survives_regeneration_from_sqlite(tmp_path):
 
     regenerated, _ = crm_generate.generate(ROOT, db_file=db_file)
     same_action = next(a for a in regenerated["next_actions"] if a["id"] == action_id)
+    metrics = {m["metric_name"]: m["metric_value"] for m in regenerated["metrics"]}
 
     assert same_action["status"] == "done"
+    assert regenerated["summary"]["top_action_id"] == expected_next["id"]
+    assert regenerated["summary"]["next_best_move"] == expected_next["action"]
+    assert metrics["open_actions"] == len([a for a in regenerated["next_actions"] if a["status"] == "open"])
 
 
 def test_sqlite_export_preserves_public_redaction_and_daily_brief(tmp_path):
@@ -86,6 +91,19 @@ def test_sqlite_export_preserves_public_redaction_and_daily_brief(tmp_path):
     assert '"email"' not in public_text.lower()
     assert "Local prospect" in public_text
     assert "# MMTVU Daily Operator Brief" in crm_db.daily_brief(private)
+
+
+def test_revenue_os_validation_rejects_missing_loop_fields(tmp_path):
+    private, _ = crm_generate.generate(ROOT, db_file=tmp_path / "crm.sqlite")
+    broken = json.loads(json.dumps(private))
+    del broken["loops"][0]["goal"]
+
+    try:
+        crm_generate.validate_records(ROOT, broken)
+    except ValueError as exc:
+        assert "loops[0] missing required keys: goal" in str(exc)
+    else:
+        raise AssertionError("missing loop goal should fail validation")
 
 
 def test_loop_experiment_metrics_identify_next_best_move(tmp_path):
