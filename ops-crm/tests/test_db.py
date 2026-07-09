@@ -29,18 +29,12 @@ def test_sqlite_init_is_idempotent_and_has_revenue_os_tables(tmp_path):
     tables = {row["name"] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     assert {
         "prospects",
-        "interactions",
         "actions",
         "loops",
-        "runs",
         "artifacts",
-        "notes",
-        "decisions",
         "experiments",
         "metrics",
-        "schema_migrations",
     }.issubset(tables)
-    assert conn.execute("SELECT count(*) FROM schema_migrations WHERE version = 1").fetchone()[0] == 1
 
 
 def test_import_current_artifacts_to_db_and_export_dashboard_dataset(tmp_path):

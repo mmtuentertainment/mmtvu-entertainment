@@ -46,10 +46,6 @@ class SourceMeta:
     mtime: str
 
 
-def utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
-
 def slugify(*parts: str) -> str:
     raw = "-".join(p for p in parts if p)
     raw = raw.lower().replace("&", " and ")
@@ -62,10 +58,6 @@ def anonymize_id(original_id: str, prefix: str) -> str:
     if not original_id:
         return f"{prefix}-unknown"
     return f"{prefix}-{hashlib.sha256(original_id.encode('utf-8')).hexdigest()[:12]}"
-
-
-def rel(root: Path, path: Path) -> str:
-    return path.relative_to(root).as_posix()
 
 
 def source_meta(root: Path, rel_path: str) -> SourceMeta:
@@ -249,13 +241,6 @@ def build_prospects(root: Path, generated_at: str) -> list[dict[str, Any]]:
         rec["source_hashes"] = {p: metas[p].sha256 for p in rec.get("source_paths", []) if p in metas}
         prospects.append(rec)
     return sorted(prospects, key=lambda r: ({"high": 0, "medium": 1, "low": 2}[r["priority"]], not r.get("owner_operator"), r["company_name"]))
-
-
-def file_last_touched(root: Path, rel_path: str) -> str:
-    p = root / rel_path
-    if not p.exists():
-        return utc_now()
-    return datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def build_assets(root: Path, generated_at: str) -> list[dict[str, Any]]:
@@ -677,7 +662,7 @@ def write_json(path: Path, data: Any) -> None:
 
 def build_source_dataset(root: Path, generated_at: str | None = None) -> dict[str, Any]:
     """Derive a private dataset from repo artifacts before persisting it to SQLite."""
-    generated_at = generated_at or utc_now()
+    generated_at = generated_at or crm_db.utc_now()
     offers = build_offer(root, generated_at)
     prospects = build_prospects(root, generated_at)
     assets = build_assets(root, generated_at)
@@ -703,7 +688,7 @@ def build_source_dataset(root: Path, generated_at: str | None = None) -> dict[st
 
 def generate(root: Path, db_file: Path | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     """Generate dashboard data through SQLite as the source of truth."""
-    generated_at = utc_now()
+    generated_at = crm_db.utc_now()
     source_private = build_source_dataset(root, generated_at)
     validate_records(root, source_private)
 

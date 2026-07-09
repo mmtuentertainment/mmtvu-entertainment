@@ -3,7 +3,7 @@
 
 The generator still knows how to derive records from repo artifacts, but V1 writes
 those records through this module and exports dashboard JSON from SQLite. That
-lets operator status, notes, loops, experiments, metrics, and future run logs
+lets operator status, loops, experiments, and metrics
 survive regeneration instead of being overwritten by generated JSON files.
 """
 from __future__ import annotations
@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Any, Iterable
 
 DB_REL_PATH = Path("ops-crm") / "crm.sqlite"
-SCHEMA_VERSION = 1
 
 # P0.7: Table whitelist for safe dynamic SQL in _existing_created_at
 ALLOWED_TABLES = frozenset({
@@ -25,10 +24,6 @@ ALLOWED_TABLES = frozenset({
     "loops",
     "experiments",
     "metrics",
-    "interactions",
-    "runs",
-    "notes",
-    "decisions",
 })
 
 # P0.6: Tables that get stale-record archival (is_current/archived_at columns)
@@ -56,11 +51,6 @@ def init_db(conn: sqlite3.Connection) -> None:
     """Create all Revenue OS tables idempotently."""
     conn.executescript(
         """
-        CREATE TABLE IF NOT EXISTS schema_migrations (
-            version INTEGER PRIMARY KEY,
-            applied_at TEXT NOT NULL
-        );
-
         CREATE TABLE IF NOT EXISTS prospects (
             id TEXT PRIMARY KEY,
             company_name TEXT NOT NULL,
@@ -75,19 +65,6 @@ def init_db(conn: sqlite3.Connection) -> None:
             payload_json TEXT NOT NULL,
             is_current INTEGER NOT NULL DEFAULT 1,
             archived_at TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS interactions (
-            id TEXT PRIMARY KEY,
-            prospect_id TEXT,
-            type TEXT NOT NULL,
-            outcome TEXT,
-            summary TEXT,
-            cost REAL,
-            source_path TEXT,
-            happened_at TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY (prospect_id) REFERENCES prospects(id) ON DELETE SET NULL
         );
 
         CREATE TABLE IF NOT EXISTS actions (
@@ -121,18 +98,6 @@ def init_db(conn: sqlite3.Connection) -> None:
             updated_at TEXT NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS runs (
-            id TEXT PRIMARY KEY,
-            task_id TEXT,
-            command TEXT,
-            status TEXT NOT NULL,
-            started_at TEXT,
-            ended_at TEXT,
-            stdout_path TEXT,
-            stderr_path TEXT,
-            summary TEXT
-        );
-
         CREATE TABLE IF NOT EXISTS artifacts (
             id TEXT PRIMARY KEY,
             type TEXT NOT NULL,
@@ -144,24 +109,6 @@ def init_db(conn: sqlite3.Connection) -> None:
             payload_json TEXT NOT NULL,
             is_current INTEGER NOT NULL DEFAULT 1,
             archived_at TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS notes (
-            id TEXT PRIMARY KEY,
-            entity_type TEXT NOT NULL,
-            entity_id TEXT NOT NULL,
-            body TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-        );
-
-        CREATE TABLE IF NOT EXISTS decisions (
-            id TEXT PRIMARY KEY,
-            entity_type TEXT,
-            entity_id TEXT,
-            decision TEXT NOT NULL,
-            rationale TEXT,
-            created_at TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS experiments (
@@ -195,10 +142,6 @@ def init_db(conn: sqlite3.Connection) -> None:
         if "archived_at" not in cols:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN archived_at TEXT")
 
-    conn.execute(
-        "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(?, ?)",
-        (SCHEMA_VERSION, utc_now()),
-    )
     conn.commit()
 
 
