@@ -73,6 +73,32 @@ def test_build_prospects_speaks_doc_funnel_vocabulary(tmp_path):
     assert statuses == {"A Co": "not_contacted", "B Co": "contacted", "C Co": "discovery_booked"}
 
 
+def test_funnel_status_rejects_legacy_vocabulary_instead_of_silently_remapping():
+    # Finding #10: funnel_status() parses live human-edited sheet input and its own
+    # docstring promises unknown values raise. LEGACY_PROSPECT_STATUS_MAP is meant
+    # only for db.init_db's one-time SQLite migration, not for live CSV/JSON input —
+    # typing a legacy word like "Booked" must raise, not silently land in the wrong
+    # funnel bucket.
+    import pytest
+
+    with pytest.raises(ValueError, match="booked"):
+        crm_generate.funnel_status("Booked")
+    with pytest.raises(ValueError, match="needs_follow_up"):
+        crm_generate.funnel_status("needs_follow_up")
+    assert crm_generate.funnel_status("Discovery booked") == "discovery_booked"
+
+
+def test_action_score_contacted_status_bonus():
+    # Finding #13: only Halpin's status value was asserted anywhere, never the
+    # score effect of the `contacted` bump — a reverted trigger (e.g. back to the
+    # retired needs_follow_up string) would silently reorder the action queue
+    # while every other test stayed green.
+    base = {"owner_operator": False, "priority": "low"}
+    contacted = crm_generate.action_score({**base, "status": "contacted"}, None)
+    not_contacted = crm_generate.action_score({**base, "status": "not_contacted"}, None)
+    assert contacted - not_contacted == 30
+
+
 def test_json_twin_does_not_clobber_csv_funnel_status(tmp_path):
     csv_path = tmp_path / "outreach" / "outreach-list-50.csv"
     csv_path.parent.mkdir(parents=True)

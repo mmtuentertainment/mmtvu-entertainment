@@ -60,5 +60,4 @@ Run `/sync-gbrain` to force-refresh, `/sync-gbrain --full` for full reindex.
 
 ## Current work pointer (2026-07-09)
 
-Candidates 3+4 (funnel vocabulary + metric identity) are implemented, TDD-verified (42 tests), live-verified, and committed this session along with the adversarial review's Tier 1 fixes (CSRF, DNS-rebinding, commit-before-validate divergence, CSV/JSON status clobber).
-Still open: Tier 2 (2 design decisions — cumulative funnel metrics on off-ramps, dashboard funnel coverage for non-action-backed prospects) and Tier 3 (7 mechanical fixes). Full findings list and reproduction steps: ops-crm-candidates-3-4-review-HANDOFF.md at the repo root.
+All 13 findings from the candidates 3+4 adversarial review are closed out: Tier 1 (security/data-integrity, committed `d294492`) and Tier 2+3 (2 design decisions + 7 mechanical fixes, TDD-verified, 51 tests, live-verified). No open review findings remain. Full history: `ops-crm-candidates-3-4-review-HANDOFF.md` and `ops-crm-tier2-3-HANDOFF.md` at the repo root.

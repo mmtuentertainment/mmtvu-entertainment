@@ -59,8 +59,10 @@ class OperatorHandler(SimpleHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(length) or b"{}")
+            if not isinstance(body, dict):
+                raise TypeError("body must be a JSON object")
             record_id, status = body["id"], body["status"]
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, TypeError):
             self._respond(400, {"ok": False, "error": "body must be JSON with id and status"})
             return
         try:

@@ -90,7 +90,6 @@ def funnel_status(raw: Any) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", str(raw or "").strip().lower()).strip("_")
     if not slug:
         return "not_contacted"
-    slug = crm_db.LEGACY_PROSPECT_STATUS_MAP.get(slug, slug)
     if slug not in crm_db.FUNNEL_STATUSES:
         raise ValueError(f"unknown prospect status {raw!r}; expected one of {', '.join(crm_db.FUNNEL_STATUSES)}")
     return slug

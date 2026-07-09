@@ -20,8 +20,8 @@
     </nav>
     <div class="mode-toggle" aria-label="Dataset mode">
       <button id="modeButton" type="button">Switch to public data</button>
-      <button id="exportButton" type="button">Export my CRM state</button>
-      <button id="resetButton" class="danger" type="button">Reset local state</button>
+      <button id="exportButton" type="button">Export my notes</button>
+      <button id="resetButton" class="danger" type="button">Reset local notes</button>
       <div class="small" id="modeNote">Private mode loads local operating data. Statuses save to SQLite; notes save in this browser.</div>
     </div>
     <div class="mini">Shortcuts: <span class="kbd">/</span> search · <span class="kbd">j/k</span> move · <span class="kbd">d</span> done · <span class="kbd">b</span> blocked · <span class="kbd">c</span> copy</div>
@@ -38,7 +38,7 @@
     <div class="controls" id="workspace">
       <input id="search" type="search" placeholder="Search action, owner, reason, source…" aria-label="Search next actions" />
       <select id="ownerFilter" aria-label="Filter by owner"><option value="all">All owners</option><option>Hermes</option><option>Matthew</option><option>Both</option></select>
-      <select id="statusFilter" aria-label="Filter by local status"><option value="active">Active</option><option value="all">All statuses</option><option value="open">Open</option><option value="done">Done</option><option value="blocked">Blocked</option></select>
+      <select id="statusFilter" aria-label="Filter by status"><option value="active">Active</option><option value="all">All statuses</option><option value="open">Open</option><option value="done">Done</option><option value="blocked">Blocked</option></select>
       <button id="clearDoneButton" type="button">Hide done</button>
     </div>
     <section id="loading" class="state">Reading generated CRM data… If this stays here, run <code>uv run python ops-crm/generate.py</code> and serve the repo with <code>uv run python ops-crm/serve.py</code>.</section>
@@ -50,7 +50,7 @@
   </main>
   <aside class="context" aria-label="Selected action detail">
     <section>
-      <h3>Local progress</h3>
+      <h3>Queue progress</h3>
       <div class="stats"><div class="stat"><b id="doneCount">0</b><span>Done</span></div><div class="stat"><b id="blockedCount">0</b><span>Blocked</span></div></div>
     </section>
     <section><h3>Selected action</h3><div id="evidencePanel" class="small">Select an action to inspect evidence.</div></section>

@@ -1,7 +1,15 @@
+import importlib.util
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HTML = (ROOT / "ops-crm" / "index.html").read_text()
+
+DB_SPEC = importlib.util.spec_from_file_location("crm_db", ROOT / "ops-crm" / "db.py")
+assert DB_SPEC is not None and DB_SPEC.loader is not None
+crm_db = importlib.util.module_from_spec(DB_SPEC)
+sys.modules["crm_db_dashboard_static_tests"] = crm_db
+DB_SPEC.loader.exec_module(crm_db)
 
 
 def test_dashboard_has_operator_workspace_controls():
@@ -54,6 +62,14 @@ def test_dashboard_escapes_dynamic_fields_before_inner_html_insertion():
     for marker in dynamic_markers:
         assert marker in HTML
     assert 'function esc(v)' in HTML
+
+
+def test_dashboard_funnel_statuses_match_db_vocabulary():
+    # Finding #9: index.html's FUNNEL_STATUSES is a third hardcoded copy of the
+    # funnel vocabulary, with no drift guard against db.FUNNEL_STATUSES /
+    # prospect.schema.json's enum (already guarded by test_status_vocabularies_match_schema_enums).
+    for status in crm_db.FUNNEL_STATUSES:
+        assert f"'{status}'" in HTML
 
 
 def test_dashboard_exposes_keyboard_shortcuts():

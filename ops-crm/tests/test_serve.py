@@ -173,6 +173,46 @@ def test_post_returns_400_when_refresh_exports_raises_unexpected_error(tmp_path,
         server.shutdown()
 
 
+def test_post_rejects_non_dict_json_body(tmp_path):
+    # Finding #8: a syntactically valid but non-dict JSON body (null, a list, a bare
+    # value) raised an uncaught TypeError at body["id"], killing the connection with
+    # no HTTP response instead of a clean 400.
+    root = _scaffold_root(tmp_path)
+    server = crm_serve.make_server(root, 0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        client = HTTPConnection("127.0.0.1", server.server_address[1], timeout=10)
+        for bad_body in (None, [], "just a string", 42):
+            status, body = _post(client, "/api/action-status", bad_body)
+            assert status == 400
+            assert "error" in body
+        with crm_db.connect(root) as conn:
+            assert conn.execute("SELECT status FROM actions WHERE id='action-p1'").fetchone()["status"] == "open"
+    finally:
+        server.shutdown()
+
+
+def test_post_returns_400_against_a_db_with_no_tables(tmp_path):
+    # Finding #8's other half: running serve.py before generate.py ever ran leaves
+    # a stray empty crm.sqlite (connect()'s mkdir/connect creates the file but no
+    # tables) — the setter's sqlite3.OperationalError must 400, not kill the
+    # connection. Already covered by Tier 1's broad `except Exception` around the
+    # setter+refresh_exports call; this test locks that in for finding #8 too.
+    (tmp_path / "ops-crm").mkdir()
+    (tmp_path / "ops-crm" / "crm.sqlite").touch()
+    server = crm_serve.make_server(tmp_path, 0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        client = HTTPConnection("127.0.0.1", server.server_address[1], timeout=10)
+        status, body = _post(client, "/api/action-status", {"id": "x", "status": "done"})
+        assert status == 400
+        assert "error" in body
+    finally:
+        server.shutdown()
+
+
 def test_post_status_writes_sqlite_and_refreshes_exports(tmp_path):
     root = _scaffold_root(tmp_path)
     server = crm_serve.make_server(root, 0)

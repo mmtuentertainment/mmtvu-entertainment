@@ -56,12 +56,33 @@ LEGACY_PROSPECT_STATUS_MAP = {
 # Operator vocabulary for action rows. Must match next_action.schema.json's status enum.
 ACTION_STATUSES = frozenset({"open", "doing", "done", "blocked", "cancelled"})
 
-# Cumulative funnel membership: a prospect that advanced still counts at every stage
-# it passed through. not_fit is excluded from contacted on purpose — disqualifications
-# must never inflate the outreach-progress numbers.
-CONTACTED_STATUSES = frozenset({"contacted", "replied", "discovery_booked", "pilot_proposed", "follow_up_later", "won", "lost"})
-DISCOVERY_STATUSES = frozenset({"discovery_booked", "pilot_proposed", "won"})
-PILOT_STATUSES = frozenset({"pilot_proposed", "won"})
+# Rank of the funnel's main progression line (not_contacted -> won). Off-ramps
+# (lost, not_fit, follow_up_later) have no rank of their own: set_prospect_status
+# and import never bump the persisted high-water mark for them, so a prospect's
+# real progress survives an off-ramp instead of silently reversing (finding #5).
+STAGE_RANK = {
+    "not_contacted": 0,
+    "contacted": 1,
+    "replied": 2,
+    "discovery_booked": 3,
+    "pilot_proposed": 4,
+    "won": 5,
+}
+
+
+def _effective_stage_rank(status: str, max_stage_rank: int) -> int:
+    """Highest funnel stage a prospect has ever demonstrably reached.
+
+    not_fit vetoes unconditionally — disqualifications must never inflate the
+    outreach-progress numbers, even if the prospect had prior recorded progress.
+    lost/follow_up_later fall back to "at least contacted" but otherwise defer to
+    the persisted high-water mark, so a real discovery call or pilot pitch stays
+    counted after an off-ramp.
+    """
+    if status == "not_fit":
+        return -1
+    floor = STAGE_RANK.get(status, STAGE_RANK["contacted"])
+    return max(floor, max_stage_rank)
 
 # 14-day success criteria from the design doc: identify 50, contact 30,
 # book 5 discovery conversations, get 1 pilot.
@@ -107,7 +128,8 @@ def init_db(conn: sqlite3.Connection) -> None:
             updated_at TEXT NOT NULL,
             payload_json TEXT NOT NULL,
             is_current INTEGER NOT NULL DEFAULT 1,
-            archived_at TEXT
+            archived_at TEXT,
+            max_stage_rank INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS actions (
@@ -195,6 +217,10 @@ def init_db(conn: sqlite3.Connection) -> None:
     if "target" not in metric_cols:
         conn.execute("ALTER TABLE metrics ADD COLUMN target REAL")
 
+    prospect_cols = {row["name"] for row in conn.execute("PRAGMA table_info(prospects)")}
+    if "max_stage_rank" not in prospect_cols:
+        conn.execute("ALTER TABLE prospects ADD COLUMN max_stage_rank INTEGER NOT NULL DEFAULT 0")
+
     conn.commit()
 
 
@@ -239,12 +265,16 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
         created = _existing_created_at(conn, "prospects", p["id"], now)
         # P0.1: Preserve operator-set prospect status
         preserved_status = _existing_prospect_status(conn, p["id"], p.get("status", "not_contacted"))
+        # Seed the high-water mark for a brand-new prospect from its initial status;
+        # an existing prospect's mark is preserved as-is (ON CONFLICT never touches
+        # it), since it already reflects real set_prospect_status history.
+        seed_rank = STAGE_RANK.get(preserved_status, 0)
         stored = dict(p)
         stored["status"] = preserved_status
         conn.execute(
             """
-            INSERT INTO prospects(id, company_name, city, niche, website, priority, status, owner_operator, created_at, updated_at, payload_json, is_current, archived_at)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NULL)
+            INSERT INTO prospects(id, company_name, city, niche, website, priority, status, owner_operator, created_at, updated_at, payload_json, is_current, archived_at, max_stage_rank)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NULL, ?)
             ON CONFLICT(id) DO UPDATE SET
               company_name=excluded.company_name,
               city=excluded.city,
@@ -269,6 +299,7 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
                 created,
                 now,
                 _dump(stored),
+                seed_rank,
             ),
         )
 
@@ -444,18 +475,20 @@ def compute_metrics(
 ) -> dict[str, tuple[float, str, float | None]]:
     """The single definition site for every Revenue OS metric.
 
-    Funnel counts are cumulative over prospect status (a won prospect still counts
-    as contacted and discovery-booked); spend sums the structured cost_usd field on
+    Funnel counts are cumulative over each prospect's high-water-mark stage (a
+    prospect that reached discovery_booked still counts there even after an
+    off-ramp to lost/follow_up_later — see finding #5 and _effective_stage_rank);
+    not_fit vetoes unconditionally. Spend sums the structured cost_usd field on
     evidence records. Returns {metric_name: (value, unit, target-or-None)}. The
     doc's case-study metrics (first response time, follow-ups sent, stale leads
     revived) slot in here when interaction logging lands (see ADR 0001).
     """
-    statuses = [p.get("status") for p in prospects]
+    ranks = [_effective_stage_rank(p.get("status", ""), p.get("max_stage_rank", 0)) for p in prospects]
     values: dict[str, tuple[float, str]] = {
         "prospects_total": (float(len(prospects)), "count"),
-        "contacted_total": (float(sum(1 for s in statuses if s in CONTACTED_STATUSES)), "count"),
-        "discovery_booked_total": (float(sum(1 for s in statuses if s in DISCOVERY_STATUSES)), "count"),
-        "pilot_proposed_total": (float(sum(1 for s in statuses if s in PILOT_STATUSES)), "count"),
+        "contacted_total": (float(sum(1 for r in ranks if r >= STAGE_RANK["contacted"])), "count"),
+        "discovery_booked_total": (float(sum(1 for r in ranks if r >= STAGE_RANK["discovery_booked"])), "count"),
+        "pilot_proposed_total": (float(sum(1 for r in ranks if r >= STAGE_RANK["pilot_proposed"])), "count"),
         "owner_operator_prospects": (float(sum(1 for p in prospects if p.get("owner_operator"))), "count"),
         "open_actions": (float(sum(1 for a in actions if a.get("status") == "open")), "count"),
         "documented_call_spend": (round(sum(float(e.get("cost_usd") or 0) for e in evidence), 4), "usd"),
@@ -484,10 +517,18 @@ def set_prospect_status(conn: sqlite3.Connection, prospect_id: str, status: str)
     """Operator write path for moving a prospect through the outreach funnel."""
     if status not in FUNNEL_STATUSES:
         raise ValueError(f"unknown prospect status {status!r}; expected one of {', '.join(FUNNEL_STATUSES)}")
-    cur = conn.execute(
-        "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
-        (status, utc_now(), prospect_id),
-    )
+    rank = STAGE_RANK.get(status)
+    if rank is None:
+        # Off-ramp (lost/not_fit/follow_up_later): leave the high-water mark as-is.
+        cur = conn.execute(
+            "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
+            (status, utc_now(), prospect_id),
+        )
+    else:
+        cur = conn.execute(
+            "UPDATE prospects SET status = ?, updated_at = ?, max_stage_rank = MAX(max_stage_rank, ?) WHERE id = ? AND is_current = 1",
+            (status, utc_now(), rank, prospect_id),
+        )
     if cur.rowcount == 0:
         raise KeyError(f"no current prospect {prospect_id!r}")
     conn.commit()
@@ -497,9 +538,8 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
     """Export dashboard-compatible private JSON from SQLite."""
     init_db(conn)
     generated = generated_at or utc_now()
-    prospects = [
-        _record_with_overrides(row, {"status": row["status"]})
-        for row in conn.execute(
+    prospect_rows = list(
+        conn.execute(
             """
             SELECT * FROM prospects
             WHERE is_current = 1
@@ -507,7 +547,8 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
                      owner_operator DESC, company_name
             """
         )
-    ]
+    )
+    prospects = [_record_with_overrides(row, {"status": row["status"]}) for row in prospect_rows]
     actions = [
         _record_with_overrides(row, {"status": row["status"]})
         for row in conn.execute(
@@ -523,8 +564,13 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
 
     # Metrics are computed here, at export time, so operator status changes made
     # after import are reflected; the table row is refreshed so SQLite always
-    # matches the last published export.
-    for name, (value, unit, target) in compute_metrics(prospects, actions, evidence).items():
+    # matches the last published export. max_stage_rank is attached only for this
+    # computation, not merged into the `prospects` collection above — it's DB
+    # bookkeeping, not part of the exported/public prospect shape.
+    metrics_prospects = [
+        dict(p, max_stage_rank=row["max_stage_rank"]) for p, row in zip(prospects, prospect_rows)
+    ]
+    for name, (value, unit, target) in compute_metrics(metrics_prospects, actions, evidence).items():
         conn.execute(
             """
             INSERT INTO metrics(id, metric_name, metric_value, unit, measured_at, source, target)

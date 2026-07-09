@@ -151,6 +151,40 @@ def test_init_db_migrates_legacy_statuses_to_funnel_vocabulary(tmp_path):
     assert conn.execute("SELECT COUNT(*) FROM metrics WHERE metric_name='money_signal_actions'").fetchone()[0] == 0
 
 
+def test_init_db_migrates_pre_target_metrics_table(tmp_path):
+    # Finding #11: every other test's metrics table already has `target` from the
+    # CREATE TABLE statement, so the ALTER TABLE ... ADD COLUMN target guard is dead
+    # code from the suite's perspective — it only proves itself against a real
+    # pre-change crm.sqlite, which isn't regenerable. Build that old shape by hand.
+    conn = sqlite3.connect(tmp_path / "crm.sqlite")
+    conn.row_factory = sqlite3.Row
+    conn.execute(
+        """
+        CREATE TABLE metrics (
+            id TEXT PRIMARY KEY,
+            metric_name TEXT NOT NULL,
+            metric_value REAL NOT NULL,
+            unit TEXT NOT NULL,
+            measured_at TEXT NOT NULL,
+            source TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        "INSERT INTO metrics(id, metric_name, metric_value, unit, measured_at, source) VALUES(?,?,?,?,?,?)",
+        ("metric-prospects_total", "prospects_total", 5, "count", "2026-07-09T00:00:00Z", "test"),
+    )
+    conn.commit()
+
+    crm_db.init_db(conn)
+
+    cols = {row["name"] for row in conn.execute("PRAGMA table_info(metrics)")}
+    assert "target" in cols
+    row = conn.execute("SELECT * FROM metrics WHERE id='metric-prospects_total'").fetchone()
+    assert row["metric_value"] == 5
+    assert row["target"] is None
+
+
 def _funnel_dataset(now="2026-07-09T12:00:00Z"):
     def prospect(pid, status, owner=False):
         return {"id": pid, "company_name": pid, "priority": "low", "status": status, "owner_operator": owner}
@@ -245,6 +279,67 @@ def test_daily_brief_reports_funnel_progress_against_targets(tmp_path):
     assert "Pilots proposed: 2/1" in brief
     assert "Documented call spend: $1.5106" in brief
     assert "Money-signal" not in brief
+
+
+def test_funnel_metrics_survive_off_ramp_after_real_progress(tmp_path):
+    # Finding #5: a prospect that genuinely reached pilot_proposed still had that
+    # discovery call and pilot pitch happen even if the deal later goes cold. The
+    # cumulative totals must not decrement when it off-ramps to lost.
+    now = "2026-07-09T12:00:00Z"
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset(now))
+
+        for status in ("contacted", "replied", "discovery_booked", "pilot_proposed"):
+            crm_db.set_prospect_status(conn, "p1", status)
+        before = crm_db.export_dataset(conn, now)
+        metrics_before = {m["metric_name"]: m["metric_value"] for m in before["metrics"]}
+
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        after = crm_db.export_dataset(conn, now)
+        metrics_after = {m["metric_name"]: m["metric_value"] for m in after["metrics"]}
+
+    assert next(p for p in after["prospects"] if p["id"] == "p1")["status"] == "lost"
+    assert metrics_after["discovery_booked_total"] == metrics_before["discovery_booked_total"]
+    assert metrics_after["pilot_proposed_total"] == metrics_before["pilot_proposed_total"]
+    assert metrics_after["contacted_total"] == metrics_before["contacted_total"]
+
+
+def test_not_fit_still_vetoes_funnel_metrics_even_after_real_progress(tmp_path):
+    # not_fit is a disqualification, not an off-ramp: it must never inflate the
+    # outreach numbers even if the prospect had prior recorded progress.
+    now = "2026-07-09T12:00:00Z"
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset(now))
+        for status in ("contacted", "discovery_booked", "pilot_proposed"):
+            crm_db.set_prospect_status(conn, "p1", status)
+
+        crm_db.set_prospect_status(conn, "p1", "not_fit")
+        exported = crm_db.export_dataset(conn, now)
+
+    metrics = {m["metric_name"]: m["metric_value"] for m in exported["metrics"]}
+    p1 = next(p for p in exported["prospects"] if p["id"] == "p1")
+    assert p1["status"] == "not_fit"
+    # p1 starts (not_contacted) and ends (not_fit) excluded from every bucket, so
+    # the totals match _funnel_dataset's other 8 prospects, untouched by p1's detour.
+    assert metrics["contacted_total"] == 7
+    assert metrics["discovery_booked_total"] == 3
+    assert metrics["pilot_proposed_total"] == 2
+
+
+def test_fresh_import_at_off_ramp_status_has_no_assumed_history(tmp_path):
+    # A prospect imported directly at "lost" (no prior set_prospect_status calls)
+    # has no known discovery/pilot history — it should count as contacted only,
+    # same as today's baseline, not retroactively credited with deeper stages.
+    now = "2026-07-09T12:00:00Z"
+    dataset = _funnel_dataset(now)
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, dataset)
+        exported = crm_db.export_dataset(conn, now)
+
+    metrics = {m["metric_name"]: m["metric_value"] for m in exported["metrics"]}
+    # p7 is imported directly as "lost" in _funnel_dataset with no write-path history.
+    assert metrics["discovery_booked_total"] == 3
+    assert metrics["pilot_proposed_total"] == 2
 
 
 def test_loop_experiment_metrics_identify_next_best_move(tmp_path):

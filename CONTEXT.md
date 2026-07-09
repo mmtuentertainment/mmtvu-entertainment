@@ -35,8 +35,12 @@ _Avoid_: lead stage, pipeline state, the legacy `new/needs_follow_up/booked/cust
 _Avoid_: local state, browser state (for anything but notes)
 
 **Metric definition site**:
-`db.compute_metrics` — every Revenue OS metric is defined there and computed at export time, so post-import status changes are always reflected. Funnel totals are cumulative (a won prospect still counts as contacted and discovery-booked); `not_fit` never counts as contacted. Spend sums the structured `cost_usd` field on evidence records. The doc's case-study metrics (first response time, follow-ups sent, stale leads revived) slot in here when interaction logging lands (ADR 0001).
-_Avoid_: metric math in builders or the dashboard
+`db.compute_metrics` — every Revenue OS metric is defined there and computed at export time, so post-import status changes are always reflected. Funnel totals are cumulative over each prospect's high-water-mark stage (`db.STAGE_RANK` / `db._effective_stage_rank`, persisted as `prospects.max_stage_rank`), not just current status: a prospect that genuinely reached `discovery_booked` or `pilot_proposed` still counts there even after later off-ramping to `lost` or `follow_up_later` — that real activity happened and the 14-day numbers shouldn't reverse. `not_fit` is the exception: it vetoes unconditionally, since a disqualification must never inflate the outreach-progress numbers even if the prospect had prior recorded progress. Spend sums the structured `cost_usd` field on evidence records. The doc's case-study metrics (first response time, follow-ups sent, stale leads revived) slot in here when interaction logging lands (ADR 0001).
+_Avoid_: metric math in builders or the dashboard; deriving funnel totals from current `status` alone
 
 **14-day targets**:
 The doc's success criteria — 50 identified / 30 contacted / 5 discovery / 1 pilot — carried as the `target` column on metric rows so the brief and dashboard render progress (`3/30 contacted`).
+
+**Dashboard funnel coverage**:
+The prospect funnel `<select>` only renders where the dashboard has a next-action row to attach it to — today that's the 16/64 prospects who are owner-operated or Vapi-called (`generate.py::build_next_actions`). The other 48 move through the funnel by editing the outreach CSV's status column and re-running `generate.py`, not through the dashboard. This is a deliberate scope limit, not a bug: the dashboard is for prospects the operator is actively working, and the CSV path is fully supported for funnel-status writes (see finding #4 in `ops-crm-candidates-3-4-review-HANDOFF.md`).
+_Avoid_: assuming every prospect has a dashboard funnel control
