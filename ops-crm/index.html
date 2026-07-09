@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MMTVU Operator CRM</title>
+<style>
+:root{--bg:#111315;--panel:#181b1f;--panel2:#20242a;--text:#f4efe6;--muted:#a7b0b7;--line:#313740;--accent:#d8a24a;--danger:#e06c75;--good:#78b892;--focus:#9fd3ff;--font-display:"IBM Plex Sans Condensed","Aptos",sans-serif;--font-body:"IBM Plex Sans","Aptos",sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 var(--font-body)}a{color:var(--accent)}a:visited{color:#b78ad9}a:focus,button:focus,.action-row:focus{outline:3px solid var(--focus);outline-offset:3px}.app{display:grid;grid-template-columns:220px minmax(520px,1fr)360px;min-height:100vh}aside,main,.context{border-right:1px solid var(--line)}.left{padding:24px 18px;background:#0e1012}.brand{font:700 28px/1 var(--font-display);letter-spacing:.02em;margin-bottom:28px}.nav a{display:block;color:var(--muted);text-decoration:none;padding:12px;border-radius:8px;margin:3px 0;min-height:44px}.nav a.active{color:var(--text);background:var(--panel2);border-left:3px solid var(--accent)}main{padding:28px}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}h1{font:700 42px/1 var(--font-display);margin:0 0 6px}.sub{color:var(--muted);max-width:760px}.status{text-align:right;color:var(--muted);font-size:14px}.status strong{display:block;color:var(--good);font-size:16px}.hero-action{background:linear-gradient(180deg,#252a31,#1a1e23);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px}.meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-bottom:10px}.pill{border:1px solid var(--line);border-radius:999px;padding:4px 10px}.pill.high{color:#111;background:var(--accent);border-color:var(--accent);font-weight:700}.pill.medium{color:#111;background:#b7c77a;border-color:#b7c77a;font-weight:700}.pill.low{color:var(--text);background:var(--panel2)}h2{font:700 24px/1.1 var(--font-display);margin:0 0 8px}.reason{color:var(--muted);margin-bottom:14px}.actions{display:grid;gap:10px}.action-row{display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;text-decoration:none;color:var(--text);min-height:82px}.rank{color:var(--accent);font:700 22px/1 var(--font-display)}.action-row h3{margin:0 0 4px;font-size:18px}.action-row p{margin:0;color:var(--muted)}.owner{color:var(--accent);font-weight:700;white-space:nowrap}.context{padding:28px 18px;background:#121519}.context section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}.context h3{margin:0 0 8px;font-size:16px}ul{margin:0;padding-left:18px;color:var(--muted)}.state{border:1px dashed var(--line);border-radius:12px;padding:20px;color:var(--muted)}.error{border-color:var(--danger);color:#ffd7da}.hidden{display:none}.mode-toggle{margin-top:20px}.mode-toggle button{min-height:44px;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:10px 12px;cursor:pointer}.small{font-size:13px;color:var(--muted)}@media(max-width:900px){.app{grid-template-columns:1fr}.left,.context{border-right:0;border-bottom:1px solid var(--line)}.topbar{display:block}.status{text-align:left;margin-top:12px}.action-row{grid-template-columns:36px 1fr}.owner{grid-column:2;white-space:normal}.context{padding:18px}main{padding:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="left">
+    <div class="brand">MMTVU<br>Operator CRM</div>
+    <nav class="nav" aria-label="CRM sections">
+      <a class="active" href="#today">Today</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#assets">Assets</a>
+      <a href="#redaction">Public Redaction</a>
+    </nav>
+    <div class="mode-toggle" aria-label="Dataset mode">
+      <button id="modeButton" type="button">Switch to public data</button>
+      <div class="small" id="modeNote">Private mode loads local CRM data.</div>
+    </div>
+  </aside>
+  <main id="today" tabindex="-1">
+    <div class="topbar">
+      <div>
+        <h1>Today</h1>
+        <div class="sub">The next money-facing actions for Matthew and Hermes, ranked by urgency, revenue path, and evidence.</div>
+      </div>
+      <div class="status" id="status"><strong>Loading</strong>Reading generated CRM data…</div>
+    </div>
+    <section id="loading" class="state">Reading generated CRM data… If this stays here, run <code>uv run python ops-crm/generate.py</code> and serve the repo with <code>python3 -m http.server</code>.</section>
+    <section id="empty" class="state hidden">No actions generated yet. Run <code>uv run python ops-crm/generate.py</code>, then check the source files listed in the generator output.</section>
+    <section id="error" class="state error hidden"></section>
+    <section id="topAction" class="hero-action hidden" aria-label="Top recommended action"></section>
+    <section class="actions" id="actionList" aria-label="Ranked next actions"></section>
+  </main>
+  <aside class="context" aria-label="Evidence and source context">
+    <section><h3>Evidence panel</h3><div id="evidencePanel" class="small">Select an action to inspect evidence.</div></section>
+    <section><h3>Source freshness</h3><ul id="freshness"><li>Waiting for generated data…</li></ul></section>
+    <section id="redaction"><h3>Redaction status</h3><div id="redactionStatus" class="small">Checking public dataset…</div></section>
+  </aside>
+</div>
+<script>
+let mode = 'private';
+let currentData = null;
+const $ = (id) => document.getElementById(id);
+function esc(v){return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function priorityClass(p){return p === 'high' ? 'high' : p === 'medium' ? 'medium' : 'low';}
+async function loadData(){
+  $('loading').classList.remove('hidden'); $('empty').classList.add('hidden'); $('error').classList.add('hidden'); $('topAction').classList.add('hidden'); $('actionList').innerHTML='';
+  try{
+    const res = await fetch(`data/${mode}/summary.json`, {cache:'no-store'});
+    if(!res.ok) throw new Error(`Could not load data/${mode}/summary.json (${res.status})`);
+    currentData = await res.json();
+    render(currentData);
+  }catch(err){
+    $('loading').classList.add('hidden'); $('error').classList.remove('hidden');
+    $('error').innerHTML = `<strong>CRM data failed to load.</strong><br>${esc(err.message)}<br><br>Run <code>uv run python ops-crm/generate.py</code>, then serve from the repo root with <code>python3 -m http.server</code>. Browser file:// loading may block JSON fetches.`;
+    $('status').innerHTML = '<strong>Data error</strong>Generated JSON unavailable';
+  }
+}
+function render(data){
+  $('loading').classList.add('hidden');
+  const actions = data.next_actions || [];
+  $('status').innerHTML = `<strong>${mode === 'private' ? 'Private mode' : 'Public redacted mode'}</strong>Generated ${esc(data.generated_at || 'unknown')} · ${esc(data.summary?.prospects ?? 0)} prospects · ${esc(data.summary?.next_actions ?? actions.length)} actions`;
+  $('redactionStatus').textContent = mode === 'public' ? (data.privacy?.note || 'Public redacted data loaded.') : 'Private data loaded. Switch to public data to verify redacted output.';
+  if(!actions.length){ $('empty').classList.remove('hidden'); return; }
+  const top = actions[0];
+  $('topAction').classList.remove('hidden');
+  $('topAction').innerHTML = actionMarkup(top, true, 1);
+  $('actionList').innerHTML = actions.slice(1, 8).map((a, i) => `<a class="action-row" href="#" data-action-id="${esc(a.id)}"><div class="rank">${i+2}</div><div><h3>${esc(a.action)}</h3><p>${esc(a.reason)}</p></div><div class="owner">${esc(a.owner)}</div></a>`).join('');
+  $('actionList').querySelectorAll('[data-action-id]').forEach(el => el.addEventListener('click', (ev) => { ev.preventDefault(); selectAction(el.dataset.actionId); }));
+  selectAction(top.id);
+  const sourceItems = new Map();
+  [...(data.assets||[]), ...(data.evidence||[])].forEach(item => (item.source_paths||[]).forEach(p => sourceItems.set(p, item.generated_at || data.generated_at)));
+  $('freshness').innerHTML = [...sourceItems.entries()].slice(0,8).map(([p,t]) => `<li>${esc(p)} · generated ${esc(t)}</li>`).join('') || '<li>No source metadata yet</li>';
+}
+function actionMarkup(a, top, rank){
+  return `<div class="meta"><span class="pill ${priorityClass(a.priority)}">${esc(String(a.priority).toUpperCase())}</span><span class="pill">Owner: ${esc(a.owner)}</span><span class="pill">Due: ${esc(a.due_at)}</span><span class="pill">Revenue path: ${esc(a.expected_revenue_path)}</span></div><h2>${top ? '' : '#'+rank+' '}${esc(a.action)}</h2><div class="reason">Why this is next: ${esc(a.reason)}</div><a href="${esc(a.evidence_link)}">Open evidence: ${esc(a.evidence_link)} →</a>`;
+}
+function selectAction(id){
+  const a = (currentData?.next_actions || []).find(x => x.id === id);
+  if(!a) return;
+  $('evidencePanel').innerHTML = `<strong>${esc(a.action)}</strong><br><br><div>Evidence: <a href="${esc(a.evidence_link)}">${esc(a.evidence_link)}</a></div><div>Score: ${esc(a.score)}</div><div>Source entity: ${esc(a.source_entity_type)} / ${esc(a.source_entity_id)}</div><div>Sources:<ul>${(a.source_paths||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>`;
+}
+$('modeButton').addEventListener('click', () => { mode = mode === 'private' ? 'public' : 'private'; $('modeButton').textContent = mode === 'private' ? 'Switch to public data' : 'Switch to private data'; $('modeNote').textContent = mode === 'private' ? 'Private mode loads local CRM data.' : 'Public mode should omit sensitive fields.'; loadData(); });
+loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Prospect",
+  "type": "object",
+  "required": ["id", "company_name", "city", "niche", "priority", "status", "source_paths", "evidence_link", "generated_at", "source_hashes", "source_precedence"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "company_name": {"type": "string", "minLength": 1},
+    "city": {"type": "string"},
+    "niche": {"type": "string"},
+    "phone": {"type": ["string", "null"]},
+    "all_phones": {"type": "array", "items": {"type": "string"}},
+    "email": {"type": ["string", "null"]},
+    "website": {"type": ["string", "null"]},
+    "priority": {"enum": ["high", "medium", "low"]},
+    "status": {"enum": ["new", "contacted", "needs_follow_up", "not_fit", "booked", "customer"]},
+    "last_touch_at": {"type": ["string", "null"]},
+    "next_action_id": {"type": ["string", "null"]},
+    "owner_operator": {"type": "boolean"},
+    "source_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "evidence_link": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string"}},
+    "source_precedence": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": true
+}

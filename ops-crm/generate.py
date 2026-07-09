@@ -1,0 +1,614 @@
+#!/usr/bin/env python3
+"""Generate the MMTVU Operator CRM static data.
+
+Public interface:
+  uv run python ops-crm/generate.py
+  python3 ops-crm/generate.py --root /path/to/repo
+
+The generator is intentionally local-first. It reads existing repo artifacts,
+normalizes them into private JSON, derives public redacted JSON from the private
+records, validates both with JSON Schema, and writes a summary for the static UI.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import re
+from copy import deepcopy
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from jsonschema import Draft202012Validator
+
+SOURCE_PRECEDENCE = {
+    "outreach/owner-operated-vapi-prospects.json": 40,
+    "outreach/high-priority-contacts.json": 30,
+    "outreach/outreach-list-50.json": 20,
+    "outreach/outreach-list-50.csv": 10,
+}
+SENSITIVE_KEYS = {"phone", "email", "all_phones", "transcript", "call_id", "id_raw"}
+PHONE_RE = re.compile(r"(?:\+\d{3}\*{2,}\d{4}|\(?\b\d{3}\)?[\s.-]+\d{3}[\s.-]+\d{4}\b)")
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+CREDENTIAL_RE = re.compile(r"(?i)(api[_ -]?key|token|secret|authorization|bearer)[:=]\s*\S+")
+
+@dataclass(frozen=True)
+class SourceMeta:
+    path: str
+    sha256: str
+    mtime: str
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def slugify(*parts: str) -> str:
+    raw = "-".join(p for p in parts if p)
+    raw = raw.lower().replace("&", " and ")
+    raw = re.sub(r"[^a-z0-9]+", "-", raw)
+    return raw.strip("-") or "unknown"
+
+
+def rel(root: Path, path: Path) -> str:
+    return path.relative_to(root).as_posix()
+
+
+def source_meta(root: Path, rel_path: str) -> SourceMeta:
+    path = root / rel_path
+    data = path.read_bytes()
+    return SourceMeta(
+        path=rel_path,
+        sha256=hashlib.sha256(data).hexdigest(),
+        mtime=datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    )
+
+
+def existing_sources(root: Path, paths: list[str]) -> dict[str, SourceMeta]:
+    out: dict[str, SourceMeta] = {}
+    for p in paths:
+        if (root / p).exists():
+            out[p] = source_meta(root, p)
+    return out
+
+
+def read_json(root: Path, rel_path: str, default: Any) -> Any:
+    p = root / rel_path
+    if not p.exists():
+        return default
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def read_csv(root: Path, rel_path: str) -> list[dict[str, str]]:
+    p = root / rel_path
+    if not p.exists():
+        return []
+    with p.open(newline="", encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+
+def norm_priority(value: Any) -> str:
+    v = str(value or "").strip().lower()
+    return "high" if v == "high" else "medium" if v == "medium" else "low"
+
+
+def prospect_id(record: dict[str, Any]) -> str:
+    return slugify(str(record.get("name") or record.get("company_name") or ""), str(record.get("city") or ""))
+
+
+def merge_prospect(existing: dict[str, Any] | None, incoming: dict[str, Any], source: str) -> dict[str, Any]:
+    inc_rank = SOURCE_PRECEDENCE[source]
+    if existing is None:
+        out = deepcopy(incoming)
+        out["_precedence_rank"] = inc_rank
+        out["source_precedence"] = f"{source} won as initial source"
+        return out
+    out = deepcopy(existing)
+    out.setdefault("source_paths", [])
+    for p in incoming.get("source_paths", []):
+        if p not in out["source_paths"]:
+            out["source_paths"].append(p)
+    if inc_rank >= out.get("_precedence_rank", 0):
+        for key, value in incoming.items():
+            if key == "source_paths":
+                continue
+            if value not in (None, "", []):
+                out[key] = value
+        out["_precedence_rank"] = inc_rank
+        out["source_precedence"] = f"{source} won by source precedence"
+    else:
+        out["source_precedence"] = out.get("source_precedence") or "existing record won by source precedence"
+    return out
+
+
+def build_prospects(root: Path, generated_at: str) -> list[dict[str, Any]]:
+    sources = [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json",
+        "outreach/owner-operated-vapi-prospects.json",
+    ]
+    metas = existing_sources(root, sources)
+    merged: dict[str, dict[str, Any]] = {}
+
+    for row in read_csv(root, "outreach/outreach-list-50.csv"):
+        rec = {
+            "id": prospect_id(row),
+            "company_name": row.get("name") or "",
+            "city": row.get("city") or "",
+            "niche": row.get("niche") or "",
+            "phone": row.get("phone") or None,
+            "all_phones": [],
+            "email": row.get("email") or None,
+            "website": row.get("website") or None,
+            "priority": norm_priority(row.get("priority")),
+            "status": "contacted" if row.get("status", "").lower() not in ("", "not contacted") else "new",
+            "last_touch_at": row.get("outreach_date") or None,
+            "next_action_id": None,
+            "owner_operator": False,
+            "source_paths": ["outreach/outreach-list-50.csv"],
+            "evidence_link": "outreach/outreach-list-50.csv",
+            "generated_at": generated_at,
+            "source_hashes": {p: m.sha256 for p, m in metas.items() if p == "outreach/outreach-list-50.csv"},
+        }
+        merged[rec["id"]] = merge_prospect(merged.get(rec["id"]), rec, "outreach/outreach-list-50.csv")
+
+    list_json = read_json(root, "outreach/outreach-list-50.json", [])
+    if isinstance(list_json, list):
+        for row in list_json:
+            if not isinstance(row, dict):
+                continue
+            rec = {
+                "id": prospect_id(row),
+                "company_name": row.get("name") or row.get("company_name") or "",
+                "city": row.get("city") or "",
+                "niche": row.get("niche") or "",
+                "phone": row.get("phone") or None,
+                "all_phones": row.get("all_phones") or [],
+                "email": row.get("email") or None,
+                "website": row.get("website") or None,
+                "priority": norm_priority(row.get("priority")),
+                "status": "new",
+                "last_touch_at": None,
+                "next_action_id": None,
+                "owner_operator": False,
+                "source_paths": ["outreach/outreach-list-50.json"],
+                "evidence_link": "outreach/outreach-list-50.json",
+                "generated_at": generated_at,
+                "source_hashes": {p: m.sha256 for p, m in metas.items() if p == "outreach/outreach-list-50.json"},
+            }
+            merged[rec["id"]] = merge_prospect(merged.get(rec["id"]), rec, "outreach/outreach-list-50.json")
+
+    high = read_json(root, "outreach/high-priority-contacts.json", {})
+    for row in high.get("contacts", []) if isinstance(high, dict) else []:
+        rec = {
+            "id": prospect_id(row),
+            "company_name": row.get("name") or "",
+            "city": row.get("city") or "",
+            "niche": row.get("niche") or "",
+            "phone": row.get("phone") or None,
+            "all_phones": [row.get("phone")] if row.get("phone") else [],
+            "email": row.get("email") or None,
+            "website": row.get("website") or None,
+            "priority": "high",
+            "status": "new",
+            "last_touch_at": None,
+            "next_action_id": None,
+            "owner_operator": False,
+            "source_paths": ["outreach/high-priority-contacts.json"],
+            "evidence_link": "outreach/high-priority-contacts.json",
+            "generated_at": generated_at,
+            "source_hashes": {p: m.sha256 for p, m in metas.items() if p == "outreach/high-priority-contacts.json"},
+        }
+        merged[rec["id"]] = merge_prospect(merged.get(rec["id"]), rec, "outreach/high-priority-contacts.json")
+
+    owner = read_json(root, "outreach/owner-operated-vapi-prospects.json", [])
+    if isinstance(owner, list):
+        for row in owner:
+            if not isinstance(row, dict):
+                continue
+            rec = {
+                "id": prospect_id(row),
+                "company_name": row.get("name") or "",
+                "city": row.get("city") or "",
+                "niche": row.get("niche") or "",
+                "phone": row.get("phone") or None,
+                "all_phones": row.get("all_phones") or [],
+                "email": row.get("email") or None,
+                "website": row.get("website") or None,
+                "priority": norm_priority(row.get("priority")),
+                "status": "needs_follow_up" if row.get("called_2026_07_08_after_hours") else "new",
+                "last_touch_at": "2026-07-08" if row.get("called_2026_07_08_after_hours") else None,
+                "next_action_id": None,
+                "owner_operator": True,
+                "owner_operator_reason": row.get("owner_operator_reason") or "Owner-operated target",
+                "source_paths": ["outreach/owner-operated-vapi-prospects.json"],
+                "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+                "generated_at": generated_at,
+                "source_hashes": {p: m.sha256 for p, m in metas.items() if p == "outreach/owner-operated-vapi-prospects.json"},
+            }
+            merged[rec["id"]] = merge_prospect(merged.get(rec["id"]), rec, "outreach/owner-operated-vapi-prospects.json")
+
+    prospects = []
+    for rec in merged.values():
+        rec.pop("_precedence_rank", None)
+        rec["source_hashes"] = {p: metas[p].sha256 for p in rec.get("source_paths", []) if p in metas}
+        prospects.append(rec)
+    return sorted(prospects, key=lambda r: ({"high": 0, "medium": 1, "low": 2}[r["priority"]], not r.get("owner_operator"), r["company_name"]))
+
+
+def file_last_touched(root: Path, rel_path: str) -> str:
+    p = root / rel_path
+    if not p.exists():
+        return utc_now()
+    return datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def build_assets(root: Path, generated_at: str) -> list[dict[str, Any]]:
+    specs = [
+        ("offer-doc-home-service-ai-follow-up", "offer_doc", "Home Service AI Follow-Up Starter", "offers/home-service-ai-follow-up-starter.md", "Defines the first monetizable offer and target customer."),
+        ("landing-page-home-service-offer", "landing_page", "Home-service follow-up landing page", "landing/index.html", "Public conversion asset for the offer."),
+        ("report-first-vapi-campaign", "report", "First Vapi cold-call campaign report", "outreach/vapi-campaign-report.md", "Shows IVR/DTMF failure and big-company calling lessons."),
+        ("report-owner-operated-vapi", "report", "Owner-operated Vapi after-hours report", "outreach/owner-operated-vapi-report.md", "Evidence that owner-operated prospects are a better next call target."),
+        ("script-business-hours-calls", "script", "Owner-operated business-hours call runner", "outreach/run-owner-operated-business-hours-calls.sh", "Prepared next campaign script for the strongest follow-up action."),
+        ("policy-vapi-cost-control", "report", "Vapi cost-control fix", "outreach/vapi-cost-control-fix.md", "Documents call-cost guardrails after early campaign learning."),
+        ("assistant-owner-operator-config", "assistant", "Owner-operator Vapi assistant config", "outreach/vapi-owner-operator-cost-controlled-config.json", "Current assistant behavior for smaller local prospects."),
+    ]
+    assets = []
+    for asset_id, typ, name, path, why in specs:
+        if not (root / path).exists():
+            continue
+        meta = source_meta(root, path)
+        assets.append({
+            "id": asset_id,
+            "type": typ,
+            "name": name,
+            "path_or_url": path,
+            "status": "active",
+            "last_touched_at": meta.mtime,
+            "why_it_matters": why,
+            "source_paths": [path],
+            "evidence_link": path,
+            "generated_at": generated_at,
+            "source_hashes": {path: meta.sha256},
+        })
+    return assets
+
+
+def load_call_summaries(root: Path) -> dict[str, dict[str, Any]]:
+    out = {}
+    for rel_path in ["outreach/owner-operated-call-summaries.json", "outreach/vapi-call-summaries.json"]:
+        rows = read_json(root, rel_path, [])
+        if isinstance(rows, list):
+            for row in rows:
+                if isinstance(row, dict) and row.get("business"):
+                    row = deepcopy(row)
+                    row["source_path"] = rel_path
+                    out[row["business"].lower()] = row
+    return out
+
+
+def action_score(prospect: dict[str, Any], call: dict[str, Any] | None) -> float:
+    score = 10.0
+    if prospect.get("owner_operator"):
+        score += 25
+    if prospect.get("status") == "needs_follow_up":
+        score += 30
+    if prospect.get("priority") == "high":
+        score += 12
+    elif prospect.get("priority") == "medium":
+        score += 6
+    if call:
+        text = f"{call.get('summary') or ''} {call.get('endedReason') or ''}".lower()
+        if "closed" in text or "business hours" in text:
+            score += 35
+        if "voicemail" in text:
+            score += 25
+        if "live agent" in text or "real person" in text:
+            score += 15
+        if call.get("cost", 0):
+            score += min(float(call.get("cost") or 0) * 10, 5)
+    return round(score, 2)
+
+
+def build_next_actions(root: Path, prospects: list[dict[str, Any]], assets: list[dict[str, Any]], generated_at: str) -> list[dict[str, Any]]:
+    calls = load_call_summaries(root)
+    metas = existing_sources(root, ["outreach/owner-operated-vapi-report.md", "outreach/owner-operated-call-summaries.json", "outreach/vapi-campaign-report.md", "outreach/vapi-call-summaries.json", "outreach/run-owner-operated-business-hours-calls.sh"])
+    actions: list[dict[str, Any]] = []
+    for p in prospects:
+        call = calls.get(p["company_name"].lower())
+        if p.get("owner_operator") or call:
+            score = action_score(p, call)
+            summary_text = str(call.get("summary", "")).lower() if call else ""
+            if call and ("closed" in summary_text or "business hours" in summary_text):
+                action = f"Retry {p['company_name']} during business hours"
+                owner = "Hermes"
+                reason = "After-hours call hit a closed-office flow; the assistant said it would try again during business hours."
+                due = "10:00 ET next business day"
+            elif call and "voicemail" in summary_text:
+                action = f"Send a short email fallback to {p['company_name']} after voicemail"
+                owner = "Matthew"
+                reason = "Voicemail was reached; the report says the AI offered to have Matthew send one short email."
+                due = "next business day"
+            elif call and "live agent" in str(call.get("summary", "")).lower():
+                action = f"Prepare direct follow-up angle for {p['company_name']}"
+                owner = "Both"
+                reason = "The first batch reached a live agent but failed to qualify before the call ended."
+                due = "this week"
+            else:
+                action = f"Call {p['company_name']} in the owner-operated business-hours batch"
+                owner = "Hermes"
+                reason = "Owner-operated local prospects are the best next segment after large-company IVR failures."
+                due = "10:00 ET next business day"
+            source_paths = ["outreach/owner-operated-vapi-prospects.json"]
+            if call:
+                source_paths.append(call["source_path"])
+            source_paths.append("outreach/owner-operated-vapi-report.md")
+            source_hashes = {sp: source_meta(root, sp).sha256 for sp in sorted(set(source_paths)) if (root / sp).exists()}
+            priority = "high" if score >= 70 else "medium" if score >= 45 else "low"
+            actions.append({
+                "id": "action-" + p["id"],
+                "owner": owner,
+                "action": action,
+                "priority": priority,
+                "score": score,
+                "due_at": due,
+                "reason": reason,
+                "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+                "evidence_link": "outreach/owner-operated-vapi-report.md",
+                "status": "open",
+                "source_entity_type": "prospect",
+                "source_entity_id": p["id"],
+                "source_paths": sorted(set(source_paths)),
+                "generated_at": generated_at,
+                "source_hashes": source_hashes,
+            })
+    # Add privacy/control action from the design review.
+    redaction_sources = ["outreach/vapi-cost-control-fix.md"]
+    if (root / redaction_sources[0]).exists():
+        meta = source_meta(root, redaction_sources[0])
+        actions.append({
+            "id": "action-check-public-redaction-before-publish",
+            "owner": "Hermes",
+            "action": "Verify public CRM redaction before any GitHub Pages publishing",
+            "priority": "high",
+            "score": 72,
+            "due_at": "before public publish",
+            "reason": "The CRM contains prospect data and call evidence; public output must prove that sensitive fields are removed.",
+            "expected_revenue_path": "Protect trust and keep public status useful without leaking prospect/campaign details",
+            "evidence_link": "outreach/vapi-cost-control-fix.md",
+            "status": "open",
+            "source_entity_type": "asset",
+            "source_entity_id": "policy-vapi-cost-control",
+            "source_paths": redaction_sources,
+            "generated_at": generated_at,
+            "source_hashes": {meta.path: meta.sha256},
+        })
+    actions.sort(key=lambda a: (-a["score"], a["due_at"], a["action"]))
+    for p in prospects:
+        for a in actions:
+            if a["source_entity_type"] == "prospect" and a["source_entity_id"] == p["id"]:
+                p["next_action_id"] = a["id"]
+                break
+    return actions
+
+
+def build_offer(root: Path, generated_at: str) -> list[dict[str, Any]]:
+    paths = ["offers/home-service-ai-follow-up-starter.md", "landing/index.html"]
+    metas = existing_sources(root, paths)
+    return [{
+        "id": "home-service-ai-follow-up-starter",
+        "name": "Home Service AI Follow-Up Starter",
+        "price_or_pricing_notes": "$300/month positioning in outreach copy; one recovered job should cover it.",
+        "target_customer": "Owner-operated or local home-service businesses that miss quote/estimate follow-up.",
+        "current_public_url": "landing/index.html",
+        "source_paths": [p for p in paths if p in metas],
+        "evidence_link": "offers/home-service-ai-follow-up-starter.md",
+        "generated_at": generated_at,
+        "source_hashes": {p: m.sha256 for p, m in metas.items()},
+    }]
+
+
+def build_evidence(root: Path, generated_at: str) -> list[dict[str, Any]]:
+    specs = [
+        ("evidence-owner-operated-report", "outreach/owner-operated-vapi-report.md", "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended."),
+        ("evidence-first-vapi-report", "outreach/vapi-campaign-report.md", "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker."),
+        ("evidence-business-hours-script", "outreach/run-owner-operated-business-hours-calls.sh", "Prepared script for the seven remaining owner-operated prospects."),
+        ("evidence-offer-doc", "offers/home-service-ai-follow-up-starter.md", "Offer source for target customer and positioning."),
+        ("evidence-landing-page", "landing/index.html", "Public landing page asset exists."),
+    ]
+    out = []
+    for eid, path, summary in specs:
+        if (root / path).exists():
+            meta = source_meta(root, path)
+            out.append({"id": eid, "summary": summary, "evidence_link": path, "source_paths": [path], "generated_at": generated_at, "source_hashes": {path: meta.sha256}, "source_mtime": meta.mtime})
+    return out
+
+
+def validate_records(root: Path, dataset: dict[str, list[dict[str, Any]]]) -> None:
+    schema_dir = root / "ops-crm" / "schemas"
+    mapping = {
+        "offers": "offer.schema.json",
+        "prospects": "prospect.schema.json",
+        "assets": "asset.schema.json",
+        "next_actions": "next_action.schema.json",
+    }
+    for key, schema_name in mapping.items():
+        schema = json.loads((schema_dir / schema_name).read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+        for idx, rec in enumerate(dataset.get(key, [])):
+            errors = sorted(validator.iter_errors(rec), key=lambda e: e.path)
+            if errors:
+                joined = "; ".join(f"{key}[{idx}].{'.'.join(map(str, e.path))}: {e.message}" for e in errors)
+                raise ValueError(joined)
+    prospect_ids = {p["id"] for p in dataset.get("prospects", [])}
+    asset_ids = {a["id"] for a in dataset.get("assets", [])}
+    offer_ids = {o["id"] for o in dataset.get("offers", [])}
+    for action in dataset.get("next_actions", []):
+        typ = action["source_entity_type"]
+        sid = action["source_entity_id"]
+        allowed = prospect_ids if typ == "prospect" else asset_ids if typ == "asset" else offer_ids
+        if dataset.get("mode") == "public" and typ == "prospect" and sid == "redacted-prospect":
+            continue
+        if sid not in allowed:
+            raise ValueError(f"next_actions.{action['id']} references missing {typ} {sid}")
+
+
+def redact_text(value: str) -> str:
+    value = PHONE_RE.sub("[redacted-phone]", value)
+    value = EMAIL_RE.sub("[redacted-email]", value)
+    value = CREDENTIAL_RE.sub("[redacted-secret]", value)
+    return value
+
+
+def redact_record(value: Any, *, anonymize_company: bool = False) -> Any:
+    if isinstance(value, dict):
+        out = {}
+        for k, v in value.items():
+            if k in SENSITIVE_KEYS:
+                continue
+            if k == "company_name" and anonymize_company:
+                city = value.get("city") if isinstance(value, dict) else None
+                out["company_name"] = "Local prospect"
+                continue
+            if k == "source_hashes":
+                out[k] = v
+                continue
+            out[k] = redact_record(v, anonymize_company=anonymize_company)
+        return out
+    if isinstance(value, list):
+        return [redact_record(v, anonymize_company=anonymize_company) for v in value]
+    if isinstance(value, str):
+        return redact_text(value)
+    return value
+
+
+def anonymize_public_action(action: dict[str, Any], company_names: list[str]) -> dict[str, Any]:
+    public_action = redact_record(action)
+    replacements = {
+        "Retry {company} during business hours": "Retry a local prospect during business hours",
+        "Send a short email fallback to {company} after voicemail": "Send a short email fallback after voicemail",
+        "Prepare direct follow-up angle for {company}": "Prepare a direct follow-up angle for a reached prospect",
+        "Call {company} in the owner-operated business-hours batch": "Call a local owner-operated prospect in the business-hours batch",
+    }
+    original_action = str(action.get("action", ""))
+    for name in company_names:
+        public_action = replace_sensitive_name(public_action, name)
+    # Preserve useful public operational status without leaking prospect identity.
+    if original_action.startswith("Retry ") and " during business hours" in original_action:
+        public_action["action"] = replacements["Retry {company} during business hours"]
+    elif "after voicemail" in original_action:
+        public_action["action"] = replacements["Send a short email fallback to {company} after voicemail"]
+    elif original_action.startswith("Prepare direct follow-up angle"):
+        public_action["action"] = replacements["Prepare direct follow-up angle for {company}"]
+    elif "owner-operated business-hours batch" in original_action:
+        public_action["action"] = replacements["Call {company} in the owner-operated business-hours batch"]
+    public_action["source_entity_id"] = "redacted-prospect" if action.get("source_entity_type") == "prospect" else public_action.get("source_entity_id")
+    if action.get("source_entity_type") == "prospect":
+        public_action["evidence_link"] = "private-source-redacted"
+        public_action["source_paths"] = ["private-source-redacted"]
+        public_action["source_hashes"] = {}
+    return public_action
+
+
+def replace_sensitive_name(value: Any, name: str) -> Any:
+    if not name:
+        return value
+    if isinstance(value, dict):
+        return {k: replace_sensitive_name(v, name) for k, v in value.items()}
+    if isinstance(value, list):
+        return [replace_sensitive_name(v, name) for v in value]
+    if isinstance(value, str):
+        return value.replace(name, "a local prospect")
+    return value
+
+
+def derive_public(private: dict[str, Any]) -> dict[str, Any]:
+    public = deepcopy(private)
+    company_names = [p.get("company_name", "") for p in private.get("prospects", [])]
+    public["prospects"] = [redact_record(p, anonymize_company=True) for p in private.get("prospects", [])]
+    public["next_actions"] = [anonymize_public_action(a, company_names) for a in private.get("next_actions", [])]
+    public["assets"] = [redact_record(a) for a in private.get("assets", [])]
+    public["offers"] = [redact_record(o) for o in private.get("offers", [])]
+    public["evidence"] = [redact_record(e) for e in private.get("evidence", [])]
+    public["mode"] = "public"
+    public["privacy"] = {"status": "public_redacted", "note": "Derived from private data after schema validation; sensitive contact, prospect identity, and call-detail fields are omitted."}
+    return public
+
+
+def assert_public_safe(public: dict[str, Any]) -> None:
+    text = json.dumps(public, ensure_ascii=False)
+    problems = []
+    for name, pattern in [("phone", PHONE_RE), ("email", EMAIL_RE), ("credential", CREDENTIAL_RE)]:
+        if pattern.search(text):
+            problems.append(name)
+    forbidden_keys = [f'"{k}"' for k in SENSITIVE_KEYS]
+    for key in forbidden_keys:
+        if key in text:
+            problems.append(key)
+    if problems:
+        raise ValueError("public output failed redaction checks: " + ", ".join(sorted(set(problems))))
+
+
+def write_json(path: Path, data: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def generate(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    generated_at = utc_now()
+    offers = build_offer(root, generated_at)
+    prospects = build_prospects(root, generated_at)
+    assets = build_assets(root, generated_at)
+    actions = build_next_actions(root, prospects, assets, generated_at)
+    evidence = build_evidence(root, generated_at)
+    private = {
+        "mode": "private",
+        "generated_at": generated_at,
+        "offers": offers,
+        "prospects": prospects,
+        "assets": assets,
+        "next_actions": actions,
+        "evidence": evidence,
+        "summary": {
+            "prospects": len(prospects),
+            "assets": len(assets),
+            "next_actions": len(actions),
+            "evidence": len(evidence),
+            "top_action_id": actions[0]["id"] if actions else None,
+        },
+    }
+    validate_records(root, private)
+    public = derive_public(private)
+    validate_records(root, public)
+    assert_public_safe(public)
+    return private, public
+
+
+def write_outputs(root: Path, private: dict[str, Any], public: dict[str, Any]) -> None:
+    base = root / "ops-crm" / "data"
+    for mode, dataset in [("private", private), ("public", public)]:
+        mode_dir = base / mode
+        write_json(mode_dir / "summary.json", dataset)
+        for key in ["offers", "prospects", "assets", "next_actions", "evidence"]:
+            write_json(mode_dir / f"{key}.json", dataset.get(key, []))
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Generate MMTVU Operator CRM data")
+    parser.add_argument("--root", default=Path(__file__).resolve().parents[1], type=Path)
+    args = parser.parse_args()
+    root = args.root.resolve()
+    private, public = generate(root)
+    write_outputs(root, private, public)
+    print(f"Generated CRM data at {root / 'ops-crm' / 'data'}")
+    print(f"Top action: {private['next_actions'][0]['action'] if private['next_actions'] else 'none'}")
+    print(f"Private records: prospects={len(private['prospects'])} assets={len(private['assets'])} actions={len(private['next_actions'])} evidence={len(private['evidence'])}")
+    print("Public redaction: PASS")
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

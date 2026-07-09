@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Asset",
+  "type": "object",
+  "required": ["id", "type", "name", "path_or_url", "status", "last_touched_at", "why_it_matters", "source_paths", "evidence_link", "generated_at", "source_hashes"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "type": {"enum": ["landing_page", "offer_doc", "script", "assistant", "report", "data_file", "dashboard"]},
+    "name": {"type": "string", "minLength": 1},
+    "path_or_url": {"type": "string", "minLength": 1},
+    "status": {"enum": ["active", "draft", "stale", "failed", "unknown"]},
+    "last_touched_at": {"type": "string", "minLength": 1},
+    "why_it_matters": {"type": "string", "minLength": 1},
+    "source_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "evidence_link": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

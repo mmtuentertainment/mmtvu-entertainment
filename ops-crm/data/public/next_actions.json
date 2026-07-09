@@ -1,0 +1,327 @@
+[
+  {
+    "id": "action-halpin-plumbing-inc-cincinnati-oh",
+    "owner": "Hermes",
+    "action": "Retry a local prospect during business hours",
+    "priority": "high",
+    "score": 127.53,
+    "due_at": "10:00 ET next business day",
+    "reason": "After-hours call hit a closed-office flow; the assistant said it would try again during business hours.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-empire-contractors-llc-cincinnati-oh",
+    "owner": "Matthew",
+    "action": "Send a short email fallback after voicemail",
+    "priority": "high",
+    "score": 91.17,
+    "due_at": "next business day",
+    "reason": "Voicemail was reached; the report says the AI offered to have Matthew send one short email.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-check-public-redaction-before-publish",
+    "owner": "Hermes",
+    "action": "Verify public CRM redaction before any GitHub Pages publishing",
+    "priority": "high",
+    "score": 72,
+    "due_at": "before public publish",
+    "reason": "The CRM contains prospect data and call evidence; public output must prove that sensitive fields are removed.",
+    "expected_revenue_path": "Protect trust and keep public status useful without leaking prospect/campaign details",
+    "evidence_link": "outreach/vapi-cost-control-fix.md",
+    "status": "open",
+    "source_entity_type": "asset",
+    "source_entity_id": "policy-vapi-cost-control",
+    "source_paths": [
+      "outreach/vapi-cost-control-fix.md"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
+    }
+  },
+  {
+    "id": "action-deer-park-roofing-llc-cincinnati-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "medium",
+    "score": 65.81,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-logan-services-a-c-heat-and-plumbing-columbus-oh",
+    "owner": "Both",
+    "action": "Prepare a direct follow-up angle for a reached prospect",
+    "priority": "low",
+    "score": 42.0,
+    "due_at": "this week",
+    "reason": "The first batch reached a live agent but failed to qualify before the call ended.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-r-and-t-yoder-electric-inc-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 41.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-tom-drexler-plumbing-air-and-electric-louisville-ky",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 37.93,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-columbus-roofing-company-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 35.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-cooper-electric-cincinnati-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 35.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-fritz-baumann-and-sons-inc-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 35.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-jf-baker-roofing-company-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 35.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-muth-and-company-roofing-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 35.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-reupert-heating-and-air-conditioning-cincinnati-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 35.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-apollo-home-cincinnati-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 24.11,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-chapman-heating-ac-plumbing-and-electrical-indianapolis-in",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 23.56,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-apex-pros-plumbing-electrical-heating-and-air-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 22.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  },
+  {
+    "id": "action-safe-electric-and-plumbing-columbus-oh",
+    "owner": "Hermes",
+    "action": "Call a local owner-operated prospect in the business-hours batch",
+    "priority": "low",
+    "score": 22.0,
+    "due_at": "10:00 ET next business day",
+    "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+    "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+    "evidence_link": "private-source-redacted",
+    "status": "open",
+    "source_entity_type": "prospect",
+    "source_entity_id": "redacted-prospect",
+    "source_paths": [
+      "private-source-redacted"
+    ],
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {}
+  }
+]

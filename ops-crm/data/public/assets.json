@@ -1,0 +1,121 @@
+[
+  {
+    "id": "offer-doc-home-service-ai-follow-up",
+    "type": "offer_doc",
+    "name": "Home Service AI Follow-Up Starter",
+    "path_or_url": "offers/home-service-ai-follow-up-starter.md",
+    "status": "active",
+    "last_touched_at": "2026-07-08T19:26:58Z",
+    "why_it_matters": "Defines the first monetizable offer and target customer.",
+    "source_paths": [
+      "offers/home-service-ai-follow-up-starter.md"
+    ],
+    "evidence_link": "offers/home-service-ai-follow-up-starter.md",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a"
+    }
+  },
+  {
+    "id": "landing-page-home-service-offer",
+    "type": "landing_page",
+    "name": "Home-service follow-up landing page",
+    "path_or_url": "landing/index.html",
+    "status": "active",
+    "last_touched_at": "2026-07-08T19:54:23Z",
+    "why_it_matters": "Public conversion asset for the offer.",
+    "source_paths": [
+      "landing/index.html"
+    ],
+    "evidence_link": "landing/index.html",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
+    }
+  },
+  {
+    "id": "report-first-vapi-campaign",
+    "type": "report",
+    "name": "First Vapi cold-call campaign report",
+    "path_or_url": "outreach/vapi-campaign-report.md",
+    "status": "active",
+    "last_touched_at": "2026-07-08T21:06:50Z",
+    "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
+    "source_paths": [
+      "outreach/vapi-campaign-report.md"
+    ],
+    "evidence_link": "outreach/vapi-campaign-report.md",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "outreach/vapi-campaign-report.md": "83ddd5e413a665b2e9f90e28727986892cc793d6e362433a04c4dba22f0c9588"
+    }
+  },
+  {
+    "id": "report-owner-operated-vapi",
+    "type": "report",
+    "name": "Owner-operated Vapi after-hours report",
+    "path_or_url": "outreach/owner-operated-vapi-report.md",
+    "status": "active",
+    "last_touched_at": "2026-07-08T21:17:22Z",
+    "why_it_matters": "Evidence that owner-operated prospects are a better next call target.",
+    "source_paths": [
+      "outreach/owner-operated-vapi-report.md"
+    ],
+    "evidence_link": "outreach/owner-operated-vapi-report.md",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "outreach/owner-operated-vapi-report.md": "b5ab2051ad32d5c9fc4c74377780526e145a38199f3bc6fcd4158fa8eb06178c"
+    }
+  },
+  {
+    "id": "script-business-hours-calls",
+    "type": "script",
+    "name": "Owner-operated business-hours call runner",
+    "path_or_url": "outreach/run-owner-operated-business-hours-calls.sh",
+    "status": "active",
+    "last_touched_at": "2026-07-08T22:52:55Z",
+    "why_it_matters": "Prepared next campaign script for the strongest follow-up action.",
+    "source_paths": [
+      "outreach/run-owner-operated-business-hours-calls.sh"
+    ],
+    "evidence_link": "outreach/run-owner-operated-business-hours-calls.sh",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "outreach/run-owner-operated-business-hours-calls.sh": "9933d4e4a269c722794bc764ba1582e728fb80540d4090f66d7ee9e0bc1714bd"
+    }
+  },
+  {
+    "id": "policy-vapi-cost-control",
+    "type": "report",
+    "name": "Vapi cost-control fix",
+    "path_or_url": "outreach/vapi-cost-control-fix.md",
+    "status": "active",
+    "last_touched_at": "2026-07-08T22:53:17Z",
+    "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
+    "source_paths": [
+      "outreach/vapi-cost-control-fix.md"
+    ],
+    "evidence_link": "outreach/vapi-cost-control-fix.md",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
+    }
+  },
+  {
+    "id": "assistant-owner-operator-config",
+    "type": "assistant",
+    "name": "Owner-operator Vapi assistant config",
+    "path_or_url": "outreach/vapi-owner-operator-cost-controlled-config.json",
+    "status": "active",
+    "last_touched_at": "2026-07-08T22:52:39Z",
+    "why_it_matters": "Current assistant behavior for smaller local prospects.",
+    "source_paths": [
+      "outreach/vapi-owner-operator-cost-controlled-config.json"
+    ],
+    "evidence_link": "outreach/vapi-owner-operator-cost-controlled-config.json",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "outreach/vapi-owner-operator-cost-controlled-config.json": "4c39f6829b7697cbb56cc268e6ec20709181ba0775778f52408346cd0a24a5b6"
+    }
+  }
+]

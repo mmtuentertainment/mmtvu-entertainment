@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Offer",
+  "type": "object",
+  "required": ["id", "name", "price_or_pricing_notes", "target_customer", "current_public_url", "source_paths", "evidence_link", "generated_at", "source_hashes"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "name": {"type": "string", "minLength": 1},
+    "price_or_pricing_notes": {"type": "string"},
+    "target_customer": {"type": "string"},
+    "current_public_url": {"type": "string"},
+    "source_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "evidence_link": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

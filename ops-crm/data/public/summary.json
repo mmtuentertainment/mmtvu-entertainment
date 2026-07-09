@@ -1,0 +1,2067 @@
+{
+  "mode": "public",
+  "generated_at": "2026-07-09T02:29:06Z",
+  "offers": [
+    {
+      "id": "home-service-ai-follow-up-starter",
+      "name": "Home Service AI Follow-Up Starter",
+      "price_or_pricing_notes": "$300/month positioning in outreach copy; one recovered job should cover it.",
+      "target_customer": "Owner-operated or local home-service businesses that miss quote/estimate follow-up.",
+      "current_public_url": "landing/index.html",
+      "source_paths": [
+        "offers/home-service-ai-follow-up-starter.md",
+        "landing/index.html"
+      ],
+      "evidence_link": "offers/home-service-ai-follow-up-starter.md",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a",
+        "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
+      }
+    }
+  ],
+  "prospects": [
+    {
+      "id": "apex-pros-plumbing-electrical-heating-and-air-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing/Electrical/HVAC",
+      "website": "https://apexpros.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-apex-pros-plumbing-electrical-heating-and-air-columbus-oh",
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "apollo-home-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "HVAC/Plumbing/Electrical",
+      "website": "https://apollohome.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-apollo-home-cincinnati-oh",
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "chapman-heating-ac-plumbing-and-electrical-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "HVAC/Plumbing/Electrical",
+      "website": "https://chapmanheating.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-chapman-heating-ac-plumbing-and-electrical-indianapolis-in",
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "eco-plumbers-electricians-and-hvac-technicians-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing/Electrical/HVAC",
+      "website": "https://www.geteco.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "logan-services-a-c-heat-and-plumbing-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC/Plumbing",
+      "website": "https://www.logan-inc.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-logan-services-a-c-heat-and-plumbing-columbus-oh",
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "quality-comfort-home-services-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "HVAC/Plumbing",
+      "website": "http://www.myqualitycomfort.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "safe-electric-and-plumbing-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Electrical/Plumbing",
+      "website": "https://callsafe.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-safe-electric-and-plumbing-columbus-oh",
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "tom-drexler-plumbing-air-and-electric-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "HVAC/Plumbing/Electrical",
+      "website": "https://tomdrexlerplumbing.com/",
+      "priority": "high",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-tom-drexler-plumbing-air-and-electric-louisville-ky",
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/high-priority-contacts.json"
+      ],
+      "evidence_link": "outreach/high-priority-contacts.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/high-priority-contacts.json": "37550aeb0428b59ef7e36ea38111fc8f712f6c51d6de2b14cf94161586c0b1ed"
+      },
+      "source_precedence": "outreach/high-priority-contacts.json won by source precedence"
+    },
+    {
+      "id": "r-and-t-yoder-electric-inc-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Electrical",
+      "website": "https://www.rtyoder.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-r-and-t-yoder-electric-inc-columbus-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
+    },
+    {
+      "id": "1-tom-plumber-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing",
+      "website": "https://www.1tomplumber.com/columbusoh/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "aire-serv-of-louisville-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "HVAC",
+      "website": "https://www.aireserv.com/louisville/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "bolls-heating-and-cooling-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "HVAC",
+      "website": "https://www.bollscomfort.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "bryant-heating-cooling-plumbing-and-electric-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "HVAC/Plumbing/Electrical",
+      "website": "http://www.callbryant.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "cjs-heating-and-air-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC",
+      "website": "https://book.servicetitan.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "carter-s-my-plumber-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "Plumbing",
+      "website": "https://www.cartersmyplumber.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "ciriello-plumbing-co-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "Plumbing",
+      "website": "https://cirielloplumbing.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "craftsman-electric-inc-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Electrical",
+      "website": "https://www.craftsmanelectric.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "dor-mar-columbus-heating-and-air-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC",
+      "website": "https://www.dormarhvac.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "five-star-home-services-cincinnati-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "HVAC",
+      "website": "https://www.myfivestarhomeservices.com/cincinnati/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "help-plumbing-heating-cooling-and-drains-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Plumbing/HVAC",
+      "website": "https://333help.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "hope-plumbing-heating-and-cooling-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "Plumbing/HVAC",
+      "website": "https://www.hopeplumbing.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "jonle-heating-and-cooling-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "HVAC",
+      "website": "http://jonle.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "mister-sparky-of-cincinnati-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Electrical",
+      "website": "https://www.mistersparky.com/cincinnati/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "mr-electric-of-columbus-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Electrical",
+      "website": "https://mrelectric.com/northeast-ohio-columbus",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "mr-rooter-plumbing-of-columbus-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing",
+      "website": "https://www.mrrooter.com/columbus/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "new-heights-roofing-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Roofing",
+      "website": "https://newheightsroof.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "one-hour-heating-and-air-conditioning-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "HVAC",
+      "website": "https://www.onehourheatandair.com/indianapolis/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "paff-electric-and-solar-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Electrical",
+      "website": "https://www.paffelectricandsolar.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "plumb-tite-plumbing-and-drains-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Plumbing",
+      "website": "http://plumbtite.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "pristine-plumbing-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "Plumbing",
+      "website": "https://www.callpristine.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "roy-rogers-heating-and-air-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "HVAC",
+      "website": "https://www.royrogersheatingandair.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "service-experts-indianapolis-indianapolis-in",
+      "company_name": "Local prospect",
+      "city": "Indianapolis, IN",
+      "niche": "HVAC",
+      "website": "https://www.serviceexperts.com/indianapolis-in/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "the-waterworks-plumbing-drain-heating-and-cooling-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing",
+      "website": "https://thewaterworks.com/",
+      "priority": "medium",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "columbus-roofing-company-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Roofing",
+      "website": "https://columbusroofingco.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-columbus-roofing-company-columbus-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
+    },
+    {
+      "id": "cooper-electric-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Electrical",
+      "website": "http://cooper-electric.net/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-cooper-electric-cincinnati-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
+    },
+    {
+      "id": "deer-park-roofing-llc-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Roofing",
+      "website": "https://www.deerparkroofing.com/",
+      "priority": "low",
+      "status": "needs_follow_up",
+      "last_touch_at": "2026-07-08",
+      "next_action_id": "action-deer-park-roofing-llc-cincinnati-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
+    },
+    {
+      "id": "empire-contractors-llc-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Roofing",
+      "website": "https://www.empirecontractorsllc.com/",
+      "priority": "low",
+      "status": "needs_follow_up",
+      "last_touch_at": "2026-07-08",
+      "next_action_id": "action-empire-contractors-llc-cincinnati-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
+    },
+    {
+      "id": "fritz-baumann-and-sons-inc-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing",
+      "website": "http://fritzbaumannplumbinginc.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-fritz-baumann-and-sons-inc-columbus-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
+    },
+    {
+      "id": "halpin-plumbing-inc-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Plumbing",
+      "website": "https://www.halpinplumbing.com/",
+      "priority": "low",
+      "status": "needs_follow_up",
+      "last_touch_at": "2026-07-08",
+      "next_action_id": "action-halpin-plumbing-inc-cincinnati-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
+    },
+    {
+      "id": "jf-baker-roofing-company-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Roofing",
+      "website": "https://www.jfbakerroofing.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-jf-baker-roofing-company-columbus-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
+    },
+    {
+      "id": "muth-and-company-roofing-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Roofing",
+      "website": "https://muthroofing.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-muth-and-company-roofing-columbus-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
+    },
+    {
+      "id": "reupert-heating-and-air-conditioning-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "HVAC",
+      "website": "https://reupert.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": "action-reupert-heating-and-air-conditioning-cincinnati-oh",
+      "owner_operator": true,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json",
+        "outreach/owner-operated-vapi-prospects.json"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-prospects.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
+        "outreach/owner-operated-vapi-prospects.json": "6db0cbc20b6f0e212868d5c292c605f24b3308b0d0251d9130b725c05103bb06"
+      },
+      "source_precedence": "outreach/owner-operated-vapi-prospects.json won by source precedence",
+      "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
+    },
+    {
+      "id": "allgeier-air-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "HVAC",
+      "website": "https://louisvilleair.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "american-roofing-and-metal-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "Roofing",
+      "website": "https://americanroofingonline.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "bone-dry-roofing-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "Roofing",
+      "website": "https://www.bonedry.com/louisville/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "buckeye-electric-of-upper-arlington-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Electrical",
+      "website": "https://614electrician.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "cap-city-restoration-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Roofing",
+      "website": "https://www.capcityrestoration.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "christian-brothers-roofing-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "Roofing",
+      "website": "https://www.christianbroroofing.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "cincinnati-heating-and-air-conditioning-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "HVAC",
+      "website": "https://cincinnati-hvac.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "columbus-worthington-air-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC",
+      "website": null,
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "confident-electric-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Electrical",
+      "website": "http://confidentelectric.net/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "custom-air-conditioning-and-heating-co-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC",
+      "website": "https://www.customairco.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "half-price-roof-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Roofing",
+      "website": "https://www.halfpriceroof.net/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "hetter-heating-and-cooling-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC",
+      "website": "http://www.hetterheating.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "mr-roof-louisville-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "Roofing",
+      "website": "https://www.mrroof.com/louisville/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "prudential-heating-and-air-conditioning-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "HVAC",
+      "website": "http://www.prudentialhvac.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "quality-electric-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Electrical",
+      "website": "https://qualityohio.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "ramos-roofing-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Roofing",
+      "website": "https://ramosroofingohio.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "roof-it-right-louisville-ky",
+      "company_name": "Local prospect",
+      "city": "Louisville, KY",
+      "niche": "Roofing",
+      "website": "http://www.goroofitright.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "roof-revivers-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Roofing",
+      "website": "https://www.roofrevivers.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "sword-roofing-cincinnati-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Roofing",
+      "website": "https://swordroof.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "sears-heating-and-cooling-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "HVAC",
+      "website": "https://www.searsheatingcooling.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "the-local-plumber-llc-columbus-oh",
+      "company_name": "Local prospect",
+      "city": "Columbus, OH",
+      "niche": "Plumbing",
+      "website": "http://localplumbercolumbus.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    },
+    {
+      "id": "zins-plumbing-cincinnati-oh",
+      "company_name": "Local prospect",
+      "city": "Cincinnati, OH",
+      "niche": "Plumbing",
+      "website": "http://www.zinsplumbing.com/",
+      "priority": "low",
+      "status": "new",
+      "last_touch_at": null,
+      "next_action_id": null,
+      "owner_operator": false,
+      "source_paths": [
+        "outreach/outreach-list-50.csv",
+        "outreach/outreach-list-50.json"
+      ],
+      "evidence_link": "outreach/outreach-list-50.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
+        "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
+      },
+      "source_precedence": "outreach/outreach-list-50.json won by source precedence"
+    }
+  ],
+  "assets": [
+    {
+      "id": "offer-doc-home-service-ai-follow-up",
+      "type": "offer_doc",
+      "name": "Home Service AI Follow-Up Starter",
+      "path_or_url": "offers/home-service-ai-follow-up-starter.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T19:26:58Z",
+      "why_it_matters": "Defines the first monetizable offer and target customer.",
+      "source_paths": [
+        "offers/home-service-ai-follow-up-starter.md"
+      ],
+      "evidence_link": "offers/home-service-ai-follow-up-starter.md",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a"
+      }
+    },
+    {
+      "id": "landing-page-home-service-offer",
+      "type": "landing_page",
+      "name": "Home-service follow-up landing page",
+      "path_or_url": "landing/index.html",
+      "status": "active",
+      "last_touched_at": "2026-07-08T19:54:23Z",
+      "why_it_matters": "Public conversion asset for the offer.",
+      "source_paths": [
+        "landing/index.html"
+      ],
+      "evidence_link": "landing/index.html",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
+      }
+    },
+    {
+      "id": "report-first-vapi-campaign",
+      "type": "report",
+      "name": "First Vapi cold-call campaign report",
+      "path_or_url": "outreach/vapi-campaign-report.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T21:06:50Z",
+      "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
+      "source_paths": [
+        "outreach/vapi-campaign-report.md"
+      ],
+      "evidence_link": "outreach/vapi-campaign-report.md",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/vapi-campaign-report.md": "83ddd5e413a665b2e9f90e28727986892cc793d6e362433a04c4dba22f0c9588"
+      }
+    },
+    {
+      "id": "report-owner-operated-vapi",
+      "type": "report",
+      "name": "Owner-operated Vapi after-hours report",
+      "path_or_url": "outreach/owner-operated-vapi-report.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T21:17:22Z",
+      "why_it_matters": "Evidence that owner-operated prospects are a better next call target.",
+      "source_paths": [
+        "outreach/owner-operated-vapi-report.md"
+      ],
+      "evidence_link": "outreach/owner-operated-vapi-report.md",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/owner-operated-vapi-report.md": "b5ab2051ad32d5c9fc4c74377780526e145a38199f3bc6fcd4158fa8eb06178c"
+      }
+    },
+    {
+      "id": "script-business-hours-calls",
+      "type": "script",
+      "name": "Owner-operated business-hours call runner",
+      "path_or_url": "outreach/run-owner-operated-business-hours-calls.sh",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:52:55Z",
+      "why_it_matters": "Prepared next campaign script for the strongest follow-up action.",
+      "source_paths": [
+        "outreach/run-owner-operated-business-hours-calls.sh"
+      ],
+      "evidence_link": "outreach/run-owner-operated-business-hours-calls.sh",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/run-owner-operated-business-hours-calls.sh": "9933d4e4a269c722794bc764ba1582e728fb80540d4090f66d7ee9e0bc1714bd"
+      }
+    },
+    {
+      "id": "policy-vapi-cost-control",
+      "type": "report",
+      "name": "Vapi cost-control fix",
+      "path_or_url": "outreach/vapi-cost-control-fix.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:53:17Z",
+      "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
+      "source_paths": [
+        "outreach/vapi-cost-control-fix.md"
+      ],
+      "evidence_link": "outreach/vapi-cost-control-fix.md",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
+      }
+    },
+    {
+      "id": "assistant-owner-operator-config",
+      "type": "assistant",
+      "name": "Owner-operator Vapi assistant config",
+      "path_or_url": "outreach/vapi-owner-operator-cost-controlled-config.json",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:52:39Z",
+      "why_it_matters": "Current assistant behavior for smaller local prospects.",
+      "source_paths": [
+        "outreach/vapi-owner-operator-cost-controlled-config.json"
+      ],
+      "evidence_link": "outreach/vapi-owner-operator-cost-controlled-config.json",
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/vapi-owner-operator-cost-controlled-config.json": "4c39f6829b7697cbb56cc268e6ec20709181ba0775778f52408346cd0a24a5b6"
+      }
+    }
+  ],
+  "next_actions": [
+    {
+      "id": "action-halpin-plumbing-inc-cincinnati-oh",
+      "owner": "Hermes",
+      "action": "Retry a local prospect during business hours",
+      "priority": "high",
+      "score": 127.53,
+      "due_at": "10:00 ET next business day",
+      "reason": "After-hours call hit a closed-office flow; the assistant said it would try again during business hours.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-empire-contractors-llc-cincinnati-oh",
+      "owner": "Matthew",
+      "action": "Send a short email fallback after voicemail",
+      "priority": "high",
+      "score": 91.17,
+      "due_at": "next business day",
+      "reason": "Voicemail was reached; the report says the AI offered to have Matthew send one short email.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-check-public-redaction-before-publish",
+      "owner": "Hermes",
+      "action": "Verify public CRM redaction before any GitHub Pages publishing",
+      "priority": "high",
+      "score": 72,
+      "due_at": "before public publish",
+      "reason": "The CRM contains prospect data and call evidence; public output must prove that sensitive fields are removed.",
+      "expected_revenue_path": "Protect trust and keep public status useful without leaking prospect/campaign details",
+      "evidence_link": "outreach/vapi-cost-control-fix.md",
+      "status": "open",
+      "source_entity_type": "asset",
+      "source_entity_id": "policy-vapi-cost-control",
+      "source_paths": [
+        "outreach/vapi-cost-control-fix.md"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
+      }
+    },
+    {
+      "id": "action-deer-park-roofing-llc-cincinnati-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "medium",
+      "score": 65.81,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-logan-services-a-c-heat-and-plumbing-columbus-oh",
+      "owner": "Both",
+      "action": "Prepare a direct follow-up angle for a reached prospect",
+      "priority": "low",
+      "score": 42.0,
+      "due_at": "this week",
+      "reason": "The first batch reached a live agent but failed to qualify before the call ended.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-r-and-t-yoder-electric-inc-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 41.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-tom-drexler-plumbing-air-and-electric-louisville-ky",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 37.93,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-columbus-roofing-company-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 35.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-cooper-electric-cincinnati-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 35.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-fritz-baumann-and-sons-inc-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 35.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-jf-baker-roofing-company-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 35.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-muth-and-company-roofing-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 35.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-reupert-heating-and-air-conditioning-cincinnati-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 35.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-apollo-home-cincinnati-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 24.11,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-chapman-heating-ac-plumbing-and-electrical-indianapolis-in",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 23.56,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-apex-pros-plumbing-electrical-heating-and-air-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 22.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "action-safe-electric-and-plumbing-columbus-oh",
+      "owner": "Hermes",
+      "action": "Call a local owner-operated prospect in the business-hours batch",
+      "priority": "low",
+      "score": 22.0,
+      "due_at": "10:00 ET next business day",
+      "reason": "Owner-operated local prospects are the best next segment after large-company IVR failures.",
+      "expected_revenue_path": "Better contact → reply or booked call → home-service follow-up starter sale",
+      "evidence_link": "private-source-redacted",
+      "status": "open",
+      "source_entity_type": "prospect",
+      "source_entity_id": "redacted-prospect",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {}
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-owner-operated-report",
+      "summary": "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended.",
+      "evidence_link": "outreach/owner-operated-vapi-report.md",
+      "source_paths": [
+        "outreach/owner-operated-vapi-report.md"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/owner-operated-vapi-report.md": "b5ab2051ad32d5c9fc4c74377780526e145a38199f3bc6fcd4158fa8eb06178c"
+      },
+      "source_mtime": "2026-07-08T21:17:22Z"
+    },
+    {
+      "id": "evidence-first-vapi-report",
+      "summary": "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker.",
+      "evidence_link": "outreach/vapi-campaign-report.md",
+      "source_paths": [
+        "outreach/vapi-campaign-report.md"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/vapi-campaign-report.md": "83ddd5e413a665b2e9f90e28727986892cc793d6e362433a04c4dba22f0c9588"
+      },
+      "source_mtime": "2026-07-08T21:06:50Z"
+    },
+    {
+      "id": "evidence-business-hours-script",
+      "summary": "Prepared script for the seven remaining owner-operated prospects.",
+      "evidence_link": "outreach/run-owner-operated-business-hours-calls.sh",
+      "source_paths": [
+        "outreach/run-owner-operated-business-hours-calls.sh"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "outreach/run-owner-operated-business-hours-calls.sh": "9933d4e4a269c722794bc764ba1582e728fb80540d4090f66d7ee9e0bc1714bd"
+      },
+      "source_mtime": "2026-07-08T22:52:55Z"
+    },
+    {
+      "id": "evidence-offer-doc",
+      "summary": "Offer source for target customer and positioning.",
+      "evidence_link": "offers/home-service-ai-follow-up-starter.md",
+      "source_paths": [
+        "offers/home-service-ai-follow-up-starter.md"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a"
+      },
+      "source_mtime": "2026-07-08T19:26:58Z"
+    },
+    {
+      "id": "evidence-landing-page",
+      "summary": "Public landing page asset exists.",
+      "evidence_link": "landing/index.html",
+      "source_paths": [
+        "landing/index.html"
+      ],
+      "generated_at": "2026-07-09T02:29:06Z",
+      "source_hashes": {
+        "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
+      },
+      "source_mtime": "2026-07-08T19:54:23Z"
+    }
+  ],
+  "summary": {
+    "prospects": 64,
+    "assets": 7,
+    "next_actions": 17,
+    "evidence": 5,
+    "top_action_id": "action-halpin-plumbing-inc-cincinnati-oh"
+  },
+  "privacy": {
+    "status": "public_redacted",
+    "note": "Derived from private data after schema validation; sensitive contact, prospect identity, and call-detail fields are omitted."
+  }
+}

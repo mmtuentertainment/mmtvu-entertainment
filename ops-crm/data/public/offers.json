@@ -1,0 +1,19 @@
+[
+  {
+    "id": "home-service-ai-follow-up-starter",
+    "name": "Home Service AI Follow-Up Starter",
+    "price_or_pricing_notes": "$300/month positioning in outreach copy; one recovered job should cover it.",
+    "target_customer": "Owner-operated or local home-service businesses that miss quote/estimate follow-up.",
+    "current_public_url": "landing/index.html",
+    "source_paths": [
+      "offers/home-service-ai-follow-up-starter.md",
+      "landing/index.html"
+    ],
+    "evidence_link": "offers/home-service-ai-follow-up-starter.md",
+    "generated_at": "2026-07-09T02:29:06Z",
+    "source_hashes": {
+      "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a",
+      "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
+    }
+  }
+]

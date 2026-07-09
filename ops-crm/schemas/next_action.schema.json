@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NextAction",
+  "type": "object",
+  "required": ["id", "owner", "action", "priority", "score", "due_at", "reason", "expected_revenue_path", "evidence_link", "status", "source_entity_type", "source_entity_id", "source_paths", "generated_at", "source_hashes"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "owner": {"enum": ["Matthew", "Hermes", "Both"]},
+    "action": {"type": "string", "minLength": 1},
+    "priority": {"enum": ["high", "medium", "low"]},
+    "score": {"type": "number"},
+    "due_at": {"type": "string", "minLength": 1},
+    "reason": {"type": "string", "minLength": 1},
+    "expected_revenue_path": {"type": "string", "minLength": 1},
+    "evidence_link": {"type": "string", "minLength": 1},
+    "status": {"enum": ["open", "doing", "done", "blocked", "cancelled"]},
+    "source_entity_type": {"enum": ["prospect", "asset", "offer"]},
+    "source_entity_id": {"type": "string", "minLength": 1},
+    "source_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string"}}
+  },
+  "additionalProperties": true
+}
