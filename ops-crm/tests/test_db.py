@@ -18,6 +18,9 @@ crm_db = importlib.util.module_from_spec(DB_SPEC)
 sys.modules["crm_db_tests"] = crm_db
 DB_SPEC.loader.exec_module(crm_db)
 
+sys.path.insert(0, str(ROOT / "ops-crm"))
+import redaction
+
 
 def test_sqlite_init_is_idempotent_and_has_revenue_os_tables(tmp_path):
     conn = sqlite3.connect(tmp_path / "crm.sqlite")
@@ -76,7 +79,7 @@ def test_action_status_survives_regeneration_from_sqlite(tmp_path):
 def test_sqlite_export_preserves_public_redaction_and_daily_brief(tmp_path):
     private, public = crm_generate.generate(ROOT, db_file=tmp_path / "crm.sqlite")
 
-    crm_generate.assert_public_safe(public)
+    redaction.assert_public_safe(public)
     public_text = json.dumps(public) + crm_db.daily_brief(public)
     assert "Halpin Plumbing Inc" not in public_text
     assert "Empire Contractors LLC" not in public_text

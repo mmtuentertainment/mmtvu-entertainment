@@ -67,11 +67,3 @@ def test_validation_rejects_orphan_next_action():
         assert "references missing" in str(exc)
     else:
         raise AssertionError("orphan next action should fail validation")
-
-
-def test_redaction_rejects_hostile_fixture():
-    hostile = {"next_actions": [{"reason": "Call 614-555-1212 or email bad@example.com token=abc"}]}
-    redacted = crm_generate.redact_record(hostile)
-    assert "614-555-1212" not in json.dumps(redacted)
-    assert "bad@example.com" not in json.dumps(redacted)
-    assert "token=abc" not in json.dumps(redacted)

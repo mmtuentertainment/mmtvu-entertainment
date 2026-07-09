@@ -1,21 +1,5 @@
 {
-  "mode": "public",
-  "generated_at": "2026-07-09T08:37:42Z",
-  "offers": [
-    {
-      "id": "home-service-ai-follow-up-starter",
-      "name": "Home Service AI Follow-Up Starter",
-      "price_or_pricing_notes": "$300/month positioning in outreach copy; one recovered job should cover it.",
-      "target_customer": "Owner-operated or local home-service businesses that miss quote/estimate follow-up.",
-      "current_public_url": "landing/index.html",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    }
-  ],
+  "generated_at": "2026-07-09T10:56:41Z",
   "prospects": [
     {
       "id": "prospect-6fd684c1bb2d",
@@ -31,7 +15,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -49,7 +33,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -67,7 +51,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -85,7 +69,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -103,7 +87,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -121,7 +105,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -139,7 +123,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -157,7 +141,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -175,7 +159,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -194,7 +178,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -212,7 +196,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -230,7 +214,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -248,7 +232,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -266,7 +250,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -284,7 +268,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -302,7 +286,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -320,7 +304,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -338,7 +322,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -356,7 +340,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -374,7 +358,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -392,7 +376,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -410,7 +394,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -428,7 +412,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -446,7 +430,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -464,7 +448,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -482,7 +466,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -500,7 +484,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -518,7 +502,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -536,7 +520,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -554,7 +538,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -572,7 +556,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -590,7 +574,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -608,7 +592,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -626,7 +610,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -645,7 +629,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -664,7 +648,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -683,7 +667,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -702,7 +686,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -721,7 +705,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -740,7 +724,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -759,7 +743,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -778,7 +762,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted",
       "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -797,7 +781,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -815,7 +799,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -833,7 +817,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -851,7 +835,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -869,7 +853,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -887,7 +871,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -905,7 +889,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -923,7 +907,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -941,7 +925,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -959,7 +943,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -977,7 +961,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -995,7 +979,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1013,7 +997,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1031,7 +1015,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1049,7 +1033,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1067,7 +1051,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1085,7 +1069,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1103,7 +1087,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1121,7 +1105,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1139,7 +1123,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1157,7 +1141,7 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
     },
@@ -1175,116 +1159,9 @@
         "private-source-redacted"
       ],
       "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {},
       "source_precedence": "private-source-redacted"
-    }
-  ],
-  "assets": [
-    {
-      "id": "report-first-vapi-campaign",
-      "type": "report",
-      "name": "First Vapi cold-call campaign report",
-      "path_or_url": "outreach/vapi-campaign-report.md",
-      "status": "active",
-      "last_touched_at": "2026-07-08T21:06:50Z",
-      "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    },
-    {
-      "id": "offer-doc-home-service-ai-follow-up",
-      "type": "offer_doc",
-      "name": "Home Service AI Follow-Up Starter",
-      "path_or_url": "offers/home-service-ai-follow-up-starter.md",
-      "status": "active",
-      "last_touched_at": "2026-07-08T19:26:58Z",
-      "why_it_matters": "Defines the first monetizable offer and target customer.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    },
-    {
-      "id": "landing-page-home-service-offer",
-      "type": "landing_page",
-      "name": "Home-service follow-up landing page",
-      "path_or_url": "landing/index.html",
-      "status": "active",
-      "last_touched_at": "2026-07-08T19:54:23Z",
-      "why_it_matters": "Public conversion asset for the offer.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    },
-    {
-      "id": "report-owner-operated-vapi",
-      "type": "report",
-      "name": "Owner-operated Vapi after-hours report",
-      "path_or_url": "outreach/owner-operated-vapi-report.md",
-      "status": "active",
-      "last_touched_at": "2026-07-08T21:17:22Z",
-      "why_it_matters": "Evidence that owner-operated prospects are a better next call target.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    },
-    {
-      "id": "script-business-hours-calls",
-      "type": "script",
-      "name": "Owner-operated business-hours call runner",
-      "path_or_url": "outreach/run-owner-operated-business-hours-calls.sh",
-      "status": "active",
-      "last_touched_at": "2026-07-08T22:52:55Z",
-      "why_it_matters": "Prepared next campaign script for the strongest follow-up action.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    },
-    {
-      "id": "assistant-owner-operator-config",
-      "type": "assistant",
-      "name": "Owner-operator Vapi assistant config",
-      "path_or_url": "outreach/vapi-owner-operator-cost-controlled-config.json",
-      "status": "active",
-      "last_touched_at": "2026-07-08T22:52:39Z",
-      "why_it_matters": "Current assistant behavior for smaller local prospects.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
-    },
-    {
-      "id": "policy-vapi-cost-control",
-      "type": "report",
-      "name": "Vapi cost-control fix",
-      "path_or_url": "outreach/vapi-cost-control-fix.md",
-      "status": "active",
-      "last_touched_at": "2026-07-08T22:53:17Z",
-      "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "evidence_link": "private-source-redacted",
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {}
     }
   ],
   "next_actions": [
@@ -1304,7 +1181,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1323,7 +1200,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1342,7 +1219,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1361,7 +1238,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1380,7 +1257,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1399,7 +1276,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1418,7 +1295,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1437,7 +1314,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1456,7 +1333,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1475,7 +1352,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1494,7 +1371,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1513,7 +1390,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1532,7 +1409,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1551,7 +1428,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1570,7 +1447,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1589,7 +1466,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
     },
     {
@@ -1608,65 +1485,8 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T08:37:42Z",
+      "generated_at": "2026-07-09T10:56:41Z",
       "source_hashes": {}
-    }
-  ],
-  "evidence": [
-    {
-      "id": "evidence-first-vapi-report",
-      "summary": "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker.",
-      "evidence_link": "private-source-redacted",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {},
-      "source_mtime": "2026-07-08T21:06:50Z"
-    },
-    {
-      "id": "evidence-offer-doc",
-      "summary": "Offer source for target customer and positioning.",
-      "evidence_link": "private-source-redacted",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {},
-      "source_mtime": "2026-07-08T19:26:58Z"
-    },
-    {
-      "id": "evidence-owner-operated-report",
-      "summary": "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended.",
-      "evidence_link": "private-source-redacted",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {},
-      "source_mtime": "2026-07-08T21:17:22Z"
-    },
-    {
-      "id": "evidence-business-hours-script",
-      "summary": "Prepared script for the seven remaining owner-operated prospects.",
-      "evidence_link": "private-source-redacted",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {},
-      "source_mtime": "2026-07-08T22:52:55Z"
-    },
-    {
-      "id": "evidence-landing-page",
-      "summary": "Public landing page asset exists.",
-      "evidence_link": "private-source-redacted",
-      "source_paths": [
-        "private-source-redacted"
-      ],
-      "generated_at": "2026-07-09T08:37:42Z",
-      "source_hashes": {},
-      "source_mtime": "2026-07-08T19:54:23Z"
     }
   ],
   "loops": [
@@ -1701,7 +1521,7 @@
       "metric_name": "documented_call_spend",
       "metric_value": 1.5106,
       "unit": "usd",
-      "measured_at": "2026-07-09T08:37:42Z",
+      "measured_at": "2026-07-09T10:56:41Z",
       "source": "ops-crm/generate.py"
     },
     {
@@ -1709,7 +1529,7 @@
       "metric_name": "money_signal_actions",
       "metric_value": 16.0,
       "unit": "count",
-      "measured_at": "2026-07-09T08:37:42Z",
+      "measured_at": "2026-07-09T10:56:41Z",
       "source": "ops-crm/generate.py"
     },
     {
@@ -1717,7 +1537,7 @@
       "metric_name": "open_actions",
       "metric_value": 17.0,
       "unit": "count",
-      "measured_at": "2026-07-09T08:37:42Z",
+      "measured_at": "2026-07-09T10:56:41Z",
       "source": "ops-crm/generate.py"
     },
     {
@@ -1725,7 +1545,7 @@
       "metric_name": "owner_operator_prospects",
       "metric_value": 10.0,
       "unit": "count",
-      "measured_at": "2026-07-09T08:37:42Z",
+      "measured_at": "2026-07-09T10:56:41Z",
       "source": "ops-crm/generate.py"
     },
     {
@@ -1733,7 +1553,7 @@
       "metric_name": "prospects_total",
       "metric_value": 64.0,
       "unit": "count",
-      "measured_at": "2026-07-09T08:37:42Z",
+      "measured_at": "2026-07-09T10:56:41Z",
       "source": "ops-crm/generate.py"
     }
   ],
@@ -1748,6 +1568,186 @@
     "top_action_id": "action-8dec4025df8d",
     "next_best_move": "Retry a local prospect during business hours"
   },
+  "assets": [
+    {
+      "id": "report-first-vapi-campaign",
+      "type": "report",
+      "name": "First Vapi cold-call campaign report",
+      "path_or_url": "outreach/vapi-campaign-report.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T21:06:50Z",
+      "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "offer-doc-home-service-ai-follow-up",
+      "type": "offer_doc",
+      "name": "Home Service AI Follow-Up Starter",
+      "path_or_url": "offers/home-service-ai-follow-up-starter.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T19:26:58Z",
+      "why_it_matters": "Defines the first monetizable offer and target customer.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "landing-page-home-service-offer",
+      "type": "landing_page",
+      "name": "Home-service follow-up landing page",
+      "path_or_url": "landing/index.html",
+      "status": "active",
+      "last_touched_at": "2026-07-08T19:54:23Z",
+      "why_it_matters": "Public conversion asset for the offer.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "report-owner-operated-vapi",
+      "type": "report",
+      "name": "Owner-operated Vapi after-hours report",
+      "path_or_url": "outreach/owner-operated-vapi-report.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T21:17:22Z",
+      "why_it_matters": "Evidence that owner-operated prospects are a better next call target.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "script-business-hours-calls",
+      "type": "script",
+      "name": "Owner-operated business-hours call runner",
+      "path_or_url": "outreach/run-owner-operated-business-hours-calls.sh",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:52:55Z",
+      "why_it_matters": "Prepared next campaign script for the strongest follow-up action.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "assistant-owner-operator-config",
+      "type": "assistant",
+      "name": "Owner-operator Vapi assistant config",
+      "path_or_url": "outreach/vapi-owner-operator-cost-controlled-config.json",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:52:39Z",
+      "why_it_matters": "Current assistant behavior for smaller local prospects.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    },
+    {
+      "id": "policy-vapi-cost-control",
+      "type": "report",
+      "name": "Vapi cost-control fix",
+      "path_or_url": "outreach/vapi-cost-control-fix.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:53:17Z",
+      "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    }
+  ],
+  "offers": [
+    {
+      "id": "home-service-ai-follow-up-starter",
+      "name": "Home Service AI Follow-Up Starter",
+      "price_or_pricing_notes": "$300/month positioning in outreach copy; one recovered job should cover it.",
+      "target_customer": "Owner-operated or local home-service businesses that miss quote/estimate follow-up.",
+      "current_public_url": "landing/index.html",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "evidence_link": "private-source-redacted",
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {}
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-first-vapi-report",
+      "summary": "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker.",
+      "evidence_link": "private-source-redacted",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {},
+      "source_mtime": "2026-07-08T21:06:50Z"
+    },
+    {
+      "id": "evidence-offer-doc",
+      "summary": "Offer source for target customer and positioning.",
+      "evidence_link": "private-source-redacted",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {},
+      "source_mtime": "2026-07-08T19:26:58Z"
+    },
+    {
+      "id": "evidence-owner-operated-report",
+      "summary": "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended.",
+      "evidence_link": "private-source-redacted",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {},
+      "source_mtime": "2026-07-08T21:17:22Z"
+    },
+    {
+      "id": "evidence-business-hours-script",
+      "summary": "Prepared script for the seven remaining owner-operated prospects.",
+      "evidence_link": "private-source-redacted",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {},
+      "source_mtime": "2026-07-08T22:52:55Z"
+    },
+    {
+      "id": "evidence-landing-page",
+      "summary": "Public landing page asset exists.",
+      "evidence_link": "private-source-redacted",
+      "source_paths": [
+        "private-source-redacted"
+      ],
+      "generated_at": "2026-07-09T10:56:41Z",
+      "source_hashes": {},
+      "source_mtime": "2026-07-08T19:54:23Z"
+    }
+  ],
+  "mode": "public",
   "privacy": {
     "status": "public_redacted",
     "note": "Derived from private data after schema validation; sensitive contact, prospect identity, and call-detail fields are omitted."
