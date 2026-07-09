@@ -1,0 +1,16 @@
+# Local tooling and virtualenvs
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.agents/
+.claude/skills/
+
+# OS / editor
+.DS_Store
+*.swp
+*~
+
+# Temporary test artifacts (repo-relative only)
+ops-crm-venv/
+
