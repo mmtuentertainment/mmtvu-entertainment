@@ -1,6 +1,6 @@
 {
   "mode": "public",
-  "generated_at": "2026-07-09T02:49:45Z",
+  "generated_at": "2026-07-09T03:38:20Z",
   "offers": [
     {
       "id": "home-service-ai-follow-up-starter",
@@ -13,7 +13,7 @@
         "landing/index.html"
       ],
       "evidence_link": "offers/home-service-ai-follow-up-starter.md",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a",
         "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
@@ -38,7 +38,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -63,7 +63,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -88,7 +88,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -113,7 +113,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -138,7 +138,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -162,7 +162,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -186,7 +186,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -211,7 +211,7 @@
         "outreach/high-priority-contacts.json"
       ],
       "evidence_link": "outreach/high-priority-contacts.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -236,7 +236,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -261,7 +261,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -284,7 +284,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -307,7 +307,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -330,7 +330,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -353,7 +353,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -376,7 +376,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -399,7 +399,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -422,7 +422,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -445,7 +445,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -468,7 +468,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -491,7 +491,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -514,7 +514,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -537,7 +537,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -560,7 +560,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -583,7 +583,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -606,7 +606,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -629,7 +629,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -652,7 +652,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -675,7 +675,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -698,7 +698,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -721,7 +721,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -744,7 +744,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -767,7 +767,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -790,7 +790,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -814,7 +814,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -840,7 +840,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -866,7 +866,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -892,7 +892,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -918,7 +918,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -944,7 +944,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -970,7 +970,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -996,7 +996,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -1022,7 +1022,7 @@
         "outreach/owner-operated-vapi-prospects.json"
       ],
       "evidence_link": "outreach/owner-operated-vapi-prospects.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039",
@@ -1047,7 +1047,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1070,7 +1070,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1093,7 +1093,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1116,7 +1116,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1139,7 +1139,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1162,7 +1162,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1185,7 +1185,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1208,7 +1208,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1231,7 +1231,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1254,7 +1254,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1277,7 +1277,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1300,7 +1300,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1323,7 +1323,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1346,7 +1346,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1369,7 +1369,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1392,7 +1392,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1415,7 +1415,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1438,7 +1438,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1461,7 +1461,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1484,7 +1484,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1507,7 +1507,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1530,7 +1530,7 @@
         "outreach/outreach-list-50.json"
       ],
       "evidence_link": "outreach/outreach-list-50.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/outreach-list-50.csv": "e982184988cbf0c28b97053fd57149447d8146faa8800e83428e0b8cbcefb501",
         "outreach/outreach-list-50.json": "baac02edfc9be6332ae6685495ddc6c2688485062d6d1e4fd126a8f5ebeb9039"
@@ -1539,6 +1539,23 @@
     }
   ],
   "assets": [
+    {
+      "id": "report-first-vapi-campaign",
+      "type": "report",
+      "name": "First Vapi cold-call campaign report",
+      "path_or_url": "outreach/vapi-campaign-report.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T21:06:50Z",
+      "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
+      "source_paths": [
+        "outreach/vapi-campaign-report.md"
+      ],
+      "evidence_link": "outreach/vapi-campaign-report.md",
+      "generated_at": "2026-07-09T03:38:20Z",
+      "source_hashes": {
+        "outreach/vapi-campaign-report.md": "83ddd5e413a665b2e9f90e28727986892cc793d6e362433a04c4dba22f0c9588"
+      }
+    },
     {
       "id": "offer-doc-home-service-ai-follow-up",
       "type": "offer_doc",
@@ -1551,7 +1568,7 @@
         "offers/home-service-ai-follow-up-starter.md"
       ],
       "evidence_link": "offers/home-service-ai-follow-up-starter.md",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a"
       }
@@ -1568,26 +1585,9 @@
         "landing/index.html"
       ],
       "evidence_link": "landing/index.html",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
-      }
-    },
-    {
-      "id": "report-first-vapi-campaign",
-      "type": "report",
-      "name": "First Vapi cold-call campaign report",
-      "path_or_url": "outreach/vapi-campaign-report.md",
-      "status": "active",
-      "last_touched_at": "2026-07-08T21:06:50Z",
-      "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
-      "source_paths": [
-        "outreach/vapi-campaign-report.md"
-      ],
-      "evidence_link": "outreach/vapi-campaign-report.md",
-      "generated_at": "2026-07-09T02:49:45Z",
-      "source_hashes": {
-        "outreach/vapi-campaign-report.md": "83ddd5e413a665b2e9f90e28727986892cc793d6e362433a04c4dba22f0c9588"
       }
     },
     {
@@ -1602,7 +1602,7 @@
         "outreach/owner-operated-vapi-report.md"
       ],
       "evidence_link": "outreach/owner-operated-vapi-report.md",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/owner-operated-vapi-report.md": "b5ab2051ad32d5c9fc4c74377780526e145a38199f3bc6fcd4158fa8eb06178c"
       }
@@ -1619,26 +1619,9 @@
         "outreach/run-owner-operated-business-hours-calls.sh"
       ],
       "evidence_link": "outreach/run-owner-operated-business-hours-calls.sh",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/run-owner-operated-business-hours-calls.sh": "9933d4e4a269c722794bc764ba1582e728fb80540d4090f66d7ee9e0bc1714bd"
-      }
-    },
-    {
-      "id": "policy-vapi-cost-control",
-      "type": "report",
-      "name": "Vapi cost-control fix",
-      "path_or_url": "outreach/vapi-cost-control-fix.md",
-      "status": "active",
-      "last_touched_at": "2026-07-08T22:53:17Z",
-      "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
-      "source_paths": [
-        "outreach/vapi-cost-control-fix.md"
-      ],
-      "evidence_link": "outreach/vapi-cost-control-fix.md",
-      "generated_at": "2026-07-09T02:49:45Z",
-      "source_hashes": {
-        "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
       }
     },
     {
@@ -1653,9 +1636,26 @@
         "outreach/vapi-owner-operator-cost-controlled-config.json"
       ],
       "evidence_link": "outreach/vapi-owner-operator-cost-controlled-config.json",
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/vapi-owner-operator-cost-controlled-config.json": "4c39f6829b7697cbb56cc268e6ec20709181ba0775778f52408346cd0a24a5b6"
+      }
+    },
+    {
+      "id": "policy-vapi-cost-control",
+      "type": "report",
+      "name": "Vapi cost-control fix",
+      "path_or_url": "outreach/vapi-cost-control-fix.md",
+      "status": "active",
+      "last_touched_at": "2026-07-08T22:53:17Z",
+      "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
+      "source_paths": [
+        "outreach/vapi-cost-control-fix.md"
+      ],
+      "evidence_link": "outreach/vapi-cost-control-fix.md",
+      "generated_at": "2026-07-09T03:38:20Z",
+      "source_hashes": {
+        "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
       }
     }
   ],
@@ -1676,7 +1676,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1695,7 +1695,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1714,7 +1714,7 @@
       "source_paths": [
         "outreach/vapi-cost-control-fix.md"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/vapi-cost-control-fix.md": "4f8e85287bd755392b9d5156017d70b4d58ee728b22b5a406b4e5c9c4259f88c"
       }
@@ -1735,7 +1735,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1754,7 +1754,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1773,7 +1773,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1792,7 +1792,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1811,7 +1811,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1830,7 +1830,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1849,7 +1849,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1868,7 +1868,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1887,7 +1887,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1906,7 +1906,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1925,7 +1925,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1944,7 +1944,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1963,7 +1963,7 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     },
     {
@@ -1982,24 +1982,11 @@
       "source_paths": [
         "private-source-redacted"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {}
     }
   ],
   "evidence": [
-    {
-      "id": "evidence-owner-operated-report",
-      "summary": "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended.",
-      "evidence_link": "outreach/owner-operated-vapi-report.md",
-      "source_paths": [
-        "outreach/owner-operated-vapi-report.md"
-      ],
-      "generated_at": "2026-07-09T02:49:45Z",
-      "source_hashes": {
-        "outreach/owner-operated-vapi-report.md": "b5ab2051ad32d5c9fc4c74377780526e145a38199f3bc6fcd4158fa8eb06178c"
-      },
-      "source_mtime": "2026-07-08T21:17:22Z"
-    },
     {
       "id": "evidence-first-vapi-report",
       "summary": "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker.",
@@ -2007,24 +1994,11 @@
       "source_paths": [
         "outreach/vapi-campaign-report.md"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "outreach/vapi-campaign-report.md": "83ddd5e413a665b2e9f90e28727986892cc793d6e362433a04c4dba22f0c9588"
       },
       "source_mtime": "2026-07-08T21:06:50Z"
-    },
-    {
-      "id": "evidence-business-hours-script",
-      "summary": "Prepared script for the seven remaining owner-operated prospects.",
-      "evidence_link": "outreach/run-owner-operated-business-hours-calls.sh",
-      "source_paths": [
-        "outreach/run-owner-operated-business-hours-calls.sh"
-      ],
-      "generated_at": "2026-07-09T02:49:45Z",
-      "source_hashes": {
-        "outreach/run-owner-operated-business-hours-calls.sh": "9933d4e4a269c722794bc764ba1582e728fb80540d4090f66d7ee9e0bc1714bd"
-      },
-      "source_mtime": "2026-07-08T22:52:55Z"
     },
     {
       "id": "evidence-offer-doc",
@@ -2033,11 +2007,37 @@
       "source_paths": [
         "offers/home-service-ai-follow-up-starter.md"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "offers/home-service-ai-follow-up-starter.md": "cbb92d33d0335c65151a6b78ffd865bad0b75fa7ae1cb7d7574fa212f084ae9a"
       },
       "source_mtime": "2026-07-08T19:26:58Z"
+    },
+    {
+      "id": "evidence-owner-operated-report",
+      "summary": "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended.",
+      "evidence_link": "outreach/owner-operated-vapi-report.md",
+      "source_paths": [
+        "outreach/owner-operated-vapi-report.md"
+      ],
+      "generated_at": "2026-07-09T03:38:20Z",
+      "source_hashes": {
+        "outreach/owner-operated-vapi-report.md": "b5ab2051ad32d5c9fc4c74377780526e145a38199f3bc6fcd4158fa8eb06178c"
+      },
+      "source_mtime": "2026-07-08T21:17:22Z"
+    },
+    {
+      "id": "evidence-business-hours-script",
+      "summary": "Prepared script for the seven remaining owner-operated prospects.",
+      "evidence_link": "outreach/run-owner-operated-business-hours-calls.sh",
+      "source_paths": [
+        "outreach/run-owner-operated-business-hours-calls.sh"
+      ],
+      "generated_at": "2026-07-09T03:38:20Z",
+      "source_hashes": {
+        "outreach/run-owner-operated-business-hours-calls.sh": "9933d4e4a269c722794bc764ba1582e728fb80540d4090f66d7ee9e0bc1714bd"
+      },
+      "source_mtime": "2026-07-08T22:52:55Z"
     },
     {
       "id": "evidence-landing-page",
@@ -2046,11 +2046,79 @@
       "source_paths": [
         "landing/index.html"
       ],
-      "generated_at": "2026-07-09T02:49:45Z",
+      "generated_at": "2026-07-09T03:38:20Z",
       "source_hashes": {
         "landing/index.html": "ea130ada3bfbffa6fa94e3f86edc5503a1fcc1ada6897f2a9597dec761322c46"
       },
       "source_mtime": "2026-07-08T19:54:23Z"
+    }
+  ],
+  "loops": [
+    {
+      "id": "loop-owner-operated-cold-call-v1",
+      "name": "Owner-operated cold-call v1",
+      "goal": "Reach local home-service owners directly and turn one money signal into a booked follow-up.",
+      "stage": "business-hours-retry",
+      "budget_cap": 10.0,
+      "success_signal": "Human reached, reply, booked call, or qualified opportunity",
+      "status": "active",
+      "created_at": "2026-07-09T03:35:07Z",
+      "updated_at": "2026-07-09T03:35:07Z"
+    }
+  ],
+  "experiments": [
+    {
+      "id": "experiment-owner-operated-direct-contact",
+      "hypothesis": "Owner-operated home-service companies are easier to reach than large-company IVR targets.",
+      "metric": "humans_reached_per_dollar",
+      "budget_cap": 10.0,
+      "status": "running",
+      "result": "After-hours calls reached closed-office/voicemail paths; next best move is business-hours retry.",
+      "learning": "Avoid large-company IVR batches until DTMF/direct-owner targets are solved.",
+      "created_at": "2026-07-09T03:35:07Z",
+      "updated_at": "2026-07-09T03:35:07Z"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric-documented_call_spend",
+      "metric_name": "documented_call_spend",
+      "metric_value": 1.5106,
+      "unit": "usd",
+      "measured_at": "2026-07-09T03:38:20Z",
+      "source": "ops-crm/generate.py"
+    },
+    {
+      "id": "metric-money_signal_actions",
+      "metric_name": "money_signal_actions",
+      "metric_value": 16.0,
+      "unit": "count",
+      "measured_at": "2026-07-09T03:38:20Z",
+      "source": "ops-crm/generate.py"
+    },
+    {
+      "id": "metric-open_actions",
+      "metric_name": "open_actions",
+      "metric_value": 17.0,
+      "unit": "count",
+      "measured_at": "2026-07-09T03:38:20Z",
+      "source": "ops-crm/generate.py"
+    },
+    {
+      "id": "metric-owner_operator_prospects",
+      "metric_name": "owner_operator_prospects",
+      "metric_value": 10.0,
+      "unit": "count",
+      "measured_at": "2026-07-09T03:38:20Z",
+      "source": "ops-crm/generate.py"
+    },
+    {
+      "id": "metric-prospects_total",
+      "metric_name": "prospects_total",
+      "metric_value": 64.0,
+      "unit": "count",
+      "measured_at": "2026-07-09T03:38:20Z",
+      "source": "ops-crm/generate.py"
     }
   ],
   "summary": {
@@ -2058,7 +2126,11 @@
     "assets": 7,
     "next_actions": 17,
     "evidence": 5,
-    "top_action_id": "action-halpin-plumbing-inc-cincinnati-oh"
+    "loops": 1,
+    "experiments": 1,
+    "metrics": 5,
+    "top_action_id": "action-halpin-plumbing-inc-cincinnati-oh",
+    "next_best_move": "Retry a local prospect during business hours"
   },
   "privacy": {
     "status": "public_redacted",

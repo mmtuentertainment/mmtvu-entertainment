@@ -25,6 +25,7 @@
       <div class="small" id="modeNote">Private mode loads local operating data. Your statuses/notes save in this browser.</div>
     </div>
     <div class="mini">Shortcuts: <span class="kbd">/</span> search · <span class="kbd">j/k</span> move · <span class="kbd">d</span> done · <span class="kbd">b</span> blocked · <span class="kbd">c</span> copy</div>
+    <div class="mini">SQLite source of truth: <code>ops-crm/crm.sqlite</code>. JSON files are exports for this dashboard.</div>
   </aside>
   <main id="today" tabindex="-1">
     <div class="topbar">
@@ -53,6 +54,7 @@
       <div class="stats"><div class="stat"><b id="doneCount">0</b><span>Done</span></div><div class="stat"><b id="blockedCount">0</b><span>Blocked</span></div></div>
     </section>
     <section><h3>Selected action</h3><div id="evidencePanel" class="small">Select an action to inspect evidence.</div></section>
+    <section><h3>Revenue OS</h3><div id="revenueOsPanel" class="small">Waiting for SQLite export…</div><p><a id="dailyBriefLink" href="data/private/daily-brief.md">Open daily brief</a></p></section>
     <section>
       <h3>Operator notes</h3>
       <label for="operatorNotes">Saved locally for selected action</label>
@@ -116,6 +118,10 @@ function render(data){
   $('queueCount').textContent = `${filteredActions.length} of ${actions.length} actions`;
   $('status').innerHTML = `<strong>${mode === 'private' ? 'Private operating mode' : 'Public redacted mode'}</strong>Generated ${esc(data.generated_at || 'unknown')} · ${esc(data.summary?.prospects ?? 0)} prospects · ${esc(data.summary?.next_actions ?? actions.length)} actions`;
   $('redactionStatus').textContent = mode === 'public' ? (data.privacy?.note || 'Public redacted data loaded.') : 'Private data loaded. Public mode proves redacted output.';
+  const metricMap = Object.fromEntries((data.metrics||[]).map(m => [m.metric_name, m]));
+  const activeLoop = (data.loops||[]).find(l => l.status === 'active') || (data.loops||[])[0];
+  $('revenueOsPanel').innerHTML = `<div><strong>Source of truth:</strong> SQLite export</div><div><strong>Active loop:</strong> ${esc(activeLoop?.name || 'No loop recorded')}</div><div><strong>Owner targets:</strong> ${esc(metricMap.owner_operator_prospects?.metric_value ?? 0)}</div><div><strong>Call spend:</strong> $${esc(Number(metricMap.documented_call_spend?.metric_value || 0).toFixed(4))}</div><div><strong>Next best move:</strong> ${esc(data.summary?.next_best_move || 'No action')}</div>`;
+  $('dailyBriefLink').href = `data/${mode}/daily-brief.md`;
   $('empty').classList.toggle('hidden', filteredActions.length !== 0);
   $('actionList').innerHTML = filteredActions.map((a, i) => rowMarkup(a, i+1, local[a.id]?.status || 'open')).join('');
   $('actionList').querySelectorAll('[data-action-id]').forEach(el => el.addEventListener('click', (ev) => { ev.preventDefault(); selectAction(el.dataset.actionId); }));

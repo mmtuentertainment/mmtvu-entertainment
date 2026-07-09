@@ -16,11 +16,15 @@ import csv
 import hashlib
 import json
 import re
+import sys
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import db as crm_db
 
 from jsonschema import Draft202012Validator
 
@@ -531,6 +535,11 @@ def derive_public(private: dict[str, Any]) -> dict[str, Any]:
     company_names = [p.get("company_name", "") for p in private.get("prospects", [])]
     public["prospects"] = [redact_record(p, anonymize_company=True) for p in private.get("prospects", [])]
     public["next_actions"] = [anonymize_public_action(a, company_names) for a in private.get("next_actions", [])]
+    if isinstance(public.get("summary"), dict):
+        if public["next_actions"]:
+            public["summary"]["next_best_move"] = public["next_actions"][0].get("action")
+        else:
+            public["summary"]["next_best_move"] = replace_sensitive_name(public["summary"].get("next_best_move", ""), " ".join(company_names))
     public["assets"] = [redact_record(a) for a in private.get("assets", [])]
     public["offers"] = [redact_record(o) for o in private.get("offers", [])]
     public["evidence"] = [redact_record(e) for e in private.get("evidence", [])]
@@ -558,14 +567,15 @@ def write_json(path: Path, data: Any) -> None:
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def generate(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
-    generated_at = utc_now()
+def build_source_dataset(root: Path, generated_at: str | None = None) -> dict[str, Any]:
+    """Derive a private dataset from repo artifacts before persisting it to SQLite."""
+    generated_at = generated_at or utc_now()
     offers = build_offer(root, generated_at)
     prospects = build_prospects(root, generated_at)
     assets = build_assets(root, generated_at)
     actions = build_next_actions(root, prospects, assets, generated_at)
     evidence = build_evidence(root, generated_at)
-    private = {
+    return {
         "mode": "private",
         "generated_at": generated_at,
         "offers": offers,
@@ -581,6 +591,19 @@ def generate(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
             "top_action_id": actions[0]["id"] if actions else None,
         },
     }
+
+
+def generate(root: Path, db_file: Path | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Generate dashboard data through SQLite as the source of truth."""
+    generated_at = utc_now()
+    source_private = build_source_dataset(root, generated_at)
+    validate_records(root, source_private)
+
+    with crm_db.connect(root, db_file) as conn:
+        crm_db.init_db(conn)
+        crm_db.import_dataset(conn, source_private)
+        private = crm_db.export_dataset(conn, generated_at)
+
     validate_records(root, private)
     public = derive_public(private)
     validate_records(root, public)
@@ -593,8 +616,9 @@ def write_outputs(root: Path, private: dict[str, Any], public: dict[str, Any]) -
     for mode, dataset in [("private", private), ("public", public)]:
         mode_dir = base / mode
         write_json(mode_dir / "summary.json", dataset)
-        for key in ["offers", "prospects", "assets", "next_actions", "evidence"]:
+        for key in ["offers", "prospects", "assets", "next_actions", "evidence", "loops", "experiments", "metrics"]:
             write_json(mode_dir / f"{key}.json", dataset.get(key, []))
+        (mode_dir / "daily-brief.md").write_text(crm_db.daily_brief(dataset), encoding="utf-8")
 
 
 def main() -> int:

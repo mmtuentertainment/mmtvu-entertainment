@@ -1,0 +1,13 @@
+[
+  {
+    "id": "loop-owner-operated-cold-call-v1",
+    "name": "Owner-operated cold-call v1",
+    "goal": "Reach local home-service owners directly and turn one money signal into a booked follow-up.",
+    "stage": "business-hours-retry",
+    "budget_cap": 10.0,
+    "success_signal": "Human reached, reply, booked call, or qualified opportunity",
+    "status": "active",
+    "created_at": "2026-07-09T03:35:07Z",
+    "updated_at": "2026-07-09T03:35:07Z"
+  }
+]

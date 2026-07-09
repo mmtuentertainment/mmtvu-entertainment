@@ -1,0 +1,13 @@
+[
+  {
+    "id": "experiment-owner-operated-direct-contact",
+    "hypothesis": "Owner-operated home-service companies are easier to reach than large-company IVR targets.",
+    "metric": "humans_reached_per_dollar",
+    "budget_cap": 10.0,
+    "status": "running",
+    "result": "After-hours calls reached closed-office/voicemail paths; next best move is business-hours retry.",
+    "learning": "Avoid large-company IVR batches until DTMF/direct-owner targets are solved.",
+    "created_at": "2026-07-09T03:35:07Z",
+    "updated_at": "2026-07-09T03:35:07Z"
+  }
+]

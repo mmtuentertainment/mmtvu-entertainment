@@ -1,4 +1,6 @@
 __pycache__/
 tests/__pycache__/
 data/private/
+crm.sqlite
+crm.sqlite-*
 *.pyc

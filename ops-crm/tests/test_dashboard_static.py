@@ -19,6 +19,9 @@ def test_dashboard_has_operator_workspace_controls():
         'Mark blocked',
         'localStorage',
         'mmtvu-operator-crm-state-v1',
+        'id="revenueOsPanel"',
+        'id="dailyBriefLink"',
+        'ops-crm/crm.sqlite',
     ]
     for marker in required:
         assert marker in HTML
