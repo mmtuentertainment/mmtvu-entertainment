@@ -1,42 +1,65 @@
 [
   {
+    "id": "metric-contacted_total",
+    "metric_name": "contacted_total",
+    "metric_value": 3.0,
+    "unit": "count",
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": 30.0
+  },
+  {
+    "id": "metric-discovery_booked_total",
+    "metric_name": "discovery_booked_total",
+    "metric_value": 0.0,
+    "unit": "count",
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": 5.0
+  },
+  {
     "id": "metric-documented_call_spend",
     "metric_name": "documented_call_spend",
     "metric_value": 1.5106,
     "unit": "usd",
-    "measured_at": "2026-07-09T10:56:41Z",
-    "source": "ops-crm/generate.py"
-  },
-  {
-    "id": "metric-money_signal_actions",
-    "metric_name": "money_signal_actions",
-    "metric_value": 16.0,
-    "unit": "count",
-    "measured_at": "2026-07-09T10:56:41Z",
-    "source": "ops-crm/generate.py"
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": null
   },
   {
     "id": "metric-open_actions",
     "metric_name": "open_actions",
     "metric_value": 17.0,
     "unit": "count",
-    "measured_at": "2026-07-09T10:56:41Z",
-    "source": "ops-crm/generate.py"
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": null
   },
   {
     "id": "metric-owner_operator_prospects",
     "metric_name": "owner_operator_prospects",
     "metric_value": 10.0,
     "unit": "count",
-    "measured_at": "2026-07-09T10:56:41Z",
-    "source": "ops-crm/generate.py"
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": null
+  },
+  {
+    "id": "metric-pilot_proposed_total",
+    "metric_name": "pilot_proposed_total",
+    "metric_value": 0.0,
+    "unit": "count",
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": 1.0
   },
   {
     "id": "metric-prospects_total",
     "metric_name": "prospects_total",
     "metric_value": 64.0,
     "unit": "count",
-    "measured_at": "2026-07-09T10:56:41Z",
-    "source": "ops-crm/generate.py"
+    "measured_at": "2026-07-09T14:08:50Z",
+    "source": "ops-crm/db.py::compute_metrics",
+    "target": 50.0
   }
 ]

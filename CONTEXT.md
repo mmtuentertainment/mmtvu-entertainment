@@ -23,3 +23,20 @@ The per-collection decision inside the redaction seam: rebuilt with identity ano
 **Backstop**:
 `redaction.assert_public_safe` — the whole-output net (phones, emails, credentials, company names and slugs, private paths). Runs as an unconditional postcondition inside `derive_public`; it cannot be forgotten by a caller.
 _Avoid_: validator, safety check
+
+### Outreach funnel
+
+**Funnel status**:
+A prospect's position in the design doc's outreach funnel: `not_contacted → contacted → replied → discovery_booked → pilot_proposed → won/lost`, with `not_fit` and `follow_up_later` as off-ramps. Defined once as `db.FUNNEL_STATUSES`, enforced by `prospect.schema.json` and the status write path.
+_Avoid_: lead stage, pipeline state, the legacy `new/needs_follow_up/booked/customer` vocabulary
+
+**Status write path**:
+`db.set_action_status` / `db.set_prospect_status`, reached through `serve.py`'s POST endpoints — the only way operator status changes enter the system. SQLite is the one status store; the dashboard's localStorage holds notes only.
+_Avoid_: local state, browser state (for anything but notes)
+
+**Metric definition site**:
+`db.compute_metrics` — every Revenue OS metric is defined there and computed at export time, so post-import status changes are always reflected. Funnel totals are cumulative (a won prospect still counts as contacted and discovery-booked); `not_fit` never counts as contacted. Spend sums the structured `cost_usd` field on evidence records. The doc's case-study metrics (first response time, follow-ups sent, stale leads revived) slot in here when interaction logging lands (ADR 0001).
+_Avoid_: metric math in builders or the dashboard
+
+**14-day targets**:
+The doc's success criteria — 50 identified / 30 contacted / 5 discovery / 1 pilot — carried as the `target` column on metric rows so the brief and dashboard render progress (`3/30 contacted`).

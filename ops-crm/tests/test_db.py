@@ -4,6 +4,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 
 GEN_SPEC = importlib.util.spec_from_file_location("crm_generate", ROOT / "ops-crm" / "generate.py")
@@ -101,6 +103,148 @@ def test_revenue_os_validation_rejects_missing_loop_fields(tmp_path):
         assert "loops[0] missing required keys: goal" in str(exc)
     else:
         raise AssertionError("missing loop goal should fail validation")
+
+
+def test_status_vocabularies_match_schema_enums():
+    prospect_schema = json.loads((ROOT / "ops-crm" / "schemas" / "prospect.schema.json").read_text())
+    action_schema = json.loads((ROOT / "ops-crm" / "schemas" / "next_action.schema.json").read_text())
+
+    assert set(prospect_schema["properties"]["status"]["enum"]) == set(crm_db.FUNNEL_STATUSES)
+    assert set(action_schema["properties"]["status"]["enum"]) == crm_db.ACTION_STATUSES
+
+
+def test_init_db_migrates_legacy_statuses_to_funnel_vocabulary(tmp_path):
+    conn = sqlite3.connect(tmp_path / "crm.sqlite")
+    conn.row_factory = sqlite3.Row
+    crm_db.init_db(conn)
+    now = "2026-07-09T00:00:00Z"
+    legacy = [
+        ("p-new", "new"),
+        ("p-contacted", "contacted"),
+        ("p-nfu", "needs_follow_up"),
+        ("p-notfit", "not_fit"),
+        ("p-booked", "booked"),
+        ("p-customer", "customer"),
+    ]
+    for pid, status in legacy:
+        conn.execute(
+            "INSERT INTO prospects(id, company_name, priority, status, created_at, updated_at, payload_json) VALUES(?,?,?,?,?,?,?)",
+            (pid, "Co", "low", status, now, now, "{}"),
+        )
+    conn.execute(
+        "INSERT INTO metrics(id, metric_name, metric_value, unit, measured_at, source) VALUES('metric-money_signal_actions','money_signal_actions',3,'count',?,'x')",
+        (now,),
+    )
+    conn.commit()
+
+    crm_db.init_db(conn)
+
+    got = {row["id"]: row["status"] for row in conn.execute("SELECT id, status FROM prospects")}
+    assert got == {
+        "p-new": "not_contacted",
+        "p-contacted": "contacted",
+        "p-nfu": "contacted",
+        "p-notfit": "not_fit",
+        "p-booked": "discovery_booked",
+        "p-customer": "won",
+    }
+    assert conn.execute("SELECT COUNT(*) FROM metrics WHERE metric_name='money_signal_actions'").fetchone()[0] == 0
+
+
+def _funnel_dataset(now="2026-07-09T12:00:00Z"):
+    def prospect(pid, status, owner=False):
+        return {"id": pid, "company_name": pid, "priority": "low", "status": status, "owner_operator": owner}
+
+    return {
+        "generated_at": now,
+        "prospects": [
+            prospect("p1", "not_contacted"),
+            prospect("p2", "contacted", owner=True),
+            prospect("p3", "replied"),
+            prospect("p4", "discovery_booked"),
+            prospect("p5", "pilot_proposed"),
+            prospect("p6", "won"),
+            prospect("p7", "lost"),
+            prospect("p8", "not_fit"),
+            prospect("p9", "follow_up_later"),
+        ],
+        "next_actions": [
+            {"id": "a1", "owner": "Hermes", "action": "call p2", "status": "open", "priority": "low", "score": 2.0},
+            {"id": "a2", "owner": "Hermes", "action": "call p3", "status": "done", "priority": "low", "score": 1.0},
+        ],
+        "assets": [],
+        "offers": [],
+        "evidence": [
+            {"id": "e1", "summary": "3 calls made", "cost_usd": 0.4506},
+            {"id": "e2", "summary": "7 calls made", "cost_usd": 1.06},
+            {"id": "e3", "summary": "no cost attached"},
+        ],
+    }
+
+
+def test_export_metrics_are_funnel_counts_from_one_definition_site(tmp_path):
+    now = "2026-07-09T12:00:00Z"
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset(now))
+        # Metrics must reflect operator changes made AFTER import: they are
+        # computed at export time, not frozen at import time.
+        conn.execute("UPDATE prospects SET status = 'replied' WHERE id = 'p2'")
+        conn.commit()
+        exported = crm_db.export_dataset(conn, now)
+
+    metrics = {m["metric_name"]: m for m in exported["metrics"]}
+    assert "money_signal_actions" not in metrics
+    assert metrics["prospects_total"]["metric_value"] == 9
+    assert metrics["prospects_total"]["target"] == 50
+    # Cumulative: everything at-or-past a first touch counts as contacted;
+    # not_fit stays out so disqualifications never inflate the 30-contacted target.
+    assert metrics["contacted_total"]["metric_value"] == 7
+    assert metrics["contacted_total"]["target"] == 30
+    assert metrics["discovery_booked_total"]["metric_value"] == 3
+    assert metrics["discovery_booked_total"]["target"] == 5
+    assert metrics["pilot_proposed_total"]["metric_value"] == 2
+    assert metrics["pilot_proposed_total"]["target"] == 1
+    assert metrics["open_actions"]["metric_value"] == 1
+    assert metrics["owner_operator_prospects"]["metric_value"] == 1
+    assert metrics["documented_call_spend"]["metric_value"] == 1.5106
+    assert metrics["documented_call_spend"]["target"] is None
+
+
+def test_set_status_write_path_validates_and_persists(tmp_path):
+    now = "2026-07-09T12:00:00Z"
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset(now))
+
+        crm_db.set_action_status(conn, "a1", "done")
+        crm_db.set_prospect_status(conn, "p1", "replied")
+
+        assert conn.execute("SELECT status FROM actions WHERE id='a1'").fetchone()["status"] == "done"
+        assert conn.execute("SELECT status FROM prospects WHERE id='p1'").fetchone()["status"] == "replied"
+
+        with pytest.raises(ValueError, match="finished"):
+            crm_db.set_action_status(conn, "a1", "finished")
+        with pytest.raises(ValueError, match="maybe"):
+            crm_db.set_prospect_status(conn, "p1", "maybe")
+        with pytest.raises(KeyError, match="missing-action"):
+            crm_db.set_action_status(conn, "missing-action", "done")
+        with pytest.raises(KeyError, match="missing-prospect"):
+            crm_db.set_prospect_status(conn, "missing-prospect", "replied")
+
+
+def test_daily_brief_reports_funnel_progress_against_targets(tmp_path):
+    now = "2026-07-09T12:00:00Z"
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset(now))
+        exported = crm_db.export_dataset(conn, now)
+
+    brief = crm_db.daily_brief(exported)
+
+    assert "Identified prospects: 9/50" in brief
+    assert "Contacted: 7/30" in brief
+    assert "Discovery booked: 3/5" in brief
+    assert "Pilots proposed: 2/1" in brief
+    assert "Documented call spend: $1.5106" in brief
+    assert "Money-signal" not in brief
 
 
 def test_loop_experiment_metrics_identify_next_best_move(tmp_path):

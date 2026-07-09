@@ -57,3 +57,8 @@ file globs. The brain auto-syncs incrementally on every gstack skill start.
 Run `/sync-gbrain` to force-refresh, `/sync-gbrain --full` for full reindex.
 
 <!-- gstack-gbrain-search-guidance:end -->
+
+## Current work pointer (2026-07-09)
+
+Candidates 3+4 (funnel vocabulary + metric identity) are implemented, TDD-verified (42 tests), live-verified, and committed this session along with the adversarial review's Tier 1 fixes (CSRF, DNS-rebinding, commit-before-validate divergence, CSV/JSON status clobber).
+Still open: Tier 2 (2 design decisions — cumulative funnel metrics on off-ramps, dashboard funnel coverage for non-action-backed prospects) and Tier 3 (7 mechanical fixes). Full findings list and reproduction steps: ops-crm-candidates-3-4-review-HANDOFF.md at the repo root.

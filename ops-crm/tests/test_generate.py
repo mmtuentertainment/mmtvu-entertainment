@@ -31,7 +31,7 @@ def test_owner_operated_source_precedence_wins_and_preserves_sources():
     halpin = next(p for p in private["prospects"] if p["id"] == "halpin-plumbing-inc-cincinnati-oh")
 
     assert halpin["owner_operator"] is True
-    assert halpin["status"] == "needs_follow_up"
+    assert halpin["status"] == "contacted"
     assert "owner-operated-vapi-prospects.json won" in halpin["source_precedence"]
     assert "outreach/outreach-list-50.csv" in halpin["source_paths"]
     assert "outreach/owner-operated-vapi-prospects.json" in halpin["source_paths"]
@@ -54,6 +54,66 @@ def test_public_output_redacts_sensitive_contact_and_call_data():
     assert "outreach/owner-operated-call-summaries.json" not in public_text
     assert "outreach/vapi-call-summaries.json" not in public_text
     assert "Local prospect" in public_text
+
+
+def test_build_prospects_speaks_doc_funnel_vocabulary(tmp_path):
+    csv_path = tmp_path / "outreach" / "outreach-list-50.csv"
+    csv_path.parent.mkdir(parents=True)
+    csv_path.write_text(
+        "name,niche,city,website,priority,status\n"
+        'A Co,HVAC,"X, OH",http://a.com,HIGH,Not contacted\n'
+        'B Co,HVAC,"X, OH",http://b.com,HIGH,Contacted\n'
+        'C Co,HVAC,"X, OH",http://c.com,LOW,Discovery booked\n',
+        encoding="utf-8",
+    )
+
+    prospects = crm_generate.build_prospects(tmp_path, "2026-07-09T00:00:00Z")
+
+    statuses = {p["company_name"]: p["status"] for p in prospects}
+    assert statuses == {"A Co": "not_contacted", "B Co": "contacted", "C Co": "discovery_booked"}
+
+
+def test_json_twin_does_not_clobber_csv_funnel_status(tmp_path):
+    csv_path = tmp_path / "outreach" / "outreach-list-50.csv"
+    csv_path.parent.mkdir(parents=True)
+    csv_path.write_text(
+        "name,niche,city,website,priority,status\n"
+        'A Co,HVAC,"X, OH",http://a.com,HIGH,Contacted\n',
+        encoding="utf-8",
+    )
+    json_path = tmp_path / "outreach" / "outreach-list-50.json"
+    json_path.write_text(
+        json.dumps([
+            {
+                "name": "A Co",
+                "niche": "HVAC",
+                "city": "X, OH",
+                "website": "http://a.com",
+                "priority": "HIGH",
+                "status": "Contacted",
+            }
+        ]),
+        encoding="utf-8",
+    )
+
+    prospects = crm_generate.build_prospects(tmp_path, "2026-07-09T00:00:00Z")
+
+    assert prospects[0]["status"] == "contacted"
+
+
+def test_build_prospects_rejects_status_outside_funnel(tmp_path):
+    import pytest
+
+    csv_path = tmp_path / "outreach" / "outreach-list-50.csv"
+    csv_path.parent.mkdir(parents=True)
+    csv_path.write_text(
+        "name,niche,city,website,priority,status\n"
+        'A Co,HVAC,"X, OH",http://a.com,HIGH,Maybe later\n',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Maybe later"):
+        crm_generate.build_prospects(tmp_path, "2026-07-09T00:00:00Z")
 
 
 def test_validation_rejects_orphan_next_action():

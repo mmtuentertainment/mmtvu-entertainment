@@ -29,6 +29,49 @@ ALLOWED_TABLES = frozenset({
 # P0.6: Tables that get stale-record archival (is_current/archived_at columns)
 ARCHIVAL_TABLES = frozenset({"prospects", "actions", "artifacts"})
 
+# Outreach funnel vocabulary from docs/mmtvu-ai-automation-holding-company-design-2026-07-08.md
+# (48-hour outreach logging sheet). Must match prospect.schema.json's status enum.
+FUNNEL_STATUSES = (
+    "not_contacted",
+    "contacted",
+    "replied",
+    "discovery_booked",
+    "pilot_proposed",
+    "won",
+    "lost",
+    "not_fit",
+    "follow_up_later",
+)
+
+# Pre-funnel statuses left behind by earlier schema versions. needs_follow_up maps to
+# contacted: those prospects were called (touch attempted); the retry intent lives in
+# their open actions, and "follow_up_later" in the doc means a post-conversation deferral.
+LEGACY_PROSPECT_STATUS_MAP = {
+    "new": "not_contacted",
+    "needs_follow_up": "contacted",
+    "booked": "discovery_booked",
+    "customer": "won",
+}
+
+# Operator vocabulary for action rows. Must match next_action.schema.json's status enum.
+ACTION_STATUSES = frozenset({"open", "doing", "done", "blocked", "cancelled"})
+
+# Cumulative funnel membership: a prospect that advanced still counts at every stage
+# it passed through. not_fit is excluded from contacted on purpose — disqualifications
+# must never inflate the outreach-progress numbers.
+CONTACTED_STATUSES = frozenset({"contacted", "replied", "discovery_booked", "pilot_proposed", "follow_up_later", "won", "lost"})
+DISCOVERY_STATUSES = frozenset({"discovery_booked", "pilot_proposed", "won"})
+PILOT_STATUSES = frozenset({"pilot_proposed", "won"})
+
+# 14-day success criteria from the design doc: identify 50, contact 30,
+# book 5 discovery conversations, get 1 pilot.
+FOURTEEN_DAY_TARGETS = {
+    "prospects_total": 50.0,
+    "contacted_total": 30.0,
+    "discovery_booked_total": 5.0,
+    "pilot_proposed_total": 1.0,
+}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -129,7 +172,8 @@ def init_db(conn: sqlite3.Connection) -> None:
             metric_value REAL NOT NULL,
             unit TEXT NOT NULL,
             measured_at TEXT NOT NULL,
-            source TEXT NOT NULL
+            source TEXT NOT NULL,
+            target REAL
         );
         """
     )
@@ -141,6 +185,15 @@ def init_db(conn: sqlite3.Connection) -> None:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN is_current INTEGER NOT NULL DEFAULT 1")
         if "archived_at" not in cols:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN archived_at TEXT")
+
+    # Funnel vocabulary migration: map legacy prospect statuses to the design doc's
+    # outreach funnel and drop the retired money_signal_actions metric.
+    for old, new in LEGACY_PROSPECT_STATUS_MAP.items():
+        conn.execute("UPDATE prospects SET status = ? WHERE status = ?", (new, old))
+    conn.execute("DELETE FROM metrics WHERE metric_name = 'money_signal_actions'")
+    metric_cols = {row["name"] for row in conn.execute("PRAGMA table_info(metrics)")}
+    if "target" not in metric_cols:
+        conn.execute("ALTER TABLE metrics ADD COLUMN target REAL")
 
     conn.commit()
 
@@ -185,7 +238,7 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
         prospect_ids.append(p["id"])
         created = _existing_created_at(conn, "prospects", p["id"], now)
         # P0.1: Preserve operator-set prospect status
-        preserved_status = _existing_prospect_status(conn, p["id"], p.get("status", "new"))
+        preserved_status = _existing_prospect_status(conn, p["id"], p.get("status", "not_contacted"))
         stored = dict(p)
         stored["status"] = preserved_status
         conn.execute(
@@ -281,7 +334,7 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
     _archive_missing(conn, "actions", action_ids, now)
     _archive_missing(conn, "artifacts", artifact_ids, now)
 
-    _seed_revenue_os(conn, dataset, now)
+    _seed_revenue_os(conn, now)
     conn.commit()
 
 
@@ -346,7 +399,7 @@ def _archive_missing(conn: sqlite3.Connection, table: str, current_ids: Iterable
         )
 
 
-def _seed_revenue_os(conn: sqlite3.Connection, dataset: dict[str, Any], now: str) -> None:
+def _seed_revenue_os(conn: sqlite3.Connection, now: str) -> None:
     # Milestone 1 canonical loop and experiment. INSERT OR IGNORE preserves future operator edits.
     conn.execute(
         """
@@ -383,41 +436,61 @@ def _seed_revenue_os(conn: sqlite3.Connection, dataset: dict[str, Any], now: str
         ),
     )
 
-    prospects = [dict(row) for row in conn.execute("SELECT * FROM prospects WHERE is_current = 1")]
-    actions = [_record_with_overrides(row, {"status": row["status"]}) for row in conn.execute("SELECT * FROM actions WHERE is_current = 1")]
-    evidence_text = " ".join(e.get("summary", "") for e in dataset.get("evidence", []))
-    open_actions = [a for a in actions if a.get("status") == "open"]
-    metric_values = {
-        "prospects_total": (len(prospects), "count"),
-        "owner_operator_prospects": (sum(1 for p in prospects if p.get("owner_operator")), "count"),
-        "open_actions": (len(open_actions), "count"),
-        "money_signal_actions": (
-            sum(
-                1
-                for a in open_actions
-                if "reply" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()
-                or "booked" in (a.get("expected_revenue_path", "") + a.get("reason", "")).lower()
-            ),
-            "count",
-        ),
-        "documented_call_spend": (_extract_spend(evidence_text), "usd"),
+
+def compute_metrics(
+    prospects: list[dict[str, Any]],
+    actions: list[dict[str, Any]],
+    evidence: list[dict[str, Any]],
+) -> dict[str, tuple[float, str, float | None]]:
+    """The single definition site for every Revenue OS metric.
+
+    Funnel counts are cumulative over prospect status (a won prospect still counts
+    as contacted and discovery-booked); spend sums the structured cost_usd field on
+    evidence records. Returns {metric_name: (value, unit, target-or-None)}. The
+    doc's case-study metrics (first response time, follow-ups sent, stale leads
+    revived) slot in here when interaction logging lands (see ADR 0001).
+    """
+    statuses = [p.get("status") for p in prospects]
+    values: dict[str, tuple[float, str]] = {
+        "prospects_total": (float(len(prospects)), "count"),
+        "contacted_total": (float(sum(1 for s in statuses if s in CONTACTED_STATUSES)), "count"),
+        "discovery_booked_total": (float(sum(1 for s in statuses if s in DISCOVERY_STATUSES)), "count"),
+        "pilot_proposed_total": (float(sum(1 for s in statuses if s in PILOT_STATUSES)), "count"),
+        "owner_operator_prospects": (float(sum(1 for p in prospects if p.get("owner_operator"))), "count"),
+        "open_actions": (float(sum(1 for a in actions if a.get("status") == "open")), "count"),
+        "documented_call_spend": (round(sum(float(e.get("cost_usd") or 0) for e in evidence), 4), "usd"),
     }
-    for name, (value, unit) in metric_values.items():
-        conn.execute(
-            """
-            INSERT INTO metrics(id, metric_name, metric_value, unit, measured_at, source)
-            VALUES(?, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET metric_value=excluded.metric_value, unit=excluded.unit, measured_at=excluded.measured_at, source=excluded.source
-            """,
-            (f"metric-{name}", name, float(value), unit, now, "ops-crm/generate.py"),
-        )
+    return {name: (value, unit, FOURTEEN_DAY_TARGETS.get(name)) for name, (value, unit) in values.items()}
 
 
-def _extract_spend(text: str) -> float:
-    # Known report summaries include $0.4506 and about $1.06. Keep this simple and deterministic.
-    import re
+def set_action_status(conn: sqlite3.Connection, action_id: str, status: str) -> None:
+    """Operator write path for action status — the dashboard posts through this.
 
-    return round(sum(float(m) for m in re.findall(r"\$([0-9]+(?:\.[0-9]+)?)", text)), 4)
+    Validated here so a typo can never plant an out-of-enum status that breaks
+    schema validation at the next export.
+    """
+    if status not in ACTION_STATUSES:
+        raise ValueError(f"unknown action status {status!r}; expected one of {sorted(ACTION_STATUSES)}")
+    cur = conn.execute(
+        "UPDATE actions SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
+        (status, utc_now(), action_id),
+    )
+    if cur.rowcount == 0:
+        raise KeyError(f"no current action {action_id!r}")
+    conn.commit()
+
+
+def set_prospect_status(conn: sqlite3.Connection, prospect_id: str, status: str) -> None:
+    """Operator write path for moving a prospect through the outreach funnel."""
+    if status not in FUNNEL_STATUSES:
+        raise ValueError(f"unknown prospect status {status!r}; expected one of {', '.join(FUNNEL_STATUSES)}")
+    cur = conn.execute(
+        "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
+        (status, utc_now(), prospect_id),
+    )
+    if cur.rowcount == 0:
+        raise KeyError(f"no current prospect {prospect_id!r}")
+    conn.commit()
 
 
 def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) -> dict[str, Any]:
@@ -447,6 +520,21 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
     evidence = [_load(row["payload_json"], {}) for row in artifacts if row["type"] == "evidence"]
     loops = [dict(row) for row in conn.execute("SELECT * FROM loops ORDER BY status, name")]
     experiments = [dict(row) for row in conn.execute("SELECT * FROM experiments ORDER BY status, id")]
+
+    # Metrics are computed here, at export time, so operator status changes made
+    # after import are reflected; the table row is refreshed so SQLite always
+    # matches the last published export.
+    for name, (value, unit, target) in compute_metrics(prospects, actions, evidence).items():
+        conn.execute(
+            """
+            INSERT INTO metrics(id, metric_name, metric_value, unit, measured_at, source, target)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET metric_value=excluded.metric_value, unit=excluded.unit,
+              measured_at=excluded.measured_at, source=excluded.source, target=excluded.target
+            """,
+            (f"metric-{name}", name, value, unit, generated, "ops-crm/db.py::compute_metrics", target),
+        )
+    conn.commit()
     metrics = [dict(row) for row in conn.execute("SELECT * FROM metrics ORDER BY metric_name")]
     active_actions = [a for a in actions if a.get("status") not in {"done", "cancelled"}]
     next_best_action = active_actions[0] if active_actions else None
@@ -494,7 +582,11 @@ def daily_brief(dataset: dict[str, Any]) -> str:
         top = next((a for a in actions if a.get("status") not in {"done", "cancelled"}), actions[0] if actions else {})
     spend = metrics.get("documented_call_spend", {}).get("metric_value", 0)
     owner_targets = metrics.get("owner_operator_prospects", {}).get("metric_value", 0)
-    money_signal = metrics.get("money_signal_actions", {}).get("metric_value", 0)
+
+    def progress(name: str) -> str:
+        m = metrics.get(name, {})
+        target = m.get("target") or FOURTEEN_DAY_TARGETS.get(name, 0)
+        return f"{int(m.get('metric_value', 0))}/{int(target)}"
 
     return "\n".join(
         [
@@ -502,8 +594,11 @@ def daily_brief(dataset: dict[str, Any]) -> str:
             "",
             f"Generated: {dataset.get('generated_at', 'unknown')}",
             "",
-            "## Are we closer to money than yesterday?",
-            f"- Money-signal actions in queue: {int(money_signal)}",
+            "## Are we closer to money than yesterday? (14-day targets)",
+            f"- Identified prospects: {progress('prospects_total')}",
+            f"- Contacted: {progress('contacted_total')}",
+            f"- Discovery booked: {progress('discovery_booked_total')}",
+            f"- Pilots proposed: {progress('pilot_proposed_total')}",
             f"- Documented call spend: ${float(spend):.4f}",
             f"- Owner-operated prospects in SQLite: {int(owner_targets)}",
             f"- Active loops: {sum(1 for l in loops if l.get('status') == 'active')}",

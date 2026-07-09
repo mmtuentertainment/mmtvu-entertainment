@@ -5,7 +5,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing/Electrical/HVAC",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-6779f1cb4fa1",
     "owner_operator": false,
@@ -13,7 +13,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -23,7 +23,7 @@
     "city": "Cincinnati, OH",
     "niche": "HVAC/Plumbing/Electrical",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-01b9ec7edf0f",
     "owner_operator": false,
@@ -31,7 +31,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -41,7 +41,7 @@
     "city": "Indianapolis, IN",
     "niche": "HVAC/Plumbing/Electrical",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-92ae0852aeff",
     "owner_operator": false,
@@ -49,7 +49,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -59,7 +59,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing/Electrical/HVAC",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -67,7 +67,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -77,7 +77,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC/Plumbing",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-992012b27319",
     "owner_operator": false,
@@ -85,7 +85,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -95,7 +95,7 @@
     "city": "Cincinnati, OH",
     "niche": "HVAC/Plumbing",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -103,7 +103,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -113,7 +113,7 @@
     "city": "Columbus, OH",
     "niche": "Electrical/Plumbing",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-3b8310247cfb",
     "owner_operator": false,
@@ -121,7 +121,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -131,7 +131,7 @@
     "city": "Louisville, KY",
     "niche": "HVAC/Plumbing/Electrical",
     "priority": "high",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-6d1a8b02e11e",
     "owner_operator": false,
@@ -139,7 +139,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -149,7 +149,7 @@
     "city": "Columbus, OH",
     "niche": "Electrical",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-380de3aedf14",
     "owner_operator": true,
@@ -157,7 +157,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -168,7 +168,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -176,7 +176,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -186,7 +186,7 @@
     "city": "Louisville, KY",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -194,7 +194,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -204,7 +204,7 @@
     "city": "Indianapolis, IN",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -212,7 +212,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -222,7 +222,7 @@
     "city": "Louisville, KY",
     "niche": "HVAC/Plumbing/Electrical",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -230,7 +230,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -240,7 +240,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -248,7 +248,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -258,7 +258,7 @@
     "city": "Indianapolis, IN",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -266,7 +266,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -276,7 +276,7 @@
     "city": "Indianapolis, IN",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -284,7 +284,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -294,7 +294,7 @@
     "city": "Cincinnati, OH",
     "niche": "Electrical",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -302,7 +302,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -312,7 +312,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -320,7 +320,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -330,7 +330,7 @@
     "city": "Cincinnati, OH",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -338,7 +338,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -348,7 +348,7 @@
     "city": "Cincinnati, OH",
     "niche": "Plumbing/HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -356,7 +356,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -366,7 +366,7 @@
     "city": "Indianapolis, IN",
     "niche": "Plumbing/HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -374,7 +374,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -384,7 +384,7 @@
     "city": "Cincinnati, OH",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -392,7 +392,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -402,7 +402,7 @@
     "city": "Cincinnati, OH",
     "niche": "Electrical",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -410,7 +410,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -420,7 +420,7 @@
     "city": "Columbus, OH",
     "niche": "Electrical",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -428,7 +428,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -438,7 +438,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -446,7 +446,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -456,7 +456,7 @@
     "city": "Cincinnati, OH",
     "niche": "Roofing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -464,7 +464,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -474,7 +474,7 @@
     "city": "Indianapolis, IN",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -482,7 +482,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -492,7 +492,7 @@
     "city": "Cincinnati, OH",
     "niche": "Electrical",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -500,7 +500,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -510,7 +510,7 @@
     "city": "Cincinnati, OH",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -518,7 +518,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -528,7 +528,7 @@
     "city": "Indianapolis, IN",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -536,7 +536,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -546,7 +546,7 @@
     "city": "Indianapolis, IN",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -554,7 +554,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -564,7 +564,7 @@
     "city": "Indianapolis, IN",
     "niche": "HVAC",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -572,7 +572,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -582,7 +582,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing",
     "priority": "medium",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -590,7 +590,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -600,7 +600,7 @@
     "city": "Columbus, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-1cb3346c415b",
     "owner_operator": true,
@@ -608,7 +608,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -619,7 +619,7 @@
     "city": "Cincinnati, OH",
     "niche": "Electrical",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-5c5b6d692986",
     "owner_operator": true,
@@ -627,7 +627,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -638,7 +638,7 @@
     "city": "Cincinnati, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "needs_follow_up",
+    "status": "contacted",
     "last_touch_at": "2026-07-08",
     "next_action_id": "action-cd3c37d1ecf4",
     "owner_operator": true,
@@ -646,7 +646,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -657,7 +657,7 @@
     "city": "Cincinnati, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "needs_follow_up",
+    "status": "contacted",
     "last_touch_at": "2026-07-08",
     "next_action_id": "action-70e788ae45f4",
     "owner_operator": true,
@@ -665,7 +665,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -676,7 +676,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-bc62d558f2c2",
     "owner_operator": true,
@@ -684,7 +684,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -695,7 +695,7 @@
     "city": "Cincinnati, OH",
     "niche": "Plumbing",
     "priority": "low",
-    "status": "needs_follow_up",
+    "status": "contacted",
     "last_touch_at": "2026-07-08",
     "next_action_id": "action-8dec4025df8d",
     "owner_operator": true,
@@ -703,7 +703,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -714,7 +714,7 @@
     "city": "Columbus, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-3238ff278c07",
     "owner_operator": true,
@@ -722,7 +722,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -733,7 +733,7 @@
     "city": "Columbus, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-3c47f2d6f53e",
     "owner_operator": true,
@@ -741,7 +741,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Smaller local active-website prospect; avoids obvious franchise/multi-location targets from first Vapi batch."
@@ -752,7 +752,7 @@
     "city": "Cincinnati, OH",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": "action-0291cfdfd3f9",
     "owner_operator": true,
@@ -760,7 +760,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted",
     "owner_operator_reason": "Replacement smaller local active-website prospect with local phone area code."
@@ -771,7 +771,7 @@
     "city": "Louisville, KY",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -779,7 +779,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -789,7 +789,7 @@
     "city": "Louisville, KY",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -797,7 +797,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -807,7 +807,7 @@
     "city": "Louisville, KY",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -815,7 +815,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -825,7 +825,7 @@
     "city": "Columbus, OH",
     "niche": "Electrical",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -833,7 +833,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -843,7 +843,7 @@
     "city": "Columbus, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -851,7 +851,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -861,7 +861,7 @@
     "city": "Louisville, KY",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -869,7 +869,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -879,7 +879,7 @@
     "city": "Cincinnati, OH",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -887,7 +887,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -897,7 +897,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -905,7 +905,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -915,7 +915,7 @@
     "city": "Columbus, OH",
     "niche": "Electrical",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -923,7 +923,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -933,7 +933,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -941,7 +941,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -951,7 +951,7 @@
     "city": "Cincinnati, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -959,7 +959,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -969,7 +969,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -977,7 +977,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -987,7 +987,7 @@
     "city": "Louisville, KY",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -995,7 +995,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1005,7 +1005,7 @@
     "city": "Louisville, KY",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1013,7 +1013,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1023,7 +1023,7 @@
     "city": "Columbus, OH",
     "niche": "Electrical",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1031,7 +1031,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1041,7 +1041,7 @@
     "city": "Columbus, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1049,7 +1049,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1059,7 +1059,7 @@
     "city": "Louisville, KY",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1067,7 +1067,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1077,7 +1077,7 @@
     "city": "Columbus, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1085,7 +1085,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1095,7 +1095,7 @@
     "city": "Cincinnati, OH",
     "niche": "Roofing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1103,7 +1103,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1113,7 +1113,7 @@
     "city": "Columbus, OH",
     "niche": "HVAC",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1121,7 +1121,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1131,7 +1131,7 @@
     "city": "Columbus, OH",
     "niche": "Plumbing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1139,7 +1139,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   },
@@ -1149,7 +1149,7 @@
     "city": "Cincinnati, OH",
     "niche": "Plumbing",
     "priority": "low",
-    "status": "new",
+    "status": "not_contacted",
     "last_touch_at": null,
     "next_action_id": null,
     "owner_operator": false,
@@ -1157,7 +1157,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T10:56:41Z",
+    "generated_at": "2026-07-09T14:08:50Z",
     "source_hashes": {},
     "source_precedence": "private-source-redacted"
   }

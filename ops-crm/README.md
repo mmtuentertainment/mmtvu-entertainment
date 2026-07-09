@@ -17,10 +17,11 @@ Outputs:
 
 ## Use dashboard
 
-Browser `file://` mode may block JSON fetches. Serve the repo instead:
+Serve the repo with the operator server (it also carries the status write path;
+plain `file://` or a dumb static server would leave status buttons unable to save):
 
 ```bash
-python3 -m http.server 8000
+uv run python ops-crm/serve.py
 ```
 
 Then open:
@@ -33,12 +34,13 @@ The dashboard is an operator workspace, not just a report:
 
 - Search/filter the action queue.
 - Select an action and inspect evidence/source detail.
-- Mark actions open/done/blocked.
-- Save operator notes in localStorage.
+- Mark actions open/done/blocked — writes to SQLite via `POST /api/action-status`.
+- Move the selected action's prospect through the outreach funnel (`POST /api/prospect-status`).
+- Save operator notes in localStorage (notes are the only browser-local state).
 - Copy the next-step prompt for Hermes or Matthew.
-- Export local CRM state as JSON.
+- Export local notes as JSON.
 - Toggle private/public redacted data.
-- Inspect the SQLite-backed Revenue OS loop, metrics, next best move, and daily brief link.
+- Inspect the SQLite-backed Revenue OS loop, 14-day funnel progress, next best move, and daily brief link.
 
 Keyboard shortcuts:
 

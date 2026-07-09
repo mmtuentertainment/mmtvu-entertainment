@@ -13,7 +13,7 @@
     "email": {"type": ["string", "null"]},
     "website": {"type": ["string", "null"]},
     "priority": {"enum": ["high", "medium", "low"]},
-    "status": {"enum": ["new", "contacted", "needs_follow_up", "not_fit", "booked", "customer"]},
+    "status": {"enum": ["not_contacted", "contacted", "replied", "discovery_booked", "pilot_proposed", "won", "lost", "not_fit", "follow_up_later"]},
     "last_touch_at": {"type": ["string", "null"]},
     "next_action_id": {"type": ["string", "null"]},
     "owner_operator": {"type": "boolean"},

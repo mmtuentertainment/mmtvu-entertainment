@@ -22,10 +22,10 @@
       <button id="modeButton" type="button">Switch to public data</button>
       <button id="exportButton" type="button">Export my CRM state</button>
       <button id="resetButton" class="danger" type="button">Reset local state</button>
-      <div class="small" id="modeNote">Private mode loads local operating data. Your statuses/notes save in this browser.</div>
+      <div class="small" id="modeNote">Private mode loads local operating data. Statuses save to SQLite; notes save in this browser.</div>
     </div>
     <div class="mini">Shortcuts: <span class="kbd">/</span> search · <span class="kbd">j/k</span> move · <span class="kbd">d</span> done · <span class="kbd">b</span> blocked · <span class="kbd">c</span> copy</div>
-    <div class="mini">SQLite source of truth: <code>ops-crm/crm.sqlite</code>. JSON files are exports for this dashboard.</div>
+    <div class="mini">SQLite source of truth: <code>ops-crm/crm.sqlite</code>. Serve with <code>uv run python ops-crm/serve.py</code> so status buttons write through.</div>
   </aside>
   <main id="today" tabindex="-1">
     <div class="topbar">
@@ -41,7 +41,7 @@
       <select id="statusFilter" aria-label="Filter by local status"><option value="active">Active</option><option value="all">All statuses</option><option value="open">Open</option><option value="done">Done</option><option value="blocked">Blocked</option></select>
       <button id="clearDoneButton" type="button">Hide done</button>
     </div>
-    <section id="loading" class="state">Reading generated CRM data… If this stays here, run <code>uv run python ops-crm/generate.py</code> and serve the repo with <code>python3 -m http.server</code>.</section>
+    <section id="loading" class="state">Reading generated CRM data… If this stays here, run <code>uv run python ops-crm/generate.py</code> and serve the repo with <code>uv run python ops-crm/serve.py</code>.</section>
     <section id="empty" class="state hidden">No matching actions. Clear filters or regenerate data with <code>uv run python ops-crm/generate.py</code>.</section>
     <section id="error" class="state error hidden"></section>
     <section id="topAction" class="hero-action hidden" aria-label="Selected action workspace"></section>
@@ -71,26 +71,40 @@ let mode = 'private';
 let currentData = null;
 let selectedId = null;
 let filteredActions = [];
-const storageKey = 'mmtvu-operator-crm-state-v1';
+const notesKey = 'mmtvu-operator-crm-notes-v2';
+const FUNNEL_STATUSES = ['not_contacted','contacted','replied','discovery_booked','pilot_proposed','won','lost','not_fit','follow_up_later'];
 const $ = (id) => document.getElementById(id);
 function esc(v){return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function priorityClass(p){return p === 'high' ? 'high' : p === 'medium' ? 'medium' : 'low';}
-function loadLocalState(){try{return JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{return {}}}
-function saveLocalState(state){localStorage.setItem(storageKey, JSON.stringify(state));}
-function actionState(id){return loadLocalState()[id] || {status:'open', notes:''};}
-function setActionState(id, patch){const state=loadLocalState(); state[id]={...(state[id]||{status:'open',notes:''}),...patch,updated_at:new Date().toISOString()}; saveLocalState(state); render(currentData); selectAction(id);}
+function loadNotes(){try{return JSON.parse(localStorage.getItem(notesKey)||'{}')}catch{return {}}}
+function notesFor(id){return (loadNotes()[id]||{}).notes || '';}
+function setNotes(id, notes){const state=loadNotes(); state[id]={notes, updated_at:new Date().toISOString()}; localStorage.setItem(notesKey, JSON.stringify(state));}
 function toast(msg){$('toast').textContent=msg; $('toast').classList.remove('hidden'); setTimeout(()=>$('toast').classList.add('hidden'),1800)}
+// One status store: writes go to SQLite through serve.py, never to localStorage.
+async function postStatus(path, id, status){
+  if(mode !== 'private'){ toast('Switch to private data to change status'); return; }
+  try{
+    const res = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, status})});
+    const body = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+    await loadData();
+    toast('Saved to SQLite');
+  }catch(err){
+    toast(`Not saved: ${err.message}. Serve with: uv run python ops-crm/serve.py`);
+  }
+}
+const setActionStatus = (id, status) => postStatus('/api/action-status', id, status);
+const setProspectStatus = (id, status) => postStatus('/api/prospect-status', id, status);
 async function loadData(){
   $('loading').classList.remove('hidden'); $('empty').classList.add('hidden'); $('error').classList.add('hidden'); $('topAction').classList.add('hidden'); $('actionList').innerHTML='';
   try{
     const res = await fetch(`data/${mode}/summary.json`, {cache:'no-store'});
     if(!res.ok) throw new Error(`Could not load data/${mode}/summary.json (${res.status})`);
     currentData = await res.json();
-    selectedId = null;
     render(currentData);
   }catch(err){
     $('loading').classList.add('hidden'); $('error').classList.remove('hidden');
-    $('error').innerHTML = `<strong>CRM data failed to load.</strong><br>${esc(err.message)}<br><br>Run <code>uv run python ops-crm/generate.py</code>, then serve from the repo root with <code>python3 -m http.server</code>. Browser file:// loading may block JSON fetches.`;
+    $('error').innerHTML = `<strong>CRM data failed to load.</strong><br>${esc(err.message)}<br><br>Run <code>uv run python ops-crm/generate.py</code>, then serve from the repo root with <code>uv run python ops-crm/serve.py</code>. Browser file:// loading may block JSON fetches.`;
     $('status').innerHTML = '<strong>Data error</strong>Generated JSON unavailable';
   }
 }
@@ -98,12 +112,11 @@ function render(data){
   if(!data) return;
   $('loading').classList.add('hidden');
   const actions = data.next_actions || [];
-  const local = loadLocalState();
   const q = $('search').value.trim().toLowerCase();
   const owner = $('ownerFilter').value;
   const status = $('statusFilter').value;
   filteredActions = actions.filter(a => {
-    const st = (local[a.id]?.status || 'open');
+    const st = a.status || 'open';
     const text = [a.action,a.owner,a.reason,a.expected_revenue_path,a.evidence_link,(a.source_paths||[]).join(' ')].join(' ').toLowerCase();
     if(q && !text.includes(q)) return false;
     if(owner !== 'all' && a.owner !== owner) return false;
@@ -112,18 +125,19 @@ function render(data){
     return true;
   });
   if(!selectedId || !filteredActions.some(a=>a.id===selectedId)) selectedId = filteredActions[0]?.id || null;
-  const done = actions.filter(a => (local[a.id]?.status || 'open') === 'done').length;
-  const blocked = actions.filter(a => (local[a.id]?.status || 'open') === 'blocked').length;
+  const done = actions.filter(a => (a.status || 'open') === 'done').length;
+  const blocked = actions.filter(a => (a.status || 'open') === 'blocked').length;
   $('doneCount').textContent = done; $('blockedCount').textContent = blocked;
   $('queueCount').textContent = `${filteredActions.length} of ${actions.length} actions`;
   $('status').innerHTML = `<strong>${mode === 'private' ? 'Private operating mode' : 'Public redacted mode'}</strong>Generated ${esc(data.generated_at || 'unknown')} · ${esc(data.summary?.prospects ?? 0)} prospects · ${esc(data.summary?.next_actions ?? actions.length)} actions`;
   $('redactionStatus').textContent = mode === 'public' ? (data.privacy?.note || 'Public redacted data loaded.') : 'Private data loaded. Public mode proves redacted output.';
   const metricMap = Object.fromEntries((data.metrics||[]).map(m => [m.metric_name, m]));
   const activeLoop = (data.loops||[]).find(l => l.status === 'active') || (data.loops||[])[0];
-  $('revenueOsPanel').innerHTML = `<div><strong>Source of truth:</strong> SQLite export</div><div><strong>Active loop:</strong> ${esc(activeLoop?.name || 'No loop recorded')}</div><div><strong>Owner targets:</strong> ${esc(metricMap.owner_operator_prospects?.metric_value ?? 0)}</div><div><strong>Call spend:</strong> $${esc(Number(metricMap.documented_call_spend?.metric_value || 0).toFixed(4))}</div><div><strong>Next best move:</strong> ${esc(data.summary?.next_best_move || 'No action')}</div>`;
+  const funnel = (name) => { const m = metricMap[name] || {}; return `${Number(m.metric_value || 0)}/${Number(m.target || 0)}`; };
+  $('revenueOsPanel').innerHTML = `<div><strong>Source of truth:</strong> SQLite export</div><div><strong>Active loop:</strong> ${esc(activeLoop?.name || 'No loop recorded')}</div><div><strong>14-day funnel:</strong> ${funnel('prospects_total')} identified · ${funnel('contacted_total')} contacted · ${funnel('discovery_booked_total')} discovery · ${funnel('pilot_proposed_total')} pilots</div><div><strong>Owner targets:</strong> ${esc(metricMap.owner_operator_prospects?.metric_value ?? 0)}</div><div><strong>Call spend:</strong> $${esc(Number(metricMap.documented_call_spend?.metric_value || 0).toFixed(4))}</div><div><strong>Next best move:</strong> ${esc(data.summary?.next_best_move || 'No action')}</div>`;
   $('dailyBriefLink').href = `data/${mode}/daily-brief.md`;
   $('empty').classList.toggle('hidden', filteredActions.length !== 0);
-  $('actionList').innerHTML = filteredActions.map((a, i) => rowMarkup(a, i+1, local[a.id]?.status || 'open')).join('');
+  $('actionList').innerHTML = filteredActions.map((a, i) => rowMarkup(a, i+1, a.status || 'open')).join('');
   $('actionList').querySelectorAll('[data-action-id]').forEach(el => el.addEventListener('click', (ev) => { ev.preventDefault(); selectAction(el.dataset.actionId); }));
   const sourceItems = new Map();
   [...(data.assets||[]), ...(data.evidence||[])].forEach(item => (item.source_paths||[]).forEach(p => sourceItems.set(p, item.generated_at || data.generated_at)));
@@ -137,26 +151,31 @@ function selectAction(id){
   selectedId = id;
   const a = (currentData?.next_actions || []).find(x => x.id === id);
   if(!a) return;
-  const st = actionState(id);
+  const st = a.status || 'open';
+  const writable = mode === 'private';
+  const dis = writable ? '' : 'disabled title="Status writes need private mode"';
   $('topAction').classList.remove('hidden');
-  $('topAction').innerHTML = `<div class="meta"><span class="pill ${priorityClass(a.priority)}">${esc(String(a.priority).toUpperCase())}</span><span class="pill ${st.status}">${esc(st.status.toUpperCase())}</span><span class="pill">Owner: ${esc(a.owner)}</span><span class="pill">Due: ${esc(a.due_at)}</span><span class="pill">Score: ${esc(a.score)}</span></div><h2>${esc(a.action)}</h2><div class="reason">Why this is next: ${esc(a.reason)}</div><div class="reason">Revenue path: ${esc(a.expected_revenue_path)}</div><div class="action-buttons"><button class="primary" id="copyActionButton" type="button">Copy next step</button><button class="good" id="doneButton" type="button">Mark done</button><button id="openButton" type="button">Mark open</button><button id="blockedButton" type="button">Mark blocked</button></div>`;
+  $('topAction').innerHTML = `<div class="meta"><span class="pill ${priorityClass(a.priority)}">${esc(String(a.priority).toUpperCase())}</span><span class="pill ${st}">${esc(st.toUpperCase())}</span><span class="pill">Owner: ${esc(a.owner)}</span><span class="pill">Due: ${esc(a.due_at)}</span><span class="pill">Score: ${esc(a.score)}</span></div><h2>${esc(a.action)}</h2><div class="reason">Why this is next: ${esc(a.reason)}</div><div class="reason">Revenue path: ${esc(a.expected_revenue_path)}</div><div class="action-buttons"><button class="primary" id="copyActionButton" type="button">Copy next step</button><button class="good" id="doneButton" type="button" ${dis}>Mark done</button><button id="openButton" type="button" ${dis}>Mark open</button><button id="blockedButton" type="button" ${dis}>Mark blocked</button></div>`;
   $('copyActionButton').onclick = () => copyAction(a);
-  $('doneButton').onclick = () => setActionState(a.id,{status:'done'});
-  $('openButton').onclick = () => setActionState(a.id,{status:'open'});
-  $('blockedButton').onclick = () => setActionState(a.id,{status:'blocked'});
-  $('operatorNotes').value = st.notes || '';
-  $('evidencePanel').innerHTML = `<strong>${esc(a.action)}</strong><br><br><div>Evidence: <a href="${esc(a.evidence_link)}">${esc(a.evidence_link)}</a></div><div>Source entity: ${esc(a.source_entity_type)} / ${esc(a.source_entity_id)}</div><div>Sources:<ul>${(a.source_paths||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div><hr style="border-color:var(--line)"><div><strong>Copy-ready instruction:</strong><br>${esc(actionPrompt(a))}</div>`;
+  $('doneButton').onclick = () => setActionStatus(a.id,'done');
+  $('openButton').onclick = () => setActionStatus(a.id,'open');
+  $('blockedButton').onclick = () => setActionStatus(a.id,'blocked');
+  $('operatorNotes').value = notesFor(id);
+  const prospect = (a.source_entity_type === 'prospect' && writable) ? (currentData.prospects||[]).find(x => x.id === a.source_entity_id) : null;
+  const prospectControl = prospect ? `<div style="margin-top:8px"><label for="prospectStatusSelect">Prospect funnel status</label><select id="prospectStatusSelect">${FUNNEL_STATUSES.map(s=>`<option value="${s}" ${s===prospect.status?'selected':''}>${s.replace(/_/g,' ')}</option>`).join('')}</select></div>` : '';
+  $('evidencePanel').innerHTML = `<strong>${esc(a.action)}</strong><br><br><div>Evidence: <a href="${esc(a.evidence_link)}">${esc(a.evidence_link)}</a></div><div>Source entity: ${esc(a.source_entity_type)} / ${esc(a.source_entity_id)}</div>${prospectControl}<div>Sources:<ul>${(a.source_paths||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div><hr style="border-color:var(--line)"><div><strong>Copy-ready instruction:</strong><br>${esc(actionPrompt(a))}</div>`;
+  if(prospect) $('prospectStatusSelect').onchange = (ev) => setProspectStatus(a.source_entity_id, ev.target.value);
   renderRowsOnly();
 }
 function renderRowsOnly(){document.querySelectorAll('.action-row').forEach(el=>el.classList.toggle('selected', el.dataset.actionId===selectedId));}
 function actionPrompt(a){return `CRM action: ${a.action}\nOwner: ${a.owner}\nDue: ${a.due_at}\nWhy: ${a.reason}\nRevenue path: ${a.expected_revenue_path}\nEvidence: ${a.evidence_link}\nSources: ${(a.source_paths||[]).join(', ')}`;}
 async function copyText(text){await navigator.clipboard.writeText(text); toast('Copied');}
 function copyAction(a){copyText(actionPrompt(a));}
-$('saveNotesButton').onclick = () => { if(!selectedId) return; setActionState(selectedId,{notes:$('operatorNotes').value}); toast('Notes saved'); };
+$('saveNotesButton').onclick = () => { if(!selectedId) return; setNotes(selectedId, $('operatorNotes').value); toast('Notes saved'); };
 $('copyNotesButton').onclick = () => { if(!selectedId) return; const a=(currentData.next_actions||[]).find(x=>x.id===selectedId); copyText(`${actionPrompt(a)}\n\nOperator notes:\n${$('operatorNotes').value}`); };
-$('modeButton').addEventListener('click', () => { mode = mode === 'private' ? 'public' : 'private'; $('modeButton').textContent = mode === 'private' ? 'Switch to public data' : 'Switch to private data'; $('modeNote').textContent = mode === 'private' ? 'Private mode loads local operating data. Your statuses/notes save in this browser.' : 'Public mode should omit names, phone/email, raw call details, and private source paths.'; loadData(); });
-$('exportButton').onclick = () => copyText(JSON.stringify({exported_at:new Date().toISOString(), state:loadLocalState()}, null, 2));
-$('resetButton').onclick = () => { if(confirm('Reset saved statuses and notes for this browser?')){localStorage.removeItem(storageKey); render(currentData); toast('Local CRM state reset');} };
+$('modeButton').addEventListener('click', () => { mode = mode === 'private' ? 'public' : 'private'; $('modeButton').textContent = mode === 'private' ? 'Switch to public data' : 'Switch to private data'; $('modeNote').textContent = mode === 'private' ? 'Private mode loads local operating data. Statuses save to SQLite; notes save in this browser.' : 'Public mode should omit names, phone/email, raw call details, and private source paths.'; loadData(); });
+$('exportButton').onclick = () => copyText(JSON.stringify({exported_at:new Date().toISOString(), notes:loadNotes()}, null, 2));
+$('resetButton').onclick = () => { if(confirm('Reset saved notes for this browser? (Statuses live in SQLite and are not affected.)')){localStorage.removeItem(notesKey); toast('Local notes reset');} };
 ['search','ownerFilter','statusFilter'].forEach(id => $(id).addEventListener('input', () => render(currentData)));
 $('clearDoneButton').onclick = () => {$('statusFilter').value='active'; render(currentData);};
 document.addEventListener('keydown', ev => {
@@ -165,8 +184,8 @@ document.addEventListener('keydown', ev => {
   const idx = filteredActions.findIndex(a=>a.id===selectedId);
   if(ev.key === 'j' && filteredActions[idx+1]) selectAction(filteredActions[idx+1].id);
   if(ev.key === 'k' && filteredActions[idx-1]) selectAction(filteredActions[idx-1].id);
-  if(ev.key === 'd' && selectedId) setActionState(selectedId,{status:'done'});
-  if(ev.key === 'b' && selectedId) setActionState(selectedId,{status:'blocked'});
+  if(ev.key === 'd' && selectedId) setActionStatus(selectedId,'done');
+  if(ev.key === 'b' && selectedId) setActionStatus(selectedId,'blocked');
   if(ev.key === 'c' && selectedId){const a=(currentData.next_actions||[]).find(x=>x.id===selectedId); if(a) copyAction(a);}
 });
 loadData();

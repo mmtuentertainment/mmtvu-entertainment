@@ -1,9 +1,12 @@
 # MMTVU Daily Operator Brief
 
-Generated: 2026-07-09T10:56:41Z
+Generated: 2026-07-09T14:08:50Z
 
-## Are we closer to money than yesterday?
-- Money-signal actions in queue: 16
+## Are we closer to money than yesterday? (14-day targets)
+- Identified prospects: 64/50
+- Contacted: 3/30
+- Discovery booked: 0/5
+- Pilots proposed: 0/1
 - Documented call spend: $1.5106
 - Owner-operated prospects in SQLite: 10
 - Active loops: 1

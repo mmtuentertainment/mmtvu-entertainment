@@ -15,6 +15,7 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 import sys
 from copy import deepcopy
 from dataclasses import dataclass
@@ -80,6 +81,21 @@ def norm_priority(value: Any) -> str:
     return "high" if v == "high" else "medium" if v == "medium" else "low"
 
 
+def funnel_status(raw: Any) -> str:
+    """Map a source-sheet status ("Not contacted", "Discovery booked", …) to the funnel vocabulary.
+
+    Unknown values raise: a typo silently landing in the wrong funnel bucket would
+    corrupt the outreach-progress counts.
+    """
+    slug = re.sub(r"[^a-z0-9]+", "_", str(raw or "").strip().lower()).strip("_")
+    if not slug:
+        return "not_contacted"
+    slug = crm_db.LEGACY_PROSPECT_STATUS_MAP.get(slug, slug)
+    if slug not in crm_db.FUNNEL_STATUSES:
+        raise ValueError(f"unknown prospect status {raw!r}; expected one of {', '.join(crm_db.FUNNEL_STATUSES)}")
+    return slug
+
+
 def prospect_id(record: dict[str, Any]) -> str:
     return slugify(str(record.get("name") or record.get("company_name") or ""), str(record.get("city") or ""))
 
@@ -130,7 +146,7 @@ def build_prospects(root: Path, generated_at: str) -> list[dict[str, Any]]:
             "email": row.get("email") or None,
             "website": row.get("website") or None,
             "priority": norm_priority(row.get("priority")),
-            "status": "contacted" if row.get("status", "").lower() not in ("", "not contacted") else "new",
+            "status": funnel_status(row.get("status")),
             "last_touch_at": row.get("outreach_date") or None,
             "next_action_id": None,
             "owner_operator": False,
@@ -156,7 +172,7 @@ def build_prospects(root: Path, generated_at: str) -> list[dict[str, Any]]:
                 "email": row.get("email") or None,
                 "website": row.get("website") or None,
                 "priority": norm_priority(row.get("priority")),
-                "status": "new",
+                "status": funnel_status(row.get("status")),
                 "last_touch_at": None,
                 "next_action_id": None,
                 "owner_operator": False,
@@ -179,7 +195,7 @@ def build_prospects(root: Path, generated_at: str) -> list[dict[str, Any]]:
             "email": row.get("email") or None,
             "website": row.get("website") or None,
             "priority": "high",
-            "status": "new",
+            "status": "not_contacted",
             "last_touch_at": None,
             "next_action_id": None,
             "owner_operator": False,
@@ -205,7 +221,7 @@ def build_prospects(root: Path, generated_at: str) -> list[dict[str, Any]]:
                 "email": row.get("email") or None,
                 "website": row.get("website") or None,
                 "priority": norm_priority(row.get("priority")),
-                "status": "needs_follow_up" if row.get("called_2026_07_08_after_hours") else "new",
+                "status": "contacted" if row.get("called_2026_07_08_after_hours") else "not_contacted",
                 "last_touch_at": "2026-07-08" if row.get("called_2026_07_08_after_hours") else None,
                 "next_action_id": None,
                 "owner_operator": True,
@@ -273,7 +289,7 @@ def action_score(prospect: dict[str, Any], call: dict[str, Any] | None) -> float
     score = 10.0
     if prospect.get("owner_operator"):
         score += 25
-    if prospect.get("status") == "needs_follow_up":
+    if prospect.get("status") == "contacted":
         score += 30
     if prospect.get("priority") == "high":
         score += 12
@@ -391,18 +407,23 @@ def build_offer(root: Path, generated_at: str) -> list[dict[str, Any]]:
 
 
 def build_evidence(root: Path, generated_at: str) -> list[dict[str, Any]]:
+    # cost_usd is the structured spend record; db.compute_metrics sums it for
+    # documented_call_spend instead of regex-mining the summary prose.
     specs = [
-        ("evidence-owner-operated-report", "outreach/owner-operated-vapi-report.md", "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended."),
-        ("evidence-first-vapi-report", "outreach/vapi-campaign-report.md", "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker."),
-        ("evidence-business-hours-script", "outreach/run-owner-operated-business-hours-calls.sh", "Prepared script for the seven remaining owner-operated prospects."),
-        ("evidence-offer-doc", "offers/home-service-ai-follow-up-starter.md", "Offer source for target customer and positioning."),
-        ("evidence-landing-page", "landing/index.html", "Public landing page asset exists."),
+        ("evidence-owner-operated-report", "outreach/owner-operated-vapi-report.md", "Owner-operated after-hours test: 3 calls, $0.4506, business-hours retry recommended.", 0.4506),
+        ("evidence-first-vapi-report", "outreach/vapi-campaign-report.md", "First Vapi campaign: 7 calls, about $1.06, IVR/DTMF is the blocker.", 1.06),
+        ("evidence-business-hours-script", "outreach/run-owner-operated-business-hours-calls.sh", "Prepared script for the seven remaining owner-operated prospects.", None),
+        ("evidence-offer-doc", "offers/home-service-ai-follow-up-starter.md", "Offer source for target customer and positioning.", None),
+        ("evidence-landing-page", "landing/index.html", "Public landing page asset exists.", None),
     ]
     out = []
-    for eid, path, summary in specs:
+    for eid, path, summary, cost_usd in specs:
         if (root / path).exists():
             meta = source_meta(root, path)
-            out.append({"id": eid, "summary": summary, "evidence_link": path, "source_paths": [path], "generated_at": generated_at, "source_hashes": {path: meta.sha256}, "source_mtime": meta.mtime})
+            record = {"id": eid, "summary": summary, "evidence_link": path, "source_paths": [path], "generated_at": generated_at, "source_hashes": {path: meta.sha256}, "source_mtime": meta.mtime}
+            if cost_usd is not None:
+                record["cost_usd"] = cost_usd
+            out.append(record)
     return out
 
 
@@ -501,6 +522,21 @@ def generate(root: Path, db_file: Path | None = None) -> tuple[dict[str, Any], d
     validate_records(root, private)
     public = derive_public(private)
     validate_records(root, public)
+    return private, public
+
+
+def refresh_exports(root: Path, db_file: Path | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Re-export dashboard JSON from SQLite without re-importing source artifacts.
+
+    The status write path (serve.py) calls this so an operator status change
+    lands in data/ — and in the recomputed funnel metrics — immediately.
+    """
+    with crm_db.connect(root, db_file) as conn:
+        private = crm_db.export_dataset(conn)
+    validate_records(root, private)
+    public = derive_public(private)
+    validate_records(root, public)
+    write_outputs(root, private, public)
     return private, public
 
 

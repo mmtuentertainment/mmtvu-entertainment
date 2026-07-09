@@ -18,13 +18,26 @@ def test_dashboard_has_operator_workspace_controls():
         'Mark done',
         'Mark blocked',
         'localStorage',
-        'mmtvu-operator-crm-state-v1',
+        'mmtvu-operator-crm-notes-v2',
         'id="revenueOsPanel"',
         'id="dailyBriefLink"',
         'ops-crm/crm.sqlite',
+        'id="prospectStatusSelect"',
     ]
     for marker in required:
         assert marker in HTML
+
+
+def test_dashboard_status_writes_go_to_sqlite_not_localstorage():
+    # One action-status store: the dashboard posts status to serve.py, which writes
+    # SQLite and re-exports; localStorage keeps only operator notes.
+    assert '/api/action-status' in HTML
+    assert '/api/prospect-status' in HTML
+    assert 'mmtvu-operator-crm-state-v1' not in HTML
+    assert "status:'open'" not in HTML
+    assert 'uv run python ops-crm/serve.py' in HTML
+    assert 'python3 -m http.server' not in HTML
+    assert 'contacted_total' in HTML
 
 
 def test_dashboard_escapes_dynamic_fields_before_inner_html_insertion():
