@@ -15,6 +15,7 @@
     <nav class="nav" aria-label="CRM sections">
       <a class="active" href="#today">Today</a>
       <a href="#workspace">Workspace</a>
+      <a href="#prospects">Prospects</a>
       <a href="#sources">Sources</a>
       <a href="#redaction">Redaction</a>
     </nav>
@@ -47,6 +48,10 @@
     <section id="topAction" class="hero-action hidden" aria-label="Selected action workspace"></section>
     <div class="queue-head"><span id="queueCount">0 actions</span><span>Click an action to operate on it</span></div>
     <section class="actions" id="actionList" aria-label="Ranked next actions"></section>
+    <section id="prospects" class="prospect-section" aria-label="Full prospect list">
+      <div class="queue-head"><span id="prospectCount">0 prospects</span><span>Every prospect has a funnel control</span></div>
+      <section class="actions" id="prospectList" aria-label="All prospect funnel controls"></section>
+    </section>
   </main>
   <aside class="context" aria-label="Selected action detail">
     <section>
@@ -139,6 +144,7 @@ function render(data){
   $('empty').classList.toggle('hidden', filteredActions.length !== 0);
   $('actionList').innerHTML = filteredActions.map((a, i) => rowMarkup(a, i+1, a.status || 'open')).join('');
   $('actionList').querySelectorAll('[data-action-id]').forEach(el => el.addEventListener('click', (ev) => { ev.preventDefault(); selectAction(el.dataset.actionId); }));
+  renderProspects(data.prospects || []);
   const sourceItems = new Map();
   [...(data.assets||[]), ...(data.evidence||[])].forEach(item => (item.source_paths||[]).forEach(p => sourceItems.set(p, item.generated_at || data.generated_at)));
   $('freshness').innerHTML = [...sourceItems.entries()].slice(0,10).map(([p,t]) => `<li>${esc(p)} · generated ${esc(t)}</li>`).join('') || '<li>No source metadata yet</li>';
@@ -146,6 +152,18 @@ function render(data){
 }
 function rowMarkup(a, rank, st){
   return `<a class="action-row ${a.id===selectedId?'selected':''}" href="#" data-action-id="${esc(a.id)}" aria-label="${esc(rank+'. '+a.owner+'. '+a.action)}"><div class="rank">${rank}</div><div><div class="meta"><span class="pill ${priorityClass(a.priority)}">${esc(String(a.priority).toUpperCase())}</span><span class="pill ${st}">${esc(st.toUpperCase())}</span><span class="pill">${esc(a.due_at)}</span></div><h3>${esc(a.action)}</h3><p>${esc(a.reason)}</p></div><div class="owner">${esc(a.owner)}</div></a>`;
+}
+function renderProspects(prospects){
+  const writable = mode === 'private';
+  $('prospectCount').textContent = `${prospects.length} prospects`;
+  $('prospectList').innerHTML = prospects.map((p, i) => {
+    const st = p.status || 'not_contacted';
+    const dis = writable ? '' : 'disabled title="Funnel writes need private mode"';
+    return `<div class="action-row" data-prospect-id="${esc(p.id)}" aria-label="${esc('Prospect '+(i+1)+'. '+p.company_name)}"><div class="rank">${i+1}</div><div><div class="meta"><span class="pill ${priorityClass(p.priority)}">${esc(String(p.priority || 'low').toUpperCase())}</span><span class="pill ${st}">${esc(st.replace(/_/g,' ').toUpperCase())}</span><span class="pill">${p.owner_operator ? 'Owner-operated' : 'Prospect'}</span></div><h3>${esc(p.company_name)}</h3><p>${esc(p.city)} · ${esc(p.niche)}</p></div><div class="owner"><select class="prospect-status-select" data-prospect-id="${esc(p.id)}" ${dis}>${FUNNEL_STATUSES.map(s=>`<option value="${s}" ${s===st?'selected':''}>${s.replace(/_/g,' ')}</option>`).join('')}</select></div></div>`;
+  }).join('');
+  $('prospectList').querySelectorAll('.prospect-status-select').forEach(select => {
+    select.addEventListener('change', () => setProspectStatus(select.dataset.prospectId, select.value));
+  });
 }
 function selectAction(id){
   selectedId = id;

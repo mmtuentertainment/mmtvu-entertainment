@@ -1,6 +1,6 @@
 # MMTVU Daily Operator Brief
 
-Generated: 2026-07-09T15:00:14Z
+Generated: 2026-07-09T21:53:10Z
 
 ## Are we closer to money than yesterday? (14-day targets)
 - Identified prospects: 64/50

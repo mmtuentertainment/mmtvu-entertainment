@@ -75,3 +75,21 @@ def test_dashboard_funnel_statuses_match_db_vocabulary():
 def test_dashboard_exposes_keyboard_shortcuts():
     for marker in ["ev.key === '/'", "ev.key === 'j'", "ev.key === 'k'", "ev.key === 'd'", "ev.key === 'b'", "ev.key === 'c'"]:
         assert marker in HTML
+
+
+def test_dashboard_renders_full_prospect_list_with_funnel_controls():
+    # ADR 0002: every prospect, not only action-backed prospects, needs a
+    # dashboard-supported status write path through /api/prospect-status.
+    required = [
+        'id="prospectList"',
+        'id="prospectCount"',
+        'renderProspects(data.prospects || [])',
+        'data-prospect-id',
+        'class="prospect-status-select"',
+        "setProspectStatus(select.dataset.prospectId, select.value)",
+        '${esc(p.company_name)}',
+        '${esc(p.city)}',
+        '${esc(p.niche)}',
+    ]
+    for marker in required:
+        assert marker in HTML

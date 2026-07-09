@@ -5,13 +5,13 @@
     "name": "First Vapi cold-call campaign report",
     "path_or_url": "outreach/vapi-campaign-report.md",
     "status": "active",
-    "last_touched_at": "2026-07-08T21:06:50Z",
+    "last_touched_at": "2026-07-09T19:09:33Z",
     "why_it_matters": "Shows IVR/DTMF failure and big-company calling lessons.",
     "source_paths": [
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
+    "generated_at": "2026-07-09T21:53:10Z",
     "source_hashes": {}
   },
   {
@@ -26,7 +26,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
+    "generated_at": "2026-07-09T21:53:10Z",
     "source_hashes": {}
   },
   {
@@ -41,7 +41,7 @@
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
+    "generated_at": "2026-07-09T21:53:10Z",
     "source_hashes": {}
   },
   {
@@ -50,13 +50,13 @@
     "name": "Owner-operated Vapi after-hours report",
     "path_or_url": "outreach/owner-operated-vapi-report.md",
     "status": "active",
-    "last_touched_at": "2026-07-08T21:17:22Z",
+    "last_touched_at": "2026-07-09T19:09:33Z",
     "why_it_matters": "Evidence that owner-operated prospects are a better next call target.",
     "source_paths": [
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
+    "generated_at": "2026-07-09T21:53:10Z",
     "source_hashes": {}
   },
   {
@@ -65,43 +65,13 @@
     "name": "Owner-operated business-hours call runner",
     "path_or_url": "outreach/run-owner-operated-business-hours-calls.sh",
     "status": "active",
-    "last_touched_at": "2026-07-08T22:52:55Z",
+    "last_touched_at": "2026-07-09T21:53:00Z",
     "why_it_matters": "Prepared next campaign script for the strongest follow-up action.",
     "source_paths": [
       "private-source-redacted"
     ],
     "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
-    "source_hashes": {}
-  },
-  {
-    "id": "assistant-owner-operator-config",
-    "type": "assistant",
-    "name": "Owner-operator Vapi assistant config",
-    "path_or_url": "outreach/vapi-owner-operator-cost-controlled-config.json",
-    "status": "active",
-    "last_touched_at": "2026-07-08T22:52:39Z",
-    "why_it_matters": "Current assistant behavior for smaller local prospects.",
-    "source_paths": [
-      "private-source-redacted"
-    ],
-    "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
-    "source_hashes": {}
-  },
-  {
-    "id": "policy-vapi-cost-control",
-    "type": "report",
-    "name": "Vapi cost-control fix",
-    "path_or_url": "outreach/vapi-cost-control-fix.md",
-    "status": "active",
-    "last_touched_at": "2026-07-08T22:53:17Z",
-    "why_it_matters": "Documents call-cost guardrails after early campaign learning.",
-    "source_paths": [
-      "private-source-redacted"
-    ],
-    "evidence_link": "private-source-redacted",
-    "generated_at": "2026-07-09T15:00:14Z",
+    "generated_at": "2026-07-09T21:53:10Z",
     "source_hashes": {}
   }
 ]
