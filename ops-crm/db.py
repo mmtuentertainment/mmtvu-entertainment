@@ -9,6 +9,7 @@ survive regeneration instead of being overwritten by generated JSON files.
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,6 +56,33 @@ LEGACY_PROSPECT_STATUS_MAP = {
 
 # Operator vocabulary for action rows. Must match next_action.schema.json's status enum.
 ACTION_STATUSES = frozenset({"open", "doing", "done", "blocked", "cancelled"})
+OUTREACH_CHANNELS = frozenset({"phone", "email", "linkedin"})
+ATTEMPT_DISPOSITIONS = frozenset({
+    "no_answer", "voicemail_left", "ivr_blocked", "wrong_number",
+    "gatekeeper_no_transfer", "human_no_time", "substantive_conversation",
+    "email_sent", "email_replied", "opt_out",
+})
+COMMERCIAL_EVENT_TYPES = frozenset({
+    "discovery_scheduled", "discovery_completed", "discovery_no_show",
+    "paid_proposal_sent", "paid_pilot_accepted", "paid_pilot_declined",
+    "payment_received",
+})
+COMMERCIAL_EVENT_STAGE = {
+    "discovery_scheduled": "discovery_booked",
+    "paid_proposal_sent": "pilot_proposed",
+    "paid_pilot_accepted": "pilot_proposed",
+    "paid_pilot_declined": "lost",
+    "payment_received": "won",
+}
+GRADE_A_COMMERCIAL_EVENTS = frozenset({
+    "discovery_scheduled", "paid_proposal_sent", "paid_pilot_accepted", "payment_received",
+})
+CONVERSATION_OUTCOMES = frozenset({
+    "no_relevant_pain", "pain_unqualified", "pain_qualified_no_interest",
+    "follow_up_requested", "paid_terms_requested",
+})
+EVIDENCE_GRADES = frozenset({"A", "B", "C"})
+MAX_EVIDENCE_TEXT_LENGTH = 4000
 
 # Rank of the funnel's main progression line (not_contacted -> won). Off-ramps
 # (lost, not_fit, follow_up_later) have no rank of their own: set_prospect_status
@@ -105,9 +133,10 @@ def db_path(root: Path) -> Path:
 def connect(root: Path, path: Path | None = None) -> sqlite3.Connection:
     target = path or db_path(root)
     target.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(target)
+    conn = sqlite3.connect(target, timeout=5.0)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA busy_timeout = 5000")
     return conn
 
 
@@ -129,7 +158,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             payload_json TEXT NOT NULL,
             is_current INTEGER NOT NULL DEFAULT 1,
             archived_at TEXT,
-            max_stage_rank INTEGER NOT NULL DEFAULT 0
+            max_stage_rank INTEGER NOT NULL DEFAULT 0,
+            contact_suppressed_at TEXT,
+            contact_suppression_reason TEXT
         );
 
         CREATE TABLE IF NOT EXISTS actions (
@@ -197,6 +228,52 @@ def init_db(conn: sqlite3.Connection) -> None:
             source TEXT NOT NULL,
             target REAL
         );
+
+        CREATE TABLE IF NOT EXISTS outreach_attempts (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL REFERENCES prospects(id),
+            attempted_at TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            dnc_checked INTEGER NOT NULL,
+            contact_role TEXT,
+            disposition TEXT NOT NULL,
+            human_reached INTEGER NOT NULL DEFAULT 0,
+            conversation_outcome TEXT,
+            substantive_conversation INTEGER NOT NULL DEFAULT 0,
+            pain_score INTEGER,
+            pain_type TEXT,
+            evidence_grade TEXT,
+            evidence_text TEXT,
+            eligible_unsold_estimates INTEGER,
+            ticket_value_band TEXT,
+            follow_up_owner_process TEXT,
+            objection_category TEXT,
+            artifact_ref TEXT,
+            next_action TEXT,
+            operator TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS commercial_events (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL REFERENCES prospects(id),
+            attempt_id TEXT REFERENCES outreach_attempts(id),
+            event_type TEXT NOT NULL,
+            occurred_at TEXT NOT NULL,
+            offer_version TEXT,
+            price_amount REAL,
+            price_currency TEXT,
+            evidence_grade TEXT NOT NULL,
+            artifact_ref TEXT,
+            evidence_text TEXT,
+            operator TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_outreach_attempts_prospect_at
+            ON outreach_attempts(prospect_id, attempted_at);
+        CREATE INDEX IF NOT EXISTS idx_commercial_events_prospect_at
+            ON commercial_events(prospect_id, occurred_at);
         """
     )
 
@@ -220,6 +297,14 @@ def init_db(conn: sqlite3.Connection) -> None:
     prospect_cols = {row["name"] for row in conn.execute("PRAGMA table_info(prospects)")}
     if "max_stage_rank" not in prospect_cols:
         conn.execute("ALTER TABLE prospects ADD COLUMN max_stage_rank INTEGER NOT NULL DEFAULT 0")
+    if "contact_suppressed_at" not in prospect_cols:
+        conn.execute("ALTER TABLE prospects ADD COLUMN contact_suppressed_at TEXT")
+    if "contact_suppression_reason" not in prospect_cols:
+        conn.execute("ALTER TABLE prospects ADD COLUMN contact_suppression_reason TEXT")
+
+    attempt_cols = {row["name"] for row in conn.execute("PRAGMA table_info(outreach_attempts)")}
+    if "dnc_checked" not in attempt_cols:
+        conn.execute("ALTER TABLE outreach_attempts ADD COLUMN dnc_checked INTEGER NOT NULL DEFAULT 0")
 
     conn.commit()
 
@@ -496,6 +581,137 @@ def compute_metrics(
     return {name: (value, unit, FOURTEEN_DAY_TARGETS.get(name)) for name, (value, unit) in values.items()}
 
 
+def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float, str, float | None]]:
+    """Compute private Evidence Loop counts plus auditable numerator/denominator rows."""
+    def scalar(sql: str, params: tuple[Any, ...] = ()) -> float:
+        return float(conn.execute(sql, params).fetchone()[0])
+
+    counts = {
+        "outreach_attempts_total": scalar("SELECT COUNT(*) FROM outreach_attempts"),
+        "outreach_verified_contactable_businesses_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE dnc_checked = 1"
+        ),
+        "outreach_attempted_businesses_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts"
+        ),
+        "outreach_completed_sequences_total": scalar(
+            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts
+               WHERE disposition IN ('wrong_number', 'substantive_conversation', 'email_replied', 'opt_out')"""
+        ),
+        "outreach_human_reached_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE human_reached = 1"
+        ),
+        "outreach_substantive_conversations_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE substantive_conversation = 1"
+        ),
+        "outreach_pain_qualified_total": scalar(
+            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts
+               WHERE pain_score >= 2 AND evidence_grade IN ('A', 'B')
+                 AND (eligible_unsold_estimates > 0 OR NULLIF(TRIM(ticket_value_band), '') IS NOT NULL)"""
+        ),
+        "outreach_paid_terms_requested_total": scalar(
+            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts
+               WHERE conversation_outcome = 'paid_terms_requested'"""
+        ),
+        "outreach_discovery_booked_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'discovery_scheduled'"
+        ),
+        "outreach_paid_proposals_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_proposal_sent'"
+        ),
+        "outreach_paid_acceptances_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_pilot_accepted'"
+        ),
+        "outreach_payments_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'payment_received'"
+        ),
+        "outreach_invalid_endpoints_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'wrong_number'"
+        ),
+        "outreach_ivr_blocks_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'ivr_blocked'"
+        ),
+        "outreach_gatekeeper_blocks_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'gatekeeper_no_transfer'"
+        ),
+        "outreach_suppressed_businesses_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE disposition = 'opt_out'"
+        ),
+        "outreach_phone_attempts_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone'"
+        ),
+        "outreach_live_call_connects_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone' AND human_reached = 1"
+        ),
+    }
+    metrics: dict[str, tuple[float, str, float | None]] = {
+        name: (value, "count", None) for name, value in counts.items()
+    }
+
+    def add_rate(name: str, numerator: float, denominator: float) -> None:
+        metrics[f"{name}_numerator"] = (numerator, "count", None)
+        metrics[f"{name}_denominator"] = (denominator, "count", None)
+        if denominator:
+            metrics[name] = (round(numerator / denominator, 4), "rate", None)
+
+    add_rate(
+        "outreach_human_reach_rate",
+        counts["outreach_human_reached_total"],
+        counts["outreach_attempted_businesses_total"],
+    )
+    add_rate(
+        "outreach_substantive_conversation_rate",
+        counts["outreach_substantive_conversations_total"],
+        counts["outreach_human_reached_total"],
+    )
+    add_rate(
+        "outreach_pain_qualification_rate",
+        counts["outreach_pain_qualified_total"],
+        counts["outreach_substantive_conversations_total"],
+    )
+    add_rate(
+        "outreach_discovery_booking_rate",
+        counts["outreach_discovery_booked_total"],
+        counts["outreach_pain_qualified_total"],
+    )
+    add_rate(
+        "outreach_paid_proposal_rate",
+        counts["outreach_paid_proposals_total"],
+        counts["outreach_discovery_booked_total"],
+    )
+    add_rate(
+        "outreach_paid_acceptance_rate",
+        counts["outreach_paid_acceptances_total"],
+        counts["outreach_paid_proposals_total"],
+    )
+    add_rate(
+        "outreach_payment_rate",
+        counts["outreach_payments_total"],
+        counts["outreach_paid_acceptances_total"],
+    )
+    add_rate(
+        "outreach_invalid_endpoint_rate",
+        counts["outreach_invalid_endpoints_total"],
+        counts["outreach_attempts_total"],
+    )
+    add_rate(
+        "outreach_ivr_block_rate",
+        counts["outreach_ivr_blocks_total"],
+        counts["outreach_phone_attempts_total"],
+    )
+    add_rate(
+        "outreach_gatekeeper_block_rate",
+        counts["outreach_gatekeeper_blocks_total"],
+        counts["outreach_live_call_connects_total"],
+    )
+    add_rate(
+        "outreach_suppression_rate",
+        counts["outreach_suppressed_businesses_total"],
+        counts["outreach_attempted_businesses_total"],
+    )
+    return metrics
+
+
 def set_action_status(conn: sqlite3.Connection, action_id: str, status: str) -> None:
     """Operator write path for action status — the dashboard posts through this.
 
@@ -513,25 +729,251 @@ def set_action_status(conn: sqlite3.Connection, action_id: str, status: str) -> 
     conn.commit()
 
 
-def set_prospect_status(conn: sqlite3.Connection, prospect_id: str, status: str) -> None:
-    """Operator write path for moving a prospect through the outreach funnel."""
+def _set_prospect_status_in_transaction(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    status: str,
+    *,
+    updated_at: str | None = None,
+) -> None:
+    """Move a prospect without committing so callers can compose atomic writes."""
     if status not in FUNNEL_STATUSES:
         raise ValueError(f"unknown prospect status {status!r}; expected one of {', '.join(FUNNEL_STATUSES)}")
+    changed_at = updated_at or utc_now()
     rank = STAGE_RANK.get(status)
     if rank is None:
         # Off-ramp (lost/not_fit/follow_up_later): leave the high-water mark as-is.
         cur = conn.execute(
             "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
-            (status, utc_now(), prospect_id),
+            (status, changed_at, prospect_id),
         )
     else:
         cur = conn.execute(
-            "UPDATE prospects SET status = ?, updated_at = ?, max_stage_rank = MAX(max_stage_rank, ?) WHERE id = ? AND is_current = 1",
-            (status, utc_now(), rank, prospect_id),
+            """UPDATE prospects
+               SET status = CASE WHEN max_stage_rank <= ? THEN ? ELSE status END,
+                   updated_at = CASE WHEN max_stage_rank <= ? THEN ? ELSE updated_at END,
+                   max_stage_rank = MAX(max_stage_rank, ?)
+               WHERE id = ? AND is_current = 1""",
+            (rank, status, rank, changed_at, rank, prospect_id),
         )
     if cur.rowcount == 0:
         raise KeyError(f"no current prospect {prospect_id!r}")
+
+
+def set_prospect_status(conn: sqlite3.Connection, prospect_id: str, status: str) -> None:
+    """Operator write path for moving a prospect through the outreach funnel."""
+    _set_prospect_status_in_transaction(conn, prospect_id, status)
     conn.commit()
+
+
+def unsuppress_prospect(conn: sqlite3.Connection, prospect_id: str, reason: str) -> None:
+    """Clear active suppression only when an operator records why re-contact is lawful."""
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError("unsuppress reason is required")
+    cur = conn.execute(
+        """UPDATE prospects
+           SET contact_suppressed_at = NULL,
+               contact_suppression_reason = ?,
+               updated_at = ?
+           WHERE id = ? AND is_current = 1 AND contact_suppressed_at IS NOT NULL""",
+        (f"unsuppressed: {reason.strip()}", utc_now(), prospect_id),
+    )
+    if cur.rowcount == 0:
+        raise KeyError(f"no actively suppressed current prospect {prospect_id!r}")
+    conn.commit()
+
+
+def _validate_offset_timestamp(value: Any, field: str) -> None:
+    if not isinstance(value, str):
+        raise ValueError(f"{field} must be an offset-aware ISO timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError(f"{field} must be an offset-aware ISO timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must be an offset-aware ISO timestamp")
+
+
+def _validate_evidence(grade: Any, artifact_ref: Any, evidence_text: Any) -> None:
+    if grade is not None and grade not in EVIDENCE_GRADES:
+        raise ValueError("evidence_grade must be A, B, or C")
+    if grade == "A" and not artifact_ref:
+        raise ValueError("artifact_ref is required for grade A evidence")
+    if grade == "B" and not evidence_text:
+        raise ValueError("evidence_text is required for grade B evidence")
+    if evidence_text is not None:
+        if not isinstance(evidence_text, str):
+            raise ValueError("evidence_text must be text")
+        if len(evidence_text) > MAX_EVIDENCE_TEXT_LENGTH:
+            raise ValueError(f"evidence_text exceeds {MAX_EVIDENCE_TEXT_LENGTH} characters")
+
+
+def _validate_outreach_attempt(attempt: dict[str, Any]) -> None:
+    required = ("id", "prospect_id", "attempted_at", "channel", "disposition", "operator")
+    missing = [field for field in required if not attempt.get(field)]
+    if missing:
+        raise ValueError("missing required fields: " + ", ".join(missing))
+    if "status" in attempt:
+        raise ValueError("status is derived from evidence and cannot be supplied")
+    _validate_offset_timestamp(attempt["attempted_at"], "attempted_at")
+    if attempt["channel"] not in OUTREACH_CHANNELS:
+        raise ValueError("invalid channel")
+    if attempt["disposition"] not in ATTEMPT_DISPOSITIONS:
+        raise ValueError("invalid disposition")
+    if attempt.get("dnc_checked") is not True:
+        raise ValueError("dnc_checked must be true before outreach")
+    for field in ("human_reached", "substantive_conversation"):
+        if field in attempt and not isinstance(attempt[field], bool):
+            raise ValueError(f"{field} must be a boolean")
+    substantive = attempt.get("substantive_conversation", False)
+    human_reached = attempt.get("human_reached", False)
+    outcome = attempt.get("conversation_outcome")
+    if substantive and not human_reached:
+        raise ValueError("substantive_conversation requires human_reached")
+    if substantive and not outcome:
+        raise ValueError("conversation_outcome is required for a substantive conversation")
+    if outcome and not substantive:
+        raise ValueError("conversation_outcome requires substantive_conversation")
+    if outcome and outcome not in CONVERSATION_OUTCOMES:
+        raise ValueError("invalid conversation_outcome")
+    score = attempt.get("pain_score")
+    if score is not None:
+        if isinstance(score, bool) or not isinstance(score, int) or score not in range(4):
+            raise ValueError("pain_score must be an integer from 0 to 3")
+        if not substantive:
+            raise ValueError("pain_score requires substantive_conversation")
+    _validate_evidence(
+        attempt.get("evidence_grade"), attempt.get("artifact_ref"), attempt.get("evidence_text")
+    )
+    if attempt.get("evidence_grade") == "B" and not attempt.get("contact_role"):
+        raise ValueError("contact_role is required for grade B evidence")
+    if score is not None and score >= 2 and attempt.get("evidence_grade") not in {"A", "B"}:
+        raise ValueError("pain_score 2-3 requires evidence grade A or B")
+    estimate_count = attempt.get("eligible_unsold_estimates")
+    if estimate_count is not None and (isinstance(estimate_count, bool) or not isinstance(estimate_count, int) or estimate_count < 0):
+        raise ValueError("eligible_unsold_estimates must be a non-negative integer")
+
+
+def record_outreach_attempt(conn: sqlite3.Connection, attempt: dict[str, Any]) -> str:
+    """Persist one real outreach attempt and its justified prospect effects atomically."""
+    init_db(conn)
+    _validate_outreach_attempt(attempt)
+
+    attempted_at = attempt["attempted_at"]
+    stage = "replied" if attempt.get("human_reached") or attempt["disposition"] == "email_replied" else "contacted"
+    values = (
+        attempt["id"], attempt["prospect_id"], attempted_at, attempt["channel"], 1,
+        attempt.get("contact_role"), attempt["disposition"], int(attempt.get("human_reached", False)),
+        attempt.get("conversation_outcome"), int(attempt.get("substantive_conversation", False)),
+        attempt.get("pain_score"), attempt.get("pain_type"), attempt.get("evidence_grade"),
+        attempt.get("evidence_text"), attempt.get("eligible_unsold_estimates"),
+        attempt.get("ticket_value_band"), attempt.get("follow_up_owner_process"),
+        attempt.get("objection_category"), attempt.get("artifact_ref"), attempt.get("next_action"),
+        attempt["operator"], utc_now(),
+    )
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        prospect = conn.execute(
+            "SELECT id, is_current, contact_suppressed_at FROM prospects WHERE id = ?",
+            (attempt["prospect_id"],),
+        ).fetchone()
+        if prospect is None or not prospect["is_current"]:
+            raise KeyError(f"no current prospect {attempt['prospect_id']!r}")
+        if prospect["contact_suppressed_at"]:
+            raise ValueError("prospect is contact-suppressed")
+        conn.execute(
+            """INSERT INTO outreach_attempts(
+                id, prospect_id, attempted_at, channel, dnc_checked, contact_role, disposition,
+                human_reached, conversation_outcome, substantive_conversation,
+                pain_score, pain_type, evidence_grade, evidence_text,
+                eligible_unsold_estimates, ticket_value_band, follow_up_owner_process,
+                objection_category, artifact_ref, next_action, operator, created_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            values,
+        )
+        if attempt["disposition"] != "opt_out":
+            _set_prospect_status_in_transaction(
+                conn, attempt["prospect_id"], stage, updated_at=attempted_at
+            )
+        else:
+            conn.execute(
+                """UPDATE prospects
+                   SET contact_suppressed_at = ?, contact_suppression_reason = ?, updated_at = ?
+                   WHERE id = ? AND is_current = 1""",
+                (attempted_at, "explicit_opt_out", attempted_at, attempt["prospect_id"]),
+            )
+    return attempt["id"]
+
+
+def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> str:
+    """Append a commercial milestone and apply only its evidence-derived stage effect."""
+    init_db(conn)
+    required = ("id", "prospect_id", "event_type", "occurred_at", "evidence_grade", "operator")
+    missing = [field for field in required if not event.get(field)]
+    if missing:
+        raise ValueError("missing required fields: " + ", ".join(missing))
+    if event["event_type"] not in COMMERCIAL_EVENT_TYPES:
+        raise ValueError("invalid event_type")
+    if "status" in event:
+        raise ValueError("status is derived from evidence and cannot be supplied")
+    _validate_offset_timestamp(event["occurred_at"], "occurred_at")
+    if event["evidence_grade"] not in {"A", "B"}:
+        raise ValueError("commercial events require evidence grade A or B")
+    if event["event_type"] in GRADE_A_COMMERCIAL_EVENTS and event["evidence_grade"] != "A":
+        raise ValueError(f"{event['event_type']} requires grade A evidence")
+    if event["evidence_grade"] == "A" and not event.get("artifact_ref"):
+        raise ValueError("artifact_ref is required for grade A evidence")
+    if event["evidence_grade"] == "B" and not event.get("evidence_text"):
+        raise ValueError("evidence_text is required for grade B evidence")
+    if event["event_type"] == "payment_received":
+        if event["evidence_grade"] != "A" or not event.get("artifact_ref"):
+            raise ValueError("payment_received requires grade A payment evidence")
+        amount = event.get("price_amount")
+        if (
+            isinstance(amount, bool)
+            or not isinstance(amount, (int, float))
+            or not math.isfinite(float(amount))
+            or amount <= 0
+        ):
+            raise ValueError("payment_received requires a positive finite numeric price_amount")
+        if not isinstance(event.get("price_currency"), str) or not event["price_currency"].strip():
+            raise ValueError("payment_received requires price_amount and price_currency")
+
+    prospect = conn.execute(
+        "SELECT id, is_current FROM prospects WHERE id = ?", (event["prospect_id"],)
+    ).fetchone()
+    if prospect is None or not prospect["is_current"]:
+        raise KeyError(f"no current prospect {event['prospect_id']!r}")
+    if event.get("attempt_id"):
+        attempt_owner = conn.execute(
+            "SELECT prospect_id FROM outreach_attempts WHERE id = ?", (event["attempt_id"],)
+        ).fetchone()
+        if attempt_owner is None:
+            raise KeyError(f"no outreach attempt {event['attempt_id']!r}")
+        if attempt_owner["prospect_id"] != event["prospect_id"]:
+            raise ValueError("attempt_id must belong to the same prospect")
+
+    with conn:
+        conn.execute(
+            """INSERT INTO commercial_events(
+                id, prospect_id, attempt_id, event_type, occurred_at, offer_version,
+                price_amount, price_currency, evidence_grade, artifact_ref,
+                evidence_text, operator, created_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (
+                event["id"], event["prospect_id"], event.get("attempt_id"),
+                event["event_type"], event["occurred_at"], event.get("offer_version"),
+                event.get("price_amount"), event.get("price_currency"),
+                event["evidence_grade"], event.get("artifact_ref"),
+                event.get("evidence_text"), event["operator"], utc_now(),
+            ),
+        )
+        stage = COMMERCIAL_EVENT_STAGE.get(event["event_type"])
+        if stage:
+            _set_prospect_status_in_transaction(
+                conn, event["prospect_id"], stage, updated_at=event["occurred_at"]
+            )
+    return event["id"]
 
 
 def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) -> dict[str, Any]:
@@ -570,7 +1012,10 @@ def export_dataset(conn: sqlite3.Connection, generated_at: str | None = None) ->
     metrics_prospects = [
         dict(p, max_stage_rank=row["max_stage_rank"]) for p, row in zip(prospects, prospect_rows)
     ]
-    for name, (value, unit, target) in compute_metrics(metrics_prospects, actions, evidence).items():
+    metric_values = compute_metrics(metrics_prospects, actions, evidence)
+    metric_values.update(compute_outreach_metrics(conn))
+    conn.execute("DELETE FROM metrics WHERE metric_name LIKE 'outreach_%'")
+    for name, (value, unit, target) in metric_values.items():
         conn.execute(
             """
             INSERT INTO metrics(id, metric_name, metric_value, unit, measured_at, source, target)
@@ -634,6 +1079,24 @@ def daily_brief(dataset: dict[str, Any]) -> str:
         target = m.get("target") or FOURTEEN_DAY_TARGETS.get(name, 0)
         return f"{int(m.get('metric_value', 0))}/{int(target)}"
 
+    def evidence_rate(label: str, name: str) -> str:
+        numerator = int(metrics.get(f"{name}_numerator", {}).get("metric_value", 0))
+        denominator = int(metrics.get(f"{name}_denominator", {}).get("metric_value", 0))
+        if denominator == 0:
+            return f"- {label}: not enough evidence ({numerator}/{denominator})"
+        value = float(metrics[name]["metric_value"])
+        return f"- {label}: {value * 100:.1f}% ({numerator}/{denominator})"
+
+    outreach_rate_lines = [
+        evidence_rate("Human reach rate", "outreach_human_reach_rate"),
+        evidence_rate("Substantive conversation rate", "outreach_substantive_conversation_rate"),
+        evidence_rate("Pain qualification rate", "outreach_pain_qualification_rate"),
+        evidence_rate("Discovery booking rate", "outreach_discovery_booking_rate"),
+        evidence_rate("Paid proposal rate", "outreach_paid_proposal_rate"),
+        evidence_rate("Paid acceptance rate", "outreach_paid_acceptance_rate"),
+        evidence_rate("Payment rate", "outreach_payment_rate"),
+    ]
+
     return "\n".join(
         [
             "# MMTVU Daily Operator Brief",
@@ -648,6 +1111,9 @@ def daily_brief(dataset: dict[str, Any]) -> str:
             f"- Documented call spend: ${float(spend):.4f}",
             f"- Owner-operated prospects in SQLite: {int(owner_targets)}",
             f"- Active loops: {sum(1 for l in loops if l.get('status') == 'active')}",
+            "",
+            "## Evidence Loop V1 rates",
+            *outreach_rate_lines,
             "",
             "## Next best move",
             f"- {top.get('action', summary.get('next_best_move', 'No next action'))}",

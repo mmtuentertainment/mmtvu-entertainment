@@ -39,7 +39,11 @@ def test_sqlite_init_is_idempotent_and_has_revenue_os_tables(tmp_path):
         "artifacts",
         "experiments",
         "metrics",
+        "outreach_attempts",
+        "commercial_events",
     }.issubset(tables)
+    prospect_columns = {row["name"] for row in conn.execute("PRAGMA table_info(prospects)")}
+    assert {"contact_suppressed_at", "contact_suppression_reason"}.issubset(prospect_columns)
 
 
 def test_import_current_artifacts_to_db_and_export_dashboard_dataset(tmp_path):
@@ -242,6 +246,39 @@ def test_export_metrics_are_funnel_counts_from_one_definition_site(tmp_path):
     assert metrics["owner_operator_prospects"]["metric_value"] == 1
     assert metrics["documented_call_spend"]["metric_value"] == 1.5106
     assert metrics["documented_call_spend"]["target"] is None
+
+
+def test_record_outreach_attempt_commits_history_suppression_and_stage_atomically(tmp_path):
+    now = "2026-07-09T12:00:00Z"
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset(now))
+
+        record_id = crm_db.record_outreach_attempt(
+            conn,
+            {
+                "id": "attempt-1",
+                "prospect_id": "p1",
+                "attempted_at": "2026-07-09T12:30:00-04:00",
+                "channel": "phone",
+                "dnc_checked": True,
+                "contact_role": "owner",
+                "disposition": "opt_out",
+                "human_reached": True,
+                "substantive_conversation": False,
+                "operator": "Matthew",
+            },
+        )
+
+        attempt = conn.execute("SELECT * FROM outreach_attempts WHERE id = ?", (record_id,)).fetchone()
+        prospect = conn.execute("SELECT * FROM prospects WHERE id = 'p1'").fetchone()
+
+    assert attempt["prospect_id"] == "p1"
+    assert attempt["disposition"] == "opt_out"
+    assert prospect["status"] == "not_contacted"
+    assert prospect["max_stage_rank"] == crm_db.STAGE_RANK["not_contacted"]
+    assert prospect["contact_suppressed_at"] == "2026-07-09T12:30:00-04:00"
+    assert prospect["contact_suppression_reason"] == "explicit_opt_out"
+
 
 
 def test_set_status_write_path_validates_and_persists(tmp_path):

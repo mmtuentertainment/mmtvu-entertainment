@@ -12,7 +12,13 @@ import json
 import re
 from typing import Any
 
-SENSITIVE_KEYS = {"phone", "email", "all_phones", "transcript", "call_id", "id_raw"}
+SENSITIVE_KEYS = {
+    "phone", "email", "all_phones", "transcript", "call_id", "id_raw",
+    "artifact_ref", "evidence_text", "pain_type", "conversation_outcome",
+    "eligible_unsold_estimates", "ticket_value_band", "follow_up_owner_process",
+    "objection_category", "contact_suppressed_at", "contact_suppression_reason",
+    "attempted_at", "occurred_at", "contact_role", "operator",
+}
 PHONE_RE = re.compile(r"(?:\+\d{3}\*{2,}\d{4}|\(?\b\d{3}\)?[\s.-]+\d{3}[\s.-]+\d{4}\b)")
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 CREDENTIAL_RE = re.compile(r"(?i)(api[_ -]?key|token|secret|authorization|bearer)[:=]\s*\S+")
@@ -109,6 +115,15 @@ PRIVATE_SOURCE = "private-source-redacted"
 REBUILT_COLLECTIONS = ("prospects", "next_actions", "assets", "offers", "evidence")
 SCRUBBED_COLLECTIONS = ("loops", "experiments", "metrics", "summary")
 METADATA_KEYS = ("mode", "generated_at")
+PUBLIC_METRIC_NAMES = frozenset({
+    "prospects_total",
+    "contacted_total",
+    "discovery_booked_total",
+    "pilot_proposed_total",
+    "owner_operator_prospects",
+    "open_actions",
+    "documented_call_spend",
+})
 
 
 def _redact_collection(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -162,12 +177,22 @@ def derive_public(private: dict[str, Any]) -> dict[str, Any]:
         redacted["id"] = new_id
         public["next_actions"].append(redacted)
 
-    # Scrub free-text collections with the same rules as everything else
+    # Scrub free-text collections with the same rules as everything else.
+    # Metrics are fail-closed: a new private metric must be reviewed and added
+    # to PUBLIC_METRIC_NAMES before it can cross this seam.
     for key in SCRUBBED_COLLECTIONS:
-        public[key] = redact_record(private.get(key, {} if key == "summary" else []))
+        if key == "metrics":
+            public[key] = [
+                redact_record(metric)
+                for metric in private.get("metrics", [])
+                if metric.get("metric_name") in PUBLIC_METRIC_NAMES
+            ]
+        else:
+            public[key] = redact_record(private.get(key, {} if key == "summary" else []))
 
     # Update summary cross-references
     if isinstance(public.get("summary"), dict):
+        public["summary"]["metrics"] = len(public.get("metrics", []))
         if public["next_actions"]:
             public["summary"]["next_best_move"] = public["next_actions"][0].get("action")
         old_top = public["summary"].get("top_action_id")

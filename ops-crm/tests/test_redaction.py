@@ -41,6 +41,36 @@ def test_derive_public_rejects_unknown_collection():
         redaction.derive_public(private)
 
 
+def test_public_metrics_use_explicit_allowlist():
+    private = _minimal_private()
+    private["metrics"] = [
+        {"id": "metric-prospects_total", "metric_name": "prospects_total", "metric_value": 10, "unit": "count"},
+        {"id": "metric-outreach_payments_total", "metric_name": "outreach_payments_total", "metric_value": 1, "unit": "count"},
+        {"id": "metric-future_private_signal", "metric_name": "future_private_signal", "metric_value": 99, "unit": "count"},
+    ]
+
+    public = redaction.derive_public(private)
+
+    names = {metric["metric_name"] for metric in public["metrics"]}
+    assert names == {"prospects_total"}
+    assert "outreach" not in json.dumps(public).lower()
+    assert "future_private_signal" not in json.dumps(public)
+    assert public["summary"]["metrics"] == 1
+
+
+def test_public_summary_metric_count_does_not_reveal_private_metric_rows():
+    private = _minimal_private()
+    private["metrics"] = [
+        {"id": "public", "metric_name": "prospects_total", "metric_value": 1, "unit": "count"},
+        {"id": "private", "metric_name": "outreach_payments_total", "metric_value": 1, "unit": "count"},
+    ]
+    private["summary"]["metrics"] = 999
+
+    public = redaction.derive_public(private)
+
+    assert public["summary"]["metrics"] == len(public["metrics"]) == 1
+
+
 def test_loops_experiments_metrics_free_text_is_scrubbed():
     private = _minimal_private()
     private["experiments"] = [{"id": "e1", "hypothesis": "h", "learning": "owner asked to call (555) 123-4567", "status": "active"}]
@@ -78,6 +108,19 @@ def test_backstop_catches_planted_email():
 def test_backstop_catches_sensitive_key():
     with pytest.raises(ValueError, match="phone"):
         redaction.assert_public_safe({"prospects": [{"phone": "[redacted]"}]})
+    with pytest.raises(ValueError, match="artifact_ref"):
+        redaction.assert_public_safe({"prospects": [{"artifact_ref": "private-receipt-1"}]})
+
+
+def test_redact_record_drops_private_evidence_fields():
+    private = {
+        "artifact_ref": "private-receipt-1",
+        "evidence_text": "buyer exact quote",
+        "pain_type": "unsold estimates",
+        "contact_suppressed_at": "2026-07-10T09:00:00-04:00",
+        "safe_summary": "aggregate only",
+    }
+    assert redaction.redact_record(private) == {"safe_summary": "aggregate only"}
 
 
 def test_backstop_catches_company_name_and_slug():
