@@ -189,6 +189,149 @@ def test_init_db_migrates_pre_target_metrics_table(tmp_path):
     assert row["target"] is None
 
 
+def test_init_db_adds_and_backfills_sequence_provenance_on_previous_schema(tmp_path):
+    conn = sqlite3.connect(tmp_path / "crm.sqlite")
+    conn.row_factory = sqlite3.Row
+    conn.executescript(
+        """
+        CREATE TABLE prospects (
+            id TEXT PRIMARY KEY,
+            status TEXT NOT NULL,
+            contact_endpoint_type TEXT,
+            contact_endpoint_verified_at TEXT,
+            sequence_planned_attempts INTEGER,
+            sequence_completed_at TEXT,
+            sequence_completion_reason TEXT
+        );
+        CREATE TABLE outreach_attempts (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL,
+            attempted_at TEXT NOT NULL,
+            channel TEXT NOT NULL
+        );
+        CREATE TABLE commercial_events (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL,
+            attempt_id TEXT,
+            occurred_at TEXT NOT NULL
+        );
+        INSERT INTO prospects VALUES(
+            'p1', 'contacted', 'phone', '2026-07-10T08:00:00-04:00', 1,
+            '2026-07-10T10:00:00-04:00', 'planned_attempts_completed'
+        );
+        INSERT INTO outreach_attempts VALUES(
+            'a1', 'p1', '2026-07-10T09:00:00-04:00', 'phone'
+        );
+        INSERT INTO outreach_attempts VALUES(
+            'a-before-actual-verification', 'p1', '2026-07-10T11:30:00Z', 'phone'
+        );
+        INSERT INTO outreach_attempts VALUES(
+            'a-after-completion', 'p1', '2026-07-10T15:00:00Z', 'phone'
+        );
+        INSERT INTO commercial_events VALUES(
+            'e1', 'p1', 'a1', '2026-07-10T09:30:00-04:00'
+        );
+        INSERT INTO commercial_events VALUES(
+            'e-before', 'p1', 'a-before-actual-verification', '2026-07-10T11:45:00Z'
+        );
+        INSERT INTO commercial_events VALUES(
+            'e-after', 'p1', 'a-after-completion', '2026-07-10T15:15:00Z'
+        );
+        """
+    )
+    conn.commit()
+
+    crm_db.init_db(conn)
+    crm_db.init_db(conn)
+
+    prospect = conn.execute(
+        "SELECT current_sequence_id, lifecycle_high_water_at FROM prospects WHERE id='p1'"
+    ).fetchone()
+    attempt = conn.execute(
+        "SELECT sequence_id FROM outreach_attempts WHERE id='a1'"
+    ).fetchone()
+    event = conn.execute(
+        "SELECT sequence_id FROM commercial_events WHERE id='e1'"
+    ).fetchone()
+    sequence = conn.execute(
+        "SELECT prospect_id, completed_at FROM outreach_sequences WHERE id = ?",
+        (prospect["current_sequence_id"],),
+    ).fetchone()
+    invalid_attempts = conn.execute(
+        """SELECT id, sequence_id FROM outreach_attempts
+           WHERE id IN ('a-before-actual-verification', 'a-after-completion') ORDER BY id"""
+    ).fetchall()
+    invalid_events = conn.execute(
+        """SELECT id, sequence_id FROM commercial_events
+           WHERE id IN ('e-before', 'e-after') ORDER BY id"""
+    ).fetchall()
+
+    assert prospect["current_sequence_id"] == attempt["sequence_id"] == event["sequence_id"]
+    assert prospect["lifecycle_high_water_at"] == "2026-07-10T15:15:00Z"
+    assert tuple(sequence) == ("p1", "2026-07-10T10:00:00-04:00")
+    assert [(row["id"], row["sequence_id"]) for row in invalid_attempts] == [
+        ("a-after-completion", None),
+        ("a-before-actual-verification", None),
+    ]
+    assert [(row["id"], row["sequence_id"]) for row in invalid_events] == [
+        ("e-after", None),
+        ("e-before", None),
+    ]
+
+
+def test_init_db_does_not_bind_legacy_event_when_originating_attempt_is_ineligible(tmp_path):
+    conn = sqlite3.connect(tmp_path / "crm.sqlite")
+    conn.row_factory = sqlite3.Row
+    conn.executescript(
+        """
+        CREATE TABLE prospects (
+            id TEXT PRIMARY KEY,
+            status TEXT NOT NULL,
+            contact_endpoint_type TEXT,
+            contact_endpoint_verified_at TEXT,
+            sequence_planned_attempts INTEGER,
+            sequence_completed_at TEXT,
+            sequence_completion_reason TEXT
+        );
+        CREATE TABLE outreach_attempts (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL,
+            attempted_at TEXT NOT NULL,
+            channel TEXT NOT NULL
+        );
+        CREATE TABLE commercial_events (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL,
+            attempt_id TEXT,
+            occurred_at TEXT NOT NULL
+        );
+        INSERT INTO prospects VALUES(
+            'p1', 'contacted', 'phone', '2026-07-10T08:00:00-04:00', 1,
+            '2026-07-10T10:00:00-04:00', 'planned_attempts_completed'
+        );
+        INSERT INTO outreach_attempts VALUES(
+            'a-email', 'p1', '2026-07-10T09:00:00-04:00', 'email'
+        );
+        INSERT INTO commercial_events VALUES(
+            'e-email', 'p1', 'a-email', '2026-07-10T09:30:00-04:00'
+        );
+        """
+    )
+    conn.commit()
+
+    crm_db.init_db(conn)
+
+    attempt = conn.execute(
+        "SELECT sequence_id FROM outreach_attempts WHERE id='a-email'"
+    ).fetchone()
+    event = conn.execute(
+        "SELECT sequence_id FROM commercial_events WHERE id='e-email'"
+    ).fetchone()
+
+    assert attempt["sequence_id"] is None
+    assert event["sequence_id"] is None
+
+
 def _funnel_dataset(now="2026-07-09T12:00:00Z"):
     def prospect(pid, status, owner=False):
         return {"id": pid, "company_name": pid, "priority": "low", "status": status, "owner_operator": owner}
@@ -218,6 +361,102 @@ def _funnel_dataset(now="2026-07-09T12:00:00Z"):
             {"id": "e3", "summary": "no cost attached"},
         ],
     }
+
+
+def test_import_refresh_does_not_advance_or_regress_lifecycle_chronology(tmp_path):
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset("2026-07-09T12:00:00Z"))
+        crm_db.record_commercial_event(
+            conn,
+            {
+                "id": "event-13",
+                "prospect_id": "p1",
+                "event_type": "discovery_scheduled",
+                "occurred_at": "2026-07-09T13:00:00Z",
+                "evidence_grade": "A",
+                "artifact_ref": "private/calendar/13",
+                "operator": "Matthew",
+            },
+        )
+        crm_db.import_dataset(conn, _funnel_dataset("2026-07-09T15:00:00Z"))
+        after_import = conn.execute(
+            "SELECT updated_at, lifecycle_high_water_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+        crm_db.record_commercial_event(
+            conn,
+            {
+                "id": "event-14",
+                "prospect_id": "p1",
+                "event_type": "discovery_scheduled",
+                "occurred_at": "2026-07-09T14:00:00Z",
+                "evidence_grade": "A",
+                "artifact_ref": "private/calendar/14",
+                "operator": "Matthew",
+            },
+        )
+        after_event = conn.execute(
+            "SELECT updated_at, lifecycle_high_water_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+
+    assert tuple(after_import) == ("2026-07-09T15:00:00Z", "2026-07-09T13:00:00Z")
+    assert tuple(after_event) == ("2026-07-09T15:00:00Z", "2026-07-09T14:00:00Z")
+
+
+def test_stale_import_cannot_archive_a_prospect_after_newer_lifecycle_evidence(tmp_path):
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset("2026-07-09T08:00:00Z"))
+        crm_db.record_commercial_event(
+            conn,
+            {
+                "id": "event-newer-than-import",
+                "prospect_id": "p1",
+                "event_type": "discovery_scheduled",
+                "occurred_at": "2026-07-09T12:00:00Z",
+                "evidence_grade": "A",
+                "artifact_ref": "private/calendar/newer-than-import",
+                "operator": "Matthew",
+            },
+        )
+        stale = _funnel_dataset("2026-07-09T10:00:00Z")
+        stale["prospects"] = [p for p in stale["prospects"] if p["id"] != "p1"]
+
+        crm_db.import_dataset(conn, stale)
+
+        row = conn.execute(
+            """SELECT is_current, archived_at, updated_at, lifecycle_high_water_at
+               FROM prospects WHERE id='p1'"""
+        ).fetchone()
+
+    assert tuple(row) == (
+        1,
+        None,
+        "2026-07-09T12:00:00Z",
+        "2026-07-09T12:00:00Z",
+    )
+
+
+def test_stale_import_cannot_reactivate_a_prospect_after_newer_archival(tmp_path):
+    with crm_db.connect(Path("."), tmp_path / "crm.sqlite") as conn:
+        crm_db.import_dataset(conn, _funnel_dataset("2026-07-09T08:00:00Z"))
+        current_without_p1 = _funnel_dataset("2026-07-09T12:00:00Z")
+        current_without_p1["prospects"] = [
+            p for p in current_without_p1["prospects"] if p["id"] != "p1"
+        ]
+        crm_db.import_dataset(conn, current_without_p1)
+
+        crm_db.import_dataset(conn, _funnel_dataset("2026-07-09T10:00:00Z"))
+
+        row = conn.execute(
+            """SELECT is_current, archived_at, updated_at, lifecycle_high_water_at
+               FROM prospects WHERE id='p1'"""
+        ).fetchone()
+
+    assert tuple(row) == (
+        0,
+        "2026-07-09T12:00:00Z",
+        "2026-07-09T12:00:00Z",
+        "2026-07-09T12:00:00Z",
+    )
 
 
 def test_export_metrics_are_funnel_counts_from_one_definition_site(tmp_path):
