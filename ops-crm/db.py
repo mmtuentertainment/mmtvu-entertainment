@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import math
 import sqlite3
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
@@ -220,7 +221,9 @@ def init_db(conn: sqlite3.Connection) -> None:
             contact_endpoint_type TEXT,
             sequence_planned_attempts INTEGER,
             sequence_completed_at TEXT,
-            sequence_completion_reason TEXT
+            sequence_completion_reason TEXT,
+            current_sequence_id TEXT,
+            lifecycle_high_water_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS actions (
@@ -289,9 +292,21 @@ def init_db(conn: sqlite3.Connection) -> None:
             target REAL
         );
 
+        CREATE TABLE IF NOT EXISTS outreach_sequences (
+            id TEXT PRIMARY KEY,
+            prospect_id TEXT NOT NULL REFERENCES prospects(id),
+            endpoint_type TEXT NOT NULL CHECK(endpoint_type IN ('phone', 'email', 'linkedin')),
+            verified_at TEXT NOT NULL,
+            planned_attempts INTEGER NOT NULL CHECK(planned_attempts BETWEEN 1 AND 3),
+            completed_at TEXT,
+            completion_reason TEXT,
+            created_at TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS outreach_attempts (
             id TEXT PRIMARY KEY,
             prospect_id TEXT NOT NULL REFERENCES prospects(id),
+            sequence_id TEXT REFERENCES outreach_sequences(id),
             attempted_at TEXT NOT NULL,
             channel TEXT NOT NULL,
             dnc_checked INTEGER NOT NULL,
@@ -317,6 +332,7 @@ def init_db(conn: sqlite3.Connection) -> None:
         CREATE TABLE IF NOT EXISTS commercial_events (
             id TEXT PRIMARY KEY,
             prospect_id TEXT NOT NULL REFERENCES prospects(id),
+            sequence_id TEXT REFERENCES outreach_sequences(id),
             attempt_id TEXT REFERENCES outreach_attempts(id),
             event_type TEXT NOT NULL,
             occurred_at TEXT NOT NULL,
@@ -355,10 +371,25 @@ def init_db(conn: sqlite3.Connection) -> None:
             SELECT RAISE(ABORT, 'prospect_reopenings are immutable');
         END;
 
+        CREATE TRIGGER IF NOT EXISTS prevent_outreach_sequences_identity_update
+        BEFORE UPDATE OF prospect_id, endpoint_type, verified_at, planned_attempts
+        ON outreach_sequences
+        BEGIN
+            SELECT RAISE(ABORT, 'outreach sequence provenance is immutable');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS prevent_outreach_sequences_delete
+        BEFORE DELETE ON outreach_sequences
+        BEGIN
+            SELECT RAISE(ABORT, 'outreach sequence provenance is immutable');
+        END;
+
         CREATE INDEX IF NOT EXISTS idx_outreach_attempts_prospect_at
             ON outreach_attempts(prospect_id, attempted_at);
         CREATE INDEX IF NOT EXISTS idx_commercial_events_prospect_at
             ON commercial_events(prospect_id, occurred_at);
+        CREATE INDEX IF NOT EXISTS idx_outreach_sequences_prospect_at
+            ON outreach_sequences(prospect_id, verified_at);
         """
     )
 
@@ -393,6 +424,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         "sequence_planned_attempts": "INTEGER",
         "sequence_completed_at": "TEXT",
         "sequence_completion_reason": "TEXT",
+        "current_sequence_id": "TEXT",
+        "lifecycle_high_water_at": "TEXT",
     }.items():
         if column not in prospect_cols:
             conn.execute(f"ALTER TABLE prospects ADD COLUMN {column} {definition}")
@@ -400,6 +433,184 @@ def init_db(conn: sqlite3.Connection) -> None:
     attempt_cols = {row["name"] for row in conn.execute("PRAGMA table_info(outreach_attempts)")}
     if "dnc_checked" not in attempt_cols:
         conn.execute("ALTER TABLE outreach_attempts ADD COLUMN dnc_checked INTEGER NOT NULL DEFAULT 0")
+    if "sequence_id" not in attempt_cols:
+        conn.execute("ALTER TABLE outreach_attempts ADD COLUMN sequence_id TEXT REFERENCES outreach_sequences(id)")
+
+    event_cols = {row["name"] for row in conn.execute("PRAGMA table_info(commercial_events)")}
+    if "sequence_id" not in event_cols:
+        conn.execute("ALTER TABLE commercial_events ADD COLUMN sequence_id TEXT REFERENCES outreach_sequences(id)")
+
+    # Migration/backfill must run before immutable fact triggers are installed.
+    # Drop narrower triggers from any interrupted/earlier initialization so the
+    # additive provenance repair can complete before full immutability resumes.
+    conn.execute("DROP TRIGGER IF EXISTS prevent_outreach_attempts_provenance_update")
+    conn.execute("DROP TRIGGER IF EXISTS prevent_commercial_events_provenance_update")
+
+    # Preserve only the currently reconstructable legacy snapshot. Superseded
+    # sequence provenance cannot be recovered safely from mutable prospect fields.
+    legacy_rows = conn.execute(
+        """SELECT id, contact_endpoint_type, contact_endpoint_verified_at,
+                  sequence_planned_attempts, sequence_completed_at,
+                  sequence_completion_reason
+           FROM prospects
+           WHERE current_sequence_id IS NULL
+             AND contact_endpoint_type IN ('phone', 'email', 'linkedin')
+             AND contact_endpoint_verified_at IS NOT NULL
+             AND sequence_planned_attempts BETWEEN 1 AND 3"""
+    ).fetchall()
+    for row in legacy_rows:
+        try:
+            verified_instant = _validate_offset_timestamp(
+                row["contact_endpoint_verified_at"], "contact_endpoint_verified_at"
+            )
+            completed_instant = (
+                _validate_offset_timestamp(row["sequence_completed_at"], "sequence_completed_at")
+                if row["sequence_completed_at"]
+                else None
+            )
+        except ValueError:
+            # Ambiguous legacy chronology is not safe to attribute immutably.
+            continue
+        has_completion_time = bool(row["sequence_completed_at"])
+        has_completion_reason = bool(row["sequence_completion_reason"])
+        if has_completion_time != has_completion_reason:
+            continue
+        if completed_instant is not None and completed_instant < verified_instant:
+            continue
+
+        seed = row["id"] + "|" + row["contact_endpoint_verified_at"]
+        sequence_id = f"legacy-{uuid.uuid5(uuid.NAMESPACE_URL, seed)}"
+        conn.execute(
+            """INSERT OR IGNORE INTO outreach_sequences(
+               id, prospect_id, endpoint_type, verified_at, planned_attempts,
+               completed_at, completion_reason, created_at
+               ) VALUES(?,?,?,?,?,?,?,?)""",
+            (
+                sequence_id, row["id"], row["contact_endpoint_type"],
+                row["contact_endpoint_verified_at"], row["sequence_planned_attempts"],
+                row["sequence_completed_at"], row["sequence_completion_reason"], utc_now(),
+            ),
+        )
+        conn.execute(
+            "UPDATE prospects SET current_sequence_id = ? WHERE id = ?",
+            (sequence_id, row["id"]),
+        )
+        legacy_attempts = conn.execute(
+            """SELECT id, attempted_at FROM outreach_attempts
+               WHERE prospect_id = ? AND sequence_id IS NULL AND channel = ?""",
+            (row["id"], row["contact_endpoint_type"]),
+        ).fetchall()
+        for legacy_attempt in legacy_attempts:
+            try:
+                attempted_instant = _validate_offset_timestamp(
+                    legacy_attempt["attempted_at"], "attempted_at"
+                )
+            except ValueError:
+                continue
+            if attempted_instant < verified_instant:
+                continue
+            if completed_instant is not None and attempted_instant > completed_instant:
+                continue
+            conn.execute(
+                "UPDATE outreach_attempts SET sequence_id = ? WHERE id = ? AND sequence_id IS NULL",
+                (sequence_id, legacy_attempt["id"]),
+            )
+        legacy_events = conn.execute(
+            """SELECT id, attempt_id, occurred_at FROM commercial_events
+               WHERE prospect_id = ? AND sequence_id IS NULL""",
+            (row["id"],),
+        ).fetchall()
+        for legacy_event in legacy_events:
+            try:
+                occurred_instant = _validate_offset_timestamp(
+                    legacy_event["occurred_at"], "occurred_at"
+                )
+            except ValueError:
+                continue
+            if occurred_instant < verified_instant:
+                continue
+            target_sequence_id = sequence_id
+            if legacy_event["attempt_id"] is not None:
+                origin_attempt = conn.execute(
+                    """SELECT sequence_id, attempted_at FROM outreach_attempts
+                       WHERE id = ? AND prospect_id = ? AND sequence_id = ?""",
+                    (legacy_event["attempt_id"], row["id"], sequence_id),
+                ).fetchone()
+                if origin_attempt is None:
+                    continue
+                try:
+                    origin_attempted_instant = _validate_offset_timestamp(
+                        origin_attempt["attempted_at"], "attempted_at"
+                    )
+                except ValueError:
+                    continue
+                if occurred_instant < origin_attempted_instant:
+                    continue
+                target_sequence_id = origin_attempt["sequence_id"]
+            conn.execute(
+                "UPDATE commercial_events SET sequence_id = ? WHERE id = ? AND sequence_id IS NULL",
+                (target_sequence_id, legacy_event["id"]),
+            )
+
+    # Reconstruct chronology only from explicit lifecycle evidence. Generic
+    # prospect.updated_at is intentionally excluded because imports refresh it.
+    for prospect in conn.execute(
+        "SELECT id FROM prospects WHERE lifecycle_high_water_at IS NULL"
+    ).fetchall():
+        prospect_id = prospect["id"]
+        candidates = [
+            row["at"]
+            for row in conn.execute(
+                """SELECT icp_fit_verified_at AS at FROM prospects WHERE id = ?
+                   UNION ALL SELECT sequence_completed_at FROM prospects WHERE id = ?
+                   UNION ALL SELECT contact_suppressed_at FROM prospects WHERE id = ?
+                   UNION ALL SELECT attempted_at FROM outreach_attempts WHERE prospect_id = ?
+                   UNION ALL SELECT occurred_at FROM commercial_events WHERE prospect_id = ?
+                   UNION ALL SELECT reopened_at FROM prospect_reopenings WHERE prospect_id = ?""",
+                (prospect_id,) * 6,
+            ).fetchall()
+            if row["at"]
+        ]
+        if candidates:
+            latest = max(candidates, key=lambda value: _validate_offset_timestamp(value, "lifecycle timestamp"))
+            conn.execute(
+                "UPDATE prospects SET lifecycle_high_water_at = ? WHERE id = ?",
+                (latest, prospect_id),
+            )
+
+    # Provenance is writable only during the migration above and initial inserts.
+    # Sequence completion is a one-way transition; it cannot be cleared or rewritten.
+    for trigger_sql in (
+        """CREATE TRIGGER IF NOT EXISTS prevent_outreach_attempts_provenance_update
+           BEFORE UPDATE ON outreach_attempts
+           BEGIN
+               SELECT RAISE(ABORT, 'outreach attempt provenance is immutable');
+           END""",
+        """CREATE TRIGGER IF NOT EXISTS prevent_outreach_attempts_delete
+           BEFORE DELETE ON outreach_attempts
+           BEGIN
+               SELECT RAISE(ABORT, 'outreach attempts are append-only');
+           END""",
+        """CREATE TRIGGER IF NOT EXISTS prevent_commercial_events_provenance_update
+           BEFORE UPDATE ON commercial_events
+           BEGIN
+               SELECT RAISE(ABORT, 'commercial event provenance is immutable');
+           END""",
+        """CREATE TRIGGER IF NOT EXISTS prevent_commercial_events_delete
+           BEFORE DELETE ON commercial_events
+           BEGIN
+               SELECT RAISE(ABORT, 'commercial events are append-only');
+           END""",
+        """CREATE TRIGGER IF NOT EXISTS prevent_outreach_sequence_completion_rewrite
+           BEFORE UPDATE OF completed_at, completion_reason ON outreach_sequences
+           WHEN OLD.completed_at IS NOT NULL
+             OR NEW.completed_at IS NULL
+             OR NEW.completion_reason NOT IN ('planned_attempts_completed', 'terminal_result')
+           BEGIN
+               SELECT RAISE(ABORT, 'outreach sequence completion is append-only');
+           END""",
+    ):
+        conn.execute(trigger_sql)
 
     conn.commit()
 
@@ -437,6 +648,8 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
     """Upsert generated private records into SQLite without clobbering operator state."""
     init_db(conn)
     now = dataset.get("generated_at") or utc_now()
+    now_instant = _validate_offset_timestamp(now, "generated_at")
+    conn.execute("BEGIN IMMEDIATE")
 
     # P0.1: Preserve prospect status
     prospect_ids = []
@@ -451,10 +664,32 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
         seed_rank = STAGE_RANK.get(preserved_status, 0)
         stored = dict(p)
         stored["status"] = preserved_status
+        existing = conn.execute(
+            """SELECT updated_at, is_current, archived_at, lifecycle_high_water_at
+               FROM prospects WHERE id = ?""",
+            (p["id"],),
+        ).fetchone()
+        write_updated_at = now
+        write_is_current = 1
+        write_archived_at = None
+        write_high_water = now
+        if existing is not None:
+            write_updated_at = _latest_timestamp(existing["updated_at"], now)
+            write_is_current = existing["is_current"]
+            write_archived_at = existing["archived_at"]
+            write_high_water = existing["lifecycle_high_water_at"]
+            if not existing["is_current"]:
+                high_water = existing["lifecycle_high_water_at"]
+                if high_water is None or now_instant >= _validate_offset_timestamp(
+                    high_water, "prospect.lifecycle_high_water_at"
+                ):
+                    write_is_current = 1
+                    write_archived_at = None
+                    write_high_water = now
         conn.execute(
             """
-            INSERT INTO prospects(id, company_name, city, niche, website, priority, status, owner_operator, created_at, updated_at, payload_json, is_current, archived_at, max_stage_rank)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NULL, ?)
+            INSERT INTO prospects(id, company_name, city, niche, website, priority, status, owner_operator, created_at, updated_at, payload_json, is_current, archived_at, max_stage_rank, lifecycle_high_water_at)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
               company_name=excluded.company_name,
               city=excluded.city,
@@ -464,8 +699,9 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
               owner_operator=excluded.owner_operator,
               updated_at=excluded.updated_at,
               payload_json=excluded.payload_json,
-              is_current=1,
-              archived_at=NULL
+              is_current=excluded.is_current,
+              archived_at=excluded.archived_at,
+              lifecycle_high_water_at=excluded.lifecycle_high_water_at
             """,
             (
                 p["id"],
@@ -477,9 +713,12 @@ def import_dataset(conn: sqlite3.Connection, dataset: dict[str, Any]) -> None:
                 preserved_status,
                 1 if p.get("owner_operator") else 0,
                 created,
-                now,
+                write_updated_at,
                 _dump(stored),
+                write_is_current,
+                write_archived_at,
                 seed_rank,
+                write_high_water,
             ),
         )
 
@@ -584,6 +823,29 @@ def _archive_missing(conn: sqlite3.Connection, table: str, current_ids: Iterable
         raise ValueError(f"unsupported table for archival: {table}")
 
     ids = [i for i in current_ids if i]
+    if table == "prospects":
+        now_instant = _validate_offset_timestamp(now, "generated_at")
+        placeholders = ",".join("?" for _ in ids)
+        predicate = f"AND id NOT IN ({placeholders})" if ids else ""
+        rows = conn.execute(
+            f"""SELECT id, updated_at, lifecycle_high_water_at FROM prospects
+                WHERE is_current = 1 {predicate}""",
+            tuple(ids),
+        ).fetchall()
+        for row in rows:
+            high_water = row["lifecycle_high_water_at"]
+            if high_water is not None and now_instant < _validate_offset_timestamp(
+                high_water, "prospect.lifecycle_high_water_at"
+            ):
+                continue
+            conn.execute(
+                """UPDATE prospects SET is_current = 0,
+                       archived_at = COALESCE(archived_at, ?),
+                       updated_at = ?, lifecycle_high_water_at = ?
+                   WHERE id = ? AND is_current = 1""",
+                (now, _latest_timestamp(row["updated_at"], now), now, row["id"]),
+            )
+        return
     if ids:
         placeholders = ",".join("?" for _ in ids)
         conn.execute(
@@ -676,147 +938,22 @@ def compute_metrics(
     return {name: (value, unit, FOURTEEN_DAY_TARGETS.get(name)) for name, (value, unit) in values.items()}
 
 
-def _compute_outreach_metrics_legacy(conn: sqlite3.Connection) -> dict[str, tuple[float, str, float | None]]:
-    """Compute private Evidence Loop counts plus auditable numerator/denominator rows."""
+def compute_outreach_metrics(
+    conn: sqlite3.Connection,
+) -> dict[str, tuple[float, str, float | None]]:
+    """Compute private gate populations from immutable sequence provenance."""
     def scalar(sql: str, params: tuple[Any, ...] = ()) -> float:
         return float(conn.execute(sql, params).fetchone()[0])
 
-    counts = {
-        "outreach_attempts_total": scalar("SELECT COUNT(*) FROM outreach_attempts"),
-        "outreach_verified_contactable_businesses_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE dnc_checked = 1"
-        ),
-        "outreach_attempted_businesses_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts"
-        ),
-        "outreach_completed_sequences_total": scalar(
-            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts
-               WHERE disposition IN ('wrong_number', 'substantive_conversation', 'email_replied', 'opt_out')"""
-        ),
-        "outreach_human_reached_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE human_reached = 1"
-        ),
-        "outreach_substantive_conversations_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE substantive_conversation = 1"
-        ),
-        "outreach_pain_qualified_total": scalar(
-            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts
-               WHERE pain_score >= 2 AND evidence_grade IN ('A', 'B')
-                 AND (eligible_unsold_estimates > 0 OR NULLIF(TRIM(ticket_value_band), '') IS NOT NULL)"""
-        ),
-        "outreach_paid_terms_requested_total": scalar(
-            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts
-               WHERE conversation_outcome = 'paid_terms_requested'"""
-        ),
-        "outreach_discovery_booked_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'discovery_scheduled'"
-        ),
-        "outreach_paid_proposals_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_proposal_sent'"
-        ),
-        "outreach_paid_acceptances_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_pilot_accepted'"
-        ),
-        "outreach_payments_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'payment_received'"
-        ),
-        "outreach_invalid_endpoints_total": scalar(
-            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'wrong_number'"
-        ),
-        "outreach_ivr_blocks_total": scalar(
-            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'ivr_blocked'"
-        ),
-        "outreach_gatekeeper_blocks_total": scalar(
-            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'gatekeeper_no_transfer'"
-        ),
-        "outreach_suppressed_businesses_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM outreach_attempts WHERE disposition = 'opt_out'"
-        ),
-        "outreach_phone_attempts_total": scalar(
-            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone'"
-        ),
-        "outreach_live_call_connects_total": scalar(
-            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone' AND human_reached = 1"
-        ),
-    }
-    metrics: dict[str, tuple[float, str, float | None]] = {
-        name: (value, "count", None) for name, value in counts.items()
-    }
-
-    def add_rate(name: str, numerator: float, denominator: float) -> None:
-        metrics[f"{name}_numerator"] = (numerator, "count", None)
-        metrics[f"{name}_denominator"] = (denominator, "count", None)
-        if denominator:
-            metrics[name] = (round(numerator / denominator, 4), "rate", None)
-
-    add_rate(
-        "outreach_human_reach_rate",
-        counts["outreach_human_reached_total"],
-        counts["outreach_attempted_businesses_total"],
-    )
-    add_rate(
-        "outreach_substantive_conversation_rate",
-        counts["outreach_substantive_conversations_total"],
-        counts["outreach_human_reached_total"],
-    )
-    add_rate(
-        "outreach_pain_qualification_rate",
-        counts["outreach_pain_qualified_total"],
-        counts["outreach_substantive_conversations_total"],
-    )
-    add_rate(
-        "outreach_discovery_booking_rate",
-        counts["outreach_discovery_booked_total"],
-        counts["outreach_pain_qualified_total"],
-    )
-    add_rate(
-        "outreach_paid_proposal_rate",
-        counts["outreach_paid_proposals_total"],
-        counts["outreach_discovery_booked_total"],
-    )
-    add_rate(
-        "outreach_paid_acceptance_rate",
-        counts["outreach_paid_acceptances_total"],
-        counts["outreach_paid_proposals_total"],
-    )
-    add_rate(
-        "outreach_payment_rate",
-        counts["outreach_payments_total"],
-        counts["outreach_paid_acceptances_total"],
-    )
-    add_rate(
-        "outreach_invalid_endpoint_rate",
-        counts["outreach_invalid_endpoints_total"],
-        counts["outreach_attempts_total"],
-    )
-    add_rate(
-        "outreach_ivr_block_rate",
-        counts["outreach_ivr_blocks_total"],
-        counts["outreach_phone_attempts_total"],
-    )
-    add_rate(
-        "outreach_gatekeeper_block_rate",
-        counts["outreach_gatekeeper_blocks_total"],
-        counts["outreach_live_call_connects_total"],
-    )
-    add_rate(
-        "outreach_suppression_rate",
-        counts["outreach_suppressed_businesses_total"],
-        counts["outreach_attempted_businesses_total"],
-    )
-    return metrics
-
-
-def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float, str, float | None]]:
-    """Compute private gate populations from verified, non-contradictory facts."""
-    def scalar(sql: str, params: tuple[Any, ...] = ()) -> float:
-        return float(conn.execute(sql, params).fetchone()[0])
-
-    verified_join = """JOIN prospects p ON p.id = a.prospect_id
-        AND p.is_current = 1
-        AND p.icp_fit_verified_at IS NOT NULL
-        AND p.contact_endpoint_verified_at IS NOT NULL
-        AND p.contact_endpoint_type = a.channel"""
+    sequence_join = """JOIN outreach_sequences s ON s.id = a.sequence_id
+        AND s.prospect_id = a.prospect_id"""
+    completed_attempt_join = sequence_join + """
+        AND s.completed_at IS NOT NULL
+        AND s.completion_reason IS NOT NULL"""
+    completed_event_join = """JOIN outreach_sequences s ON s.id = e.sequence_id
+        AND s.prospect_id = e.prospect_id
+        AND s.completed_at IS NOT NULL
+        AND s.completion_reason IS NOT NULL"""
     roles = tuple(sorted(RELEVANT_BUYER_ROLES))
     role_slots = ",".join("?" for _ in roles)
     counts = {
@@ -829,27 +966,26 @@ def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float,
                AND contact_suppressed_at IS NULL"""
         ),
         "outreach_attempted_businesses_total": scalar(
-            f"SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}"
+            f"SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {sequence_join}"
         ),
         "outreach_completed_sequences_total": scalar(
-            """SELECT COUNT(*) FROM prospects WHERE is_current = 1
-               AND sequence_planned_attempts IS NOT NULL AND sequence_completed_at IS NOT NULL
-               AND sequence_completion_reason IS NOT NULL"""
+            """SELECT COUNT(DISTINCT prospect_id) FROM outreach_sequences
+               WHERE completed_at IS NOT NULL AND completion_reason IS NOT NULL"""
         ),
         "outreach_relevant_human_reached_total": scalar(
-            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {completed_attempt_join}
                  WHERE a.human_reached = 1
                  AND LOWER(TRIM(a.contact_role)) IN ({role_slots})""",
             roles,
         ),
         "outreach_substantive_conversations_total": scalar(
-            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {completed_attempt_join}
                  WHERE a.substantive_conversation = 1 AND a.evidence_grade IN ('A', 'B')
                  AND LOWER(TRIM(a.contact_role)) IN ({role_slots})""",
             roles,
         ),
         "outreach_pain_qualified_total": scalar(
-            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {completed_attempt_join}
                  WHERE a.substantive_conversation = 1 AND a.pain_score BETWEEN 2 AND 3
                  AND a.evidence_grade IN ('A', 'B')
                  AND LOWER(TRIM(a.contact_role)) IN ({role_slots})
@@ -858,7 +994,7 @@ def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float,
             roles,
         ),
         "outreach_paid_terms_requested_total": scalar(
-            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {completed_attempt_join}
                  WHERE a.conversation_outcome = 'paid_terms_requested'
                  AND a.pain_score BETWEEN 2 AND 3 AND a.evidence_grade IN ('A', 'B')
                  AND LOWER(TRIM(a.contact_role)) IN ({role_slots})
@@ -867,19 +1003,23 @@ def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float,
             roles,
         ),
         "outreach_discovery_booked_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'discovery_scheduled'"
+            f"""SELECT COUNT(DISTINCT e.prospect_id) FROM commercial_events e
+                 {completed_event_join} WHERE e.event_type = 'discovery_scheduled'"""
         ),
         "outreach_paid_proposals_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_proposal_sent'"
+            f"""SELECT COUNT(DISTINCT e.prospect_id) FROM commercial_events e
+                 {completed_event_join} WHERE e.event_type = 'paid_proposal_sent'"""
         ),
         "outreach_paid_acceptances_total": scalar(
-            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_pilot_accepted'"
+            f"""SELECT COUNT(DISTINCT e.prospect_id) FROM commercial_events e
+                 {completed_event_join} WHERE e.event_type = 'paid_pilot_accepted'"""
         ),
         "outreach_payments_total": scalar(
-            """SELECT COUNT(DISTINCT prospect_id) FROM commercial_events
-               WHERE event_type = 'payment_received' AND offer_version = ?
-               AND price_amount = ? AND price_currency = ? AND evidence_grade = 'A'
-               AND NULLIF(TRIM(artifact_ref), '') IS NOT NULL""",
+            f"""SELECT COUNT(DISTINCT e.prospect_id) FROM commercial_events e
+               {completed_event_join}
+               WHERE e.event_type = 'payment_received' AND e.offer_version = ?
+               AND e.price_amount = ? AND e.price_currency = ? AND e.evidence_grade = 'A'
+               AND NULLIF(TRIM(e.artifact_ref), '') IS NOT NULL""",
             (FOUNDING_OFFER_VERSION, FOUNDING_OFFER_PRICE_AMOUNT, FOUNDING_OFFER_PRICE_CURRENCY),
         ),
         "outreach_invalid_endpoints_total": scalar(
@@ -902,7 +1042,9 @@ def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float,
             "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone'"
         ),
         "outreach_live_call_connects_total": scalar(
-            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone' AND human_reached = 1"
+            """SELECT COUNT(*) FROM outreach_attempts
+               WHERE channel = 'phone'
+                 AND (human_reached = 1 OR disposition = 'gatekeeper_no_transfer')"""
         ),
     }
     counts["outreach_human_reached_total"] = counts["outreach_relevant_human_reached_total"]
@@ -941,13 +1083,57 @@ def set_action_status(conn: sqlite3.Connection, action_id: str, status: str) -> 
     """
     if status not in ACTION_STATUSES:
         raise ValueError(f"unknown action status {status!r}; expected one of {sorted(ACTION_STATUSES)}")
-    cur = conn.execute(
-        "UPDATE actions SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
-        (status, utc_now(), action_id),
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        cur = conn.execute(
+            "UPDATE actions SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
+            (status, utc_now(), action_id),
+        )
+        if cur.rowcount == 0:
+            raise KeyError(f"no current action {action_id!r}")
+
+
+def _latest_timestamp(first: str, second: str) -> str:
+    """Return the later offset-aware timestamp by instant, preserving its spelling."""
+    return max(
+        (first, second),
+        key=lambda value: _validate_offset_timestamp(value, "timestamp"),
     )
-    if cur.rowcount == 0:
-        raise KeyError(f"no current action {action_id!r}")
-    conn.commit()
+
+
+def _assert_monotonic_lifecycle_in_transaction(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    event_at: str,
+    *,
+    field: str,
+) -> sqlite3.Row:
+    """Return the locked current prospect or reject a backdated lifecycle fact."""
+    event_instant = _validate_offset_timestamp(event_at, field)
+    prospect = conn.execute(
+        """SELECT * FROM prospects WHERE id = ? AND is_current = 1""",
+        (prospect_id,),
+    ).fetchone()
+    if prospect is None:
+        raise KeyError(f"no current prospect {prospect_id!r}")
+    high_water = prospect["lifecycle_high_water_at"]
+    if high_water is not None and event_instant < _validate_offset_timestamp(
+        high_water, "prospect.lifecycle_high_water_at"
+    ):
+        raise ValueError(f"{field} is older than current prospect chronology")
+    return prospect
+
+
+def _advance_lifecycle_high_water_in_transaction(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    event_at: str,
+) -> None:
+    conn.execute(
+        """UPDATE prospects SET lifecycle_high_water_at = ?
+           WHERE id = ? AND is_current = 1""",
+        (event_at, prospect_id),
+    )
 
 
 def _set_prospect_status_in_transaction(
@@ -957,13 +1143,19 @@ def _set_prospect_status_in_transaction(
     *,
     updated_at: str | None = None,
 ) -> None:
-    """Move a prospect without committing so callers can compose atomic writes."""
+    """Apply a chronology-approved lifecycle transition without committing."""
     if status not in FUNNEL_STATUSES:
         raise ValueError(f"unknown prospect status {status!r}; expected one of {', '.join(FUNNEL_STATUSES)}")
     changed_at = updated_at or utc_now()
+    existing = conn.execute(
+        "SELECT updated_at FROM prospects WHERE id = ? AND is_current = 1",
+        (prospect_id,),
+    ).fetchone()
+    if existing is None:
+        raise KeyError(f"no current prospect {prospect_id!r}")
+    changed_at = _latest_timestamp(existing["updated_at"], changed_at)
     rank = STAGE_RANK.get(status)
     if rank is None:
-        # Off-ramp (lost/not_fit/follow_up_later): leave the high-water mark as-is.
         cur = conn.execute(
             "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
             (status, changed_at, prospect_id),
@@ -987,10 +1179,22 @@ def _set_prospect_status_in_transaction(
         raise KeyError(f"no current prospect {prospect_id!r}")
 
 
-def set_prospect_status(conn: sqlite3.Connection, prospect_id: str, status: str) -> None:
+def set_prospect_status(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    status: str,
+    *,
+    changed_at: str | None = None,
+) -> None:
     """Operator write path for moving a prospect through the outreach funnel."""
-    _set_prospect_status_in_transaction(conn, prospect_id, status)
-    conn.commit()
+    changed_at = changed_at or utc_now()
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        _assert_monotonic_lifecycle_in_transaction(
+            conn, prospect_id, changed_at, field="updated_at"
+        )
+        _set_prospect_status_in_transaction(conn, prospect_id, status, updated_at=changed_at)
+        _advance_lifecycle_high_water_in_transaction(conn, prospect_id, changed_at)
 
 
 def reopen_prospect(
@@ -1010,26 +1214,25 @@ def reopen_prospect(
             raise ValueError(f"{field} is required")
     if evidence_grade != "A":
         raise ValueError("explicit reopening requires grade A evidence")
+    _validate_private_artifact_ref(artifact_ref)
     at = reopened_at or utc_now()
     _validate_offset_timestamp(at, "reopened_at")
     rank_to_status = {rank: status for status, rank in STAGE_RANK.items()}
     conn.execute("BEGIN IMMEDIATE")
     with conn:
-        prospect = conn.execute(
-            "SELECT status, max_stage_rank FROM prospects WHERE id = ? AND is_current = 1",
-            (prospect_id,),
-        ).fetchone()
-        if prospect is None:
-            raise KeyError(f"no current prospect {prospect_id!r}")
+        prospect = _assert_monotonic_lifecycle_in_transaction(
+            conn, prospect_id, at, field="reopened_at"
+        )
         if prospect["status"] not in {"lost", "not_fit", "follow_up_later"}:
             raise ValueError("prospect is not on a protected off-ramp")
         rank = prospect["max_stage_rank"]
         if type(rank) is not int or rank not in rank_to_status:
             raise ValueError("prospect has invalid max_stage_rank")
         target = rank_to_status[rank]
+        write_updated_at = _latest_timestamp(prospect["updated_at"], at)
         conn.execute(
             "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
-            (target, at, prospect_id),
+            (target, write_updated_at, prospect_id),
         )
         conn.execute(
             """INSERT INTO prospect_reopenings(
@@ -1037,25 +1240,32 @@ def reopen_prospect(
                artifact_ref, operator, reopened_at, created_at
                ) VALUES(?,?,?,?,?,?,?,?,?)""",
             (prospect_id, prospect["status"], target, reason.strip(), evidence_grade,
-             artifact_ref.strip(), operator.strip(), at, utc_now()),
+             artifact_ref, operator.strip(), at, utc_now()),
         )
+        _advance_lifecycle_high_water_in_transaction(conn, prospect_id, at)
 
 
 def unsuppress_prospect(conn: sqlite3.Connection, prospect_id: str, reason: str) -> None:
     """Clear active suppression only when an operator records why re-contact is lawful."""
     if not isinstance(reason, str) or not reason.strip():
         raise ValueError("unsuppress reason is required")
-    cur = conn.execute(
-        """UPDATE prospects
-           SET contact_suppressed_at = NULL,
-               contact_suppression_reason = ?,
-               updated_at = ?
-           WHERE id = ? AND is_current = 1 AND contact_suppressed_at IS NOT NULL""",
-        (f"unsuppressed: {reason.strip()}", utc_now(), prospect_id),
-    )
-    if cur.rowcount == 0:
-        raise KeyError(f"no actively suppressed current prospect {prospect_id!r}")
-    conn.commit()
+    at = utc_now()
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        prospect = _assert_monotonic_lifecycle_in_transaction(
+            conn, prospect_id, at, field="unsuppressed_at"
+        )
+        if not prospect["contact_suppressed_at"]:
+            raise KeyError(f"no actively suppressed current prospect {prospect_id!r}")
+        conn.execute(
+            """UPDATE prospects
+               SET contact_suppressed_at = NULL,
+                   contact_suppression_reason = ?,
+                   updated_at = ?
+               WHERE id = ? AND is_current = 1""",
+            (f"unsuppressed: {reason.strip()}", at, prospect_id),
+        )
+        _advance_lifecycle_high_water_in_transaction(conn, prospect_id, at)
 
 
 def verify_prospect_for_outreach(
@@ -1066,25 +1276,38 @@ def verify_prospect_for_outreach(
     planned_attempts: int,
     verified_at: str | None = None,
 ) -> None:
-    """Record pre-outreach ICP fit, usable endpoint, and explicit sequence plan."""
+    """Create an immutable outreach sequence and project it onto the prospect."""
     if endpoint_type not in OUTREACH_CHANNELS:
         raise ValueError(f"endpoint_type must be one of {sorted(OUTREACH_CHANNELS)}")
     if isinstance(planned_attempts, bool) or not isinstance(planned_attempts, int) or not 1 <= planned_attempts <= 3:
         raise ValueError("planned_attempts must be an integer from 1 to 3")
     at = verified_at or utc_now()
     _validate_offset_timestamp(at, "verified_at")
-    cur = conn.execute(
-        """UPDATE prospects
-           SET icp_fit_verified_at = ?, contact_endpoint_verified_at = ?,
-               contact_endpoint_type = ?, sequence_planned_attempts = ?,
-               sequence_completed_at = NULL, sequence_completion_reason = NULL,
-               updated_at = ?
-           WHERE id = ? AND is_current = 1 AND contact_suppressed_at IS NULL""",
-        (at, at, endpoint_type, planned_attempts, at, prospect_id),
-    )
-    if cur.rowcount == 0:
-        raise KeyError(f"no unsuppressed current prospect {prospect_id!r}")
-    conn.commit()
+    sequence_id = f"sequence-{uuid.uuid4()}"
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        prospect = _assert_monotonic_lifecycle_in_transaction(
+            conn, prospect_id, at, field="verified_at"
+        )
+        if prospect["contact_suppressed_at"]:
+            raise KeyError(f"no unsuppressed current prospect {prospect_id!r}")
+        conn.execute(
+            """INSERT INTO outreach_sequences(
+               id, prospect_id, endpoint_type, verified_at, planned_attempts, created_at
+               ) VALUES(?,?,?,?,?,?)""",
+            (sequence_id, prospect_id, endpoint_type, at, planned_attempts, utc_now()),
+        )
+        write_updated_at = _latest_timestamp(prospect["updated_at"], at)
+        conn.execute(
+            """UPDATE prospects
+               SET icp_fit_verified_at = ?, contact_endpoint_verified_at = ?,
+                   contact_endpoint_type = ?, sequence_planned_attempts = ?,
+                   sequence_completed_at = NULL, sequence_completion_reason = NULL,
+                   current_sequence_id = ?, updated_at = ?
+               WHERE id = ? AND is_current = 1 AND contact_suppressed_at IS NULL""",
+            (at, at, endpoint_type, planned_attempts, sequence_id, write_updated_at, prospect_id),
+        )
+        _advance_lifecycle_high_water_in_transaction(conn, prospect_id, at)
 
 
 def complete_outreach_sequence(
@@ -1094,42 +1317,66 @@ def complete_outreach_sequence(
     reason: str,
     completed_at: str | None = None,
 ) -> None:
-    """Explicitly complete a planned sequence; never infer this from a disposition."""
+    """Complete only the current immutable plan in one protected transaction."""
     allowed_reasons = {"planned_attempts_completed", "terminal_result"}
     if reason not in allowed_reasons:
         raise ValueError(f"sequence completion reason must be one of {sorted(allowed_reasons)}")
     at = completed_at or utc_now()
-    _validate_offset_timestamp(at, "completed_at")
-    prospect = conn.execute(
-        """SELECT sequence_planned_attempts FROM prospects
-           WHERE id = ? AND is_current = 1""",
-        (prospect_id,),
-    ).fetchone()
-    if prospect is None:
-        raise KeyError(f"no current prospect {prospect_id!r}")
-    planned = prospect["sequence_planned_attempts"]
-    if not planned:
-        raise ValueError("prospect has no explicit planned sequence")
-    attempts = conn.execute(
-        "SELECT COUNT(*) FROM outreach_attempts WHERE prospect_id = ?", (prospect_id,)
-    ).fetchone()[0]
-    if reason == "planned_attempts_completed" and attempts < planned:
-        raise ValueError("planned attempts are not complete")
-    if reason == "terminal_result":
-        terminal = conn.execute(
-            """SELECT 1 FROM outreach_attempts WHERE prospect_id = ?
-               AND disposition IN ('wrong_number', 'email_bounced', 'substantive_conversation', 'opt_out')
-               LIMIT 1""",
+    at_instant = _validate_offset_timestamp(at, "completed_at")
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        prospect = conn.execute(
+            "SELECT * FROM prospects WHERE id = ? AND is_current = 1",
             (prospect_id,),
         ).fetchone()
-        if terminal is None:
+        if prospect is None:
+            raise KeyError(f"no current prospect {prospect_id!r}")
+        sequence_id = prospect["current_sequence_id"]
+        if not sequence_id:
+            raise ValueError("prospect has no explicit planned sequence")
+        sequence = conn.execute(
+            """SELECT planned_attempts, verified_at, completed_at
+               FROM outreach_sequences WHERE id = ? AND prospect_id = ?""",
+            (sequence_id, prospect_id),
+        ).fetchone()
+        if sequence is None:
+            raise ValueError("prospect has no explicit planned sequence")
+        if sequence["completed_at"] is not None:
+            raise ValueError("current outreach sequence is already complete")
+        if at_instant < _validate_offset_timestamp(sequence["verified_at"], "sequence.verified_at"):
+            raise ValueError("sequence completion cannot occur before verification")
+        attempt_rows = conn.execute(
+            """SELECT attempted_at, disposition FROM outreach_attempts
+               WHERE sequence_id = ? ORDER BY attempted_at""",
+            (sequence_id,),
+        ).fetchall()
+        if any(
+            at_instant < _validate_offset_timestamp(row["attempted_at"], "attempted_at")
+            for row in attempt_rows
+        ):
+            raise ValueError("sequence completion cannot occur before a supporting attempt")
+        if reason == "planned_attempts_completed" and len(attempt_rows) < sequence["planned_attempts"]:
+            raise ValueError("planned attempts are not complete")
+        if reason == "terminal_result" and not any(
+            row["disposition"] in {"wrong_number", "email_bounced", "substantive_conversation", "opt_out"}
+            for row in attempt_rows
+        ):
             raise ValueError("terminal_result requires a terminal disposition")
-    conn.execute(
-        """UPDATE prospects SET sequence_completed_at = ?, sequence_completion_reason = ?,
-           updated_at = ? WHERE id = ? AND is_current = 1""",
-        (at, reason, at, prospect_id),
-    )
-    conn.commit()
+        _assert_monotonic_lifecycle_in_transaction(
+            conn, prospect_id, at, field="completed_at"
+        )
+        conn.execute(
+            """UPDATE outreach_sequences SET completed_at = ?, completion_reason = ?
+               WHERE id = ? AND completed_at IS NULL""",
+            (at, reason, sequence_id),
+        )
+        write_updated_at = _latest_timestamp(prospect["updated_at"], at)
+        conn.execute(
+            """UPDATE prospects SET sequence_completed_at = ?, sequence_completion_reason = ?,
+               updated_at = ? WHERE id = ? AND is_current = 1 AND current_sequence_id = ?""",
+            (at, reason, write_updated_at, prospect_id, sequence_id),
+        )
+        _advance_lifecycle_high_water_in_transaction(conn, prospect_id, at)
 
 
 def _validate_offset_timestamp(value: Any, field: str) -> datetime:
@@ -1273,35 +1520,50 @@ def record_outreach_attempt(conn: sqlite3.Connection, attempt: dict[str, Any]) -
     _validate_outreach_attempt(attempt)
 
     attempted_at = attempt["attempted_at"]
+    attempted_instant = _validate_offset_timestamp(attempted_at, "attempted_at")
     stage = "replied" if attempt.get("human_reached") or attempt["disposition"] == "email_replied" else "contacted"
-    values = (
-        attempt["id"], attempt["prospect_id"], attempted_at, attempt["channel"], 1,
-        attempt.get("contact_role"), attempt["disposition"], int(attempt.get("human_reached", False)),
-        attempt.get("conversation_outcome"), int(attempt.get("substantive_conversation", False)),
-        attempt.get("pain_score"), attempt.get("pain_type"), attempt.get("evidence_grade"),
-        attempt.get("evidence_text"), attempt.get("eligible_unsold_estimates"),
-        attempt.get("ticket_value_band"), attempt.get("follow_up_owner_process"),
-        attempt.get("objection_category"), attempt.get("artifact_ref"), attempt.get("next_action"),
-        attempt["operator"], utc_now(),
-    )
     conn.execute("BEGIN IMMEDIATE")
     with conn:
-        prospect = conn.execute(
-            "SELECT id, is_current, contact_suppressed_at FROM prospects WHERE id = ?",
-            (attempt["prospect_id"],),
-        ).fetchone()
-        if prospect is None or not prospect["is_current"]:
-            raise KeyError(f"no current prospect {attempt['prospect_id']!r}")
+        prospect = _assert_monotonic_lifecycle_in_transaction(
+            conn, attempt["prospect_id"], attempted_at, field="attempted_at"
+        )
         if prospect["contact_suppressed_at"]:
             raise ValueError("prospect is contact-suppressed")
+        sequence_id = None
+        if prospect["current_sequence_id"]:
+            sequence = conn.execute(
+                """SELECT id, endpoint_type, verified_at, completed_at
+                   FROM outreach_sequences WHERE id = ? AND prospect_id = ?""",
+                (prospect["current_sequence_id"], attempt["prospect_id"]),
+            ).fetchone()
+            if (
+                sequence is not None
+                and sequence["completed_at"] is None
+                and sequence["endpoint_type"] == attempt["channel"]
+                and attempted_instant >= _validate_offset_timestamp(
+                    sequence["verified_at"], "sequence.verified_at"
+                )
+            ):
+                sequence_id = sequence["id"]
+        values = (
+            attempt["id"], attempt["prospect_id"], sequence_id, attempted_at,
+            attempt["channel"], 1, attempt.get("contact_role"), attempt["disposition"],
+            int(attempt.get("human_reached", False)), attempt.get("conversation_outcome"),
+            int(attempt.get("substantive_conversation", False)), attempt.get("pain_score"),
+            attempt.get("pain_type"), attempt.get("evidence_grade"), attempt.get("evidence_text"),
+            attempt.get("eligible_unsold_estimates"), attempt.get("ticket_value_band"),
+            attempt.get("follow_up_owner_process"), attempt.get("objection_category"),
+            attempt.get("artifact_ref"), attempt.get("next_action"), attempt["operator"], utc_now(),
+        )
         conn.execute(
             """INSERT INTO outreach_attempts(
-                id, prospect_id, attempted_at, channel, dnc_checked, contact_role, disposition,
-                human_reached, conversation_outcome, substantive_conversation,
-                pain_score, pain_type, evidence_grade, evidence_text,
-                eligible_unsold_estimates, ticket_value_band, follow_up_owner_process,
-                objection_category, artifact_ref, next_action, operator, created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                id, prospect_id, sequence_id, attempted_at, channel, dnc_checked,
+                contact_role, disposition, human_reached, conversation_outcome,
+                substantive_conversation, pain_score, pain_type, evidence_grade,
+                evidence_text, eligible_unsold_estimates, ticket_value_band,
+                follow_up_owner_process, objection_category, artifact_ref,
+                next_action, operator, created_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             values,
         )
         off_ramp = {
@@ -1323,12 +1585,22 @@ def record_outreach_attempt(conn: sqlite3.Connection, attempt: dict[str, Any]) -
                 conn, attempt["prospect_id"], stage, updated_at=attempted_at
             )
         else:
+            lifecycle_at = (
+                attempted_at
+                if attempted_instant >= _validate_offset_timestamp(
+                    prospect["updated_at"], "prospect.updated_at"
+                )
+                else prospect["updated_at"]
+            )
             conn.execute(
                 """UPDATE prospects
                    SET contact_suppressed_at = ?, contact_suppression_reason = ?, updated_at = ?
                    WHERE id = ? AND is_current = 1""",
-                (attempted_at, "explicit_opt_out", attempted_at, attempt["prospect_id"]),
+                (attempted_at, "explicit_opt_out", lifecycle_at, attempt["prospect_id"]),
             )
+        _advance_lifecycle_high_water_in_transaction(
+            conn, attempt["prospect_id"], attempted_at
+        )
     return attempt["id"]
 
 
@@ -1379,17 +1651,17 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
     conn.execute("BEGIN IMMEDIATE")
     with conn:
         prospect = conn.execute(
-            """SELECT id, is_current, contact_suppressed_at
-               FROM prospects WHERE id = ?""",
+            "SELECT * FROM prospects WHERE id = ? AND is_current = 1",
             (event["prospect_id"],),
         ).fetchone()
-        if prospect is None or not prospect["is_current"]:
+        if prospect is None:
             raise KeyError(f"no current prospect {event['prospect_id']!r}")
         if prospect["contact_suppressed_at"]:
             raise ValueError("prospect is contact-suppressed")
+        sequence_id = None
         if event.get("attempt_id"):
             attempt_owner = conn.execute(
-                "SELECT prospect_id, attempted_at FROM outreach_attempts WHERE id = ?",
+                "SELECT prospect_id, attempted_at, sequence_id FROM outreach_attempts WHERE id = ?",
                 (event["attempt_id"],),
             ).fetchone()
             if attempt_owner is None:
@@ -1399,15 +1671,29 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
             attempted_at = _validate_offset_timestamp(attempt_owner["attempted_at"], "attempted_at")
             if occurred_at < attempted_at:
                 raise ValueError("commercial event cannot occur before its originating attempt")
+            sequence_id = attempt_owner["sequence_id"]
+        elif prospect["current_sequence_id"]:
+            sequence = conn.execute(
+                """SELECT id, verified_at FROM outreach_sequences
+                   WHERE id = ? AND prospect_id = ?""",
+                (prospect["current_sequence_id"], event["prospect_id"]),
+            ).fetchone()
+            if sequence is not None and occurred_at >= _validate_offset_timestamp(
+                sequence["verified_at"], "sequence.verified_at"
+            ):
+                sequence_id = sequence["id"]
 
+        _assert_monotonic_lifecycle_in_transaction(
+            conn, event["prospect_id"], event["occurred_at"], field="occurred_at"
+        )
         conn.execute(
             """INSERT INTO commercial_events(
-                id, prospect_id, attempt_id, event_type, occurred_at, offer_version,
+                id, prospect_id, sequence_id, attempt_id, event_type, occurred_at, offer_version,
                 price_amount, price_currency, evidence_grade, artifact_ref,
                 evidence_text, operator, created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
-                event["id"], event["prospect_id"], event.get("attempt_id"),
+                event["id"], event["prospect_id"], sequence_id, event.get("attempt_id"),
                 event["event_type"], event["occurred_at"], event.get("offer_version"),
                 event.get("price_amount"), event.get("price_currency"),
                 event["evidence_grade"], event.get("artifact_ref"),
@@ -1419,6 +1705,9 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
             _set_prospect_status_in_transaction(
                 conn, event["prospect_id"], stage, updated_at=event["occurred_at"]
             )
+        _advance_lifecycle_high_water_in_transaction(
+            conn, event["prospect_id"], event["occurred_at"]
+        )
     return event["id"]
 
 

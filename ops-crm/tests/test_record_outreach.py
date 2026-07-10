@@ -344,15 +344,18 @@ def test_commercial_event_and_concurrent_archive_serialize_without_validation_ga
     archive_started = threading.Event()
     results: dict[str, Any] = {}
     errors: list[BaseException] = []
+    trace_failures: list[BaseException] = []
 
     def record_event() -> None:
         try:
             with crm_db.connect(ROOT, database) as conn:
                 def trace(statement: str) -> None:
-                    if "SELECT id, is_current, contact_suppressed_at" in statement:
+                    if "SELECT * FROM prospects" in statement:
                         prospect_read.set()
                         if not archive_started.wait(2):
-                            raise AssertionError("archiver did not reach the protected boundary")
+                            trace_failures.append(
+                                AssertionError("archiver did not reach the protected boundary")
+                            )
 
                 conn.set_trace_callback(trace)
                 results["event_id"] = crm_db.record_commercial_event(
@@ -385,6 +388,7 @@ def test_commercial_event_and_concurrent_archive_serialize_without_validation_ga
 
     assert not event_thread.is_alive()
     assert not archive_thread.is_alive()
+    assert trace_failures == []
     assert errors == []
     assert results == {
         "event_id": "event-valid",
@@ -808,7 +812,9 @@ def test_commercial_events_have_deterministic_stage_effects(tmp_path, event_type
 def test_later_attempt_cannot_regress_evidence_stage(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
-        crm_db.set_prospect_status(conn, "p1", "discovery_booked")
+        crm_db.set_prospect_status(
+            conn, "p1", "discovery_booked", changed_at="2026-07-10T10:00:00-04:00"
+        )
         crm_db.record_outreach_attempt(
             conn,
             {
@@ -832,8 +838,15 @@ def test_later_attempt_cannot_regress_evidence_stage(tmp_path):
 def test_weak_attempt_never_reopens_lost_off_ramp(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
-        crm_db.set_prospect_status(conn, "p1", "lost")
-        crm_db.record_outreach_attempt(conn, valid_attempt(id="attempt-after-lost"))
+        crm_db.set_prospect_status(
+            conn, "p1", "lost", changed_at="2026-07-10T10:00:00-04:00"
+        )
+        crm_db.record_outreach_attempt(
+            conn,
+            valid_attempt(
+                id="attempt-after-lost", attempted_at="2026-07-10T11:00:00-04:00"
+            ),
+        )
         row = conn.execute(
             "SELECT status, max_stage_rank FROM prospects WHERE id='p1'"
         ).fetchone()
@@ -932,6 +945,151 @@ def test_explicit_reopening_requires_auditable_grade_a_evidence(tmp_path):
     assert audit["reopened_at"] == "2026-07-10T15:00:00-04:00"
 
 
+def test_reopening_rejects_credential_bearing_artifact_atomically(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        before = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+
+        with pytest.raises(ValueError, match="artifact_ref"):
+            crm_db.reopen_prospect(
+                conn, "p1", reason="buyer asked to restart", evidence_grade="A",
+                artifact_ref="https://example.test/evidence?secret=credential-value",
+                operator="Matthew",
+            )
+
+        after = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+        audit_count = conn.execute("SELECT COUNT(*) FROM prospect_reopenings").fetchone()[0]
+
+    assert tuple(after) == tuple(before)
+    assert audit_count == 0
+
+
+def test_stale_equal_rank_commercial_event_cannot_regress_prospect_chronology(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.record_commercial_event(
+            conn,
+            valid_commercial_event(
+                id="event-new", event_type="discovery_scheduled",
+                occurred_at="2026-07-10T12:00:00-04:00", evidence_grade="A",
+                evidence_text=None, artifact_ref="private/calendar/new",
+            ),
+        )
+        with pytest.raises(ValueError, match="older than current prospect chronology"):
+            crm_db.record_commercial_event(
+                conn,
+                valid_commercial_event(
+                    id="event-old", event_type="discovery_scheduled",
+                    occurred_at="2026-07-10T10:00:00-04:00", evidence_grade="A",
+                    evidence_text=None, artifact_ref="private/calendar/old",
+                ),
+            )
+        row = conn.execute(
+            "SELECT status, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+        event_count = conn.execute(
+            "SELECT COUNT(*) FROM commercial_events WHERE id='event-old'"
+        ).fetchone()[0]
+
+    assert tuple(row) == ("discovery_booked", "2026-07-10T12:00:00-04:00")
+    assert event_count == 0
+
+
+def test_stale_attempt_and_off_ramp_fact_do_not_overwrite_newer_lifecycle_state(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.record_commercial_event(
+            conn,
+            valid_commercial_event(
+                id="event-new", event_type="discovery_scheduled",
+                occurred_at="2026-07-10T12:00:00-04:00", evidence_grade="A",
+                evidence_text=None, artifact_ref="private/calendar/new",
+            ),
+        )
+        with pytest.raises(ValueError, match="older than current prospect chronology"):
+            crm_db.record_outreach_attempt(
+                conn,
+                valid_attempt(
+                    id="attempt-stale-off-ramp", attempted_at="2026-07-10T10:00:00-04:00",
+                    disposition="substantive_conversation", human_reached=True,
+                    substantive_conversation=True, contact_role="owner",
+                    conversation_outcome="pain_qualified_no_interest", pain_score=2,
+                    eligible_unsold_estimates=10, ticket_value_band="$10k-$25k",
+                    evidence_grade="B", evidence_text="Same-day exact buyer quote.",
+                ),
+            )
+        row = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+        attempt_count = conn.execute(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE id='attempt-stale-off-ramp'"
+        ).fetchone()[0]
+
+    assert tuple(row) == (
+        "discovery_booked", crm_db.STAGE_RANK["discovery_booked"],
+        "2026-07-10T12:00:00-04:00",
+    )
+    assert attempt_count == 0
+
+
+def test_stale_verification_is_rejected_without_resetting_current_sequence(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.verify_prospect_for_outreach(
+            conn, "p1", endpoint_type="phone", planned_attempts=1,
+            verified_at="2026-07-10T12:00:00-04:00",
+        )
+        before = conn.execute(
+            """SELECT contact_endpoint_type, sequence_planned_attempts,
+                      sequence_completed_at, updated_at
+               FROM prospects WHERE id='p1'"""
+        ).fetchone()
+
+        with pytest.raises(ValueError, match="older than current prospect chronology"):
+            crm_db.verify_prospect_for_outreach(
+                conn, "p1", endpoint_type="email", planned_attempts=3,
+                verified_at="2026-07-10T10:00:00-04:00",
+            )
+
+        after = conn.execute(
+            """SELECT contact_endpoint_type, sequence_planned_attempts,
+                      sequence_completed_at, updated_at
+               FROM prospects WHERE id='p1'"""
+        ).fetchone()
+
+    assert tuple(after) == tuple(before)
+
+
+def test_stale_reopening_is_rejected_without_audit_or_lifecycle_change(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.set_prospect_status(conn, "p1", "pilot_proposed")
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        before = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+
+        with pytest.raises(ValueError, match="older than current prospect chronology"):
+            crm_db.reopen_prospect(
+                conn, "p1", reason="late evidence", evidence_grade="A",
+                artifact_ref="private/email/stale-reopen", operator="Matthew",
+                reopened_at="2020-01-01T00:00:00Z",
+            )
+
+        after = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+        audit_count = conn.execute("SELECT COUNT(*) FROM prospect_reopenings").fetchone()[0]
+
+    assert tuple(after) == tuple(before)
+    assert audit_count == 0
+
+
 @pytest.mark.parametrize(
     "mutation",
     [
@@ -1016,13 +1174,16 @@ def test_cumulative_funnel_metrics_survive_off_ramp_and_explicit_reopening(tmp_p
 def test_opt_out_preserves_stage_and_only_sets_suppression(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
-        crm_db.set_prospect_status(conn, "p1", "won")
+        crm_db.set_prospect_status(
+            conn, "p1", "won", changed_at="2026-07-10T10:00:00-04:00"
+        )
+        attempted_at = "2026-07-10T11:00:00-04:00"
         crm_db.record_outreach_attempt(
             conn,
             {
                 "id": "attempt-opt-out-after-payment",
                 "prospect_id": "p1",
-                "attempted_at": "2026-07-10T11:00:00-04:00",
+                "attempted_at": attempted_at,
                 "channel": "email",
                 "dnc_checked": True,
                 "disposition": "opt_out",
@@ -1036,7 +1197,7 @@ def test_opt_out_preserves_stage_and_only_sets_suppression(tmp_path):
 
     assert row["status"] == "won"
     assert row["max_stage_rank"] == crm_db.STAGE_RANK["won"]
-    assert row["contact_suppressed_at"] == "2026-07-10T11:00:00-04:00"
+    assert row["contact_suppressed_at"] == attempted_at
 
 
 def test_duplicate_commercial_event_rolls_back_stage_change(tmp_path):
@@ -1211,7 +1372,8 @@ def test_outreach_metrics_derive_rates_from_persisted_evidence(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
         crm_db.verify_prospect_for_outreach(
-            conn, "p1", endpoint_type="phone", planned_attempts=1
+            conn, "p1", endpoint_type="phone", planned_attempts=1,
+            verified_at="2026-07-10T08:00:00-04:00",
         )
         crm_db.record_outreach_attempt(
             conn,
@@ -1233,6 +1395,12 @@ def test_outreach_metrics_derive_rates_from_persisted_evidence(tmp_path):
                 "evidence_text": "Buyer described twelve unsold estimates and requested paid terms.",
                 "operator": "Matthew",
             },
+        )
+        crm_db.complete_outreach_sequence(
+            conn,
+            "p1",
+            reason="planned_attempts_completed",
+            completed_at="2026-07-10T09:30:00-04:00",
         )
         for index, event_type in enumerate(
             ["discovery_scheduled", "paid_proposal_sent", "paid_pilot_accepted", "payment_received"]
@@ -1270,10 +1438,12 @@ def test_outreach_metrics_count_distinct_businesses_and_emit_diagnostics(tmp_pat
         seed_prospect(conn, "p1")
         seed_prospect(conn, "p2")
         crm_db.verify_prospect_for_outreach(
-            conn, "p1", endpoint_type="phone", planned_attempts=2
+            conn, "p1", endpoint_type="phone", planned_attempts=2,
+            verified_at="2026-07-10T08:00:00-04:00",
         )
         crm_db.verify_prospect_for_outreach(
-            conn, "p2", endpoint_type="phone", planned_attempts=1
+            conn, "p2", endpoint_type="phone", planned_attempts=1,
+            verified_at="2026-07-10T08:00:00-04:00",
         )
         crm_db.record_outreach_attempt(
             conn,
@@ -1313,6 +1483,13 @@ def test_outreach_metrics_count_distinct_businesses_and_emit_diagnostics(tmp_pat
             conn,
             valid_attempt(id="attempt-p2-ivr", prospect_id="p2", disposition="ivr_blocked"),
         )
+        for prospect_id in ("p1", "p2"):
+            crm_db.complete_outreach_sequence(
+                conn,
+                prospect_id,
+                reason="planned_attempts_completed",
+                completed_at="2026-07-10T10:00:00-04:00",
+            )
         exported = crm_db.export_dataset(conn, "2026-07-10T18:00:00Z")
 
     metrics = {row["metric_name"]: row["metric_value"] for row in exported["metrics"]}
