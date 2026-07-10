@@ -54,6 +54,118 @@ def valid_attempt(**overrides: Any) -> dict[str, Any]:
     return attempt
 
 
+def valid_attempt_for(disposition: str, channel: str) -> dict[str, Any]:
+    attempt = valid_attempt(
+        id=f"attempt-{channel}-{disposition}",
+        channel=channel,
+        disposition=disposition,
+    )
+    if disposition in {"human_no_time", "email_replied", "linkedin_replied", "opt_out"}:
+        attempt.update(human_reached=True, contact_role="owner")
+    if disposition == "substantive_conversation":
+        attempt.update(
+            human_reached=True,
+            substantive_conversation=True,
+            contact_role="owner",
+            conversation_outcome="no_relevant_pain",
+            pain_score=0,
+            evidence_grade="B",
+            evidence_text="Same-day exact quote confirms no relevant pain.",
+        )
+    return attempt
+
+
+def test_attempt_consistency_matrix_covers_every_disposition_and_channel_pair():
+    expected = {
+        "phone": {
+            "no_answer", "voicemail_left", "ivr_blocked", "wrong_number",
+            "gatekeeper_no_transfer", "human_no_time", "substantive_conversation", "opt_out",
+        },
+        "email": {"email_sent", "email_replied", "email_bounced", "substantive_conversation", "opt_out"},
+        "linkedin": {"linkedin_sent", "linkedin_replied", "substantive_conversation", "opt_out"},
+    }
+    assert set(crm_db.ATTEMPT_CONSISTENCY_MATRIX) == set(crm_db.ATTEMPT_DISPOSITIONS)
+    for channel in crm_db.OUTREACH_CHANNELS:
+        for disposition in crm_db.ATTEMPT_DISPOSITIONS:
+            attempt = valid_attempt_for(disposition, channel)
+            if disposition in expected[channel]:
+                crm_db._validate_outreach_attempt(attempt)
+            else:
+                with pytest.raises(ValueError, match="not valid for channel"):
+                    crm_db._validate_outreach_attempt(attempt)
+
+
+@pytest.mark.parametrize(
+    "contradiction",
+    [
+        {"disposition": "no_answer", "human_reached": True},
+        {"disposition": "no_answer", "substantive_conversation": True, "human_reached": True},
+        {"disposition": "substantive_conversation", "human_reached": False, "substantive_conversation": False},
+        {"disposition": "human_no_time", "human_reached": False},
+        {"disposition": "email_replied", "channel": "email", "human_reached": False},
+        {"disposition": "no_answer", "conversation_outcome": "no_relevant_pain", "pain_score": 3},
+    ],
+)
+def test_attempt_matrix_rejects_contradictory_facts_before_write(tmp_path, contradiction):
+    attempt = valid_attempt(id="attempt-contradiction", **contradiction)
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        with pytest.raises(ValueError):
+            crm_db.record_outreach_attempt(conn, attempt)
+        assert conn.execute("SELECT COUNT(*) FROM outreach_attempts").fetchone()[0] == 0
+        assert conn.execute("SELECT status FROM prospects WHERE id='p1'").fetchone()[0] == "not_contacted"
+
+
+@pytest.mark.parametrize(
+    ("outcome", "score"),
+    [
+        ("no_relevant_pain", 0),
+        ("pain_unqualified", 1),
+        ("pain_qualified_no_interest", 2),
+        ("follow_up_requested", 2),
+        ("paid_terms_requested", 2),
+    ],
+)
+def test_every_supported_conversation_outcome_has_a_valid_evidence_qualified_combination(outcome, score):
+    attempt = valid_attempt(
+        disposition="substantive_conversation",
+        human_reached=True,
+        substantive_conversation=True,
+        contact_role="owner",
+        conversation_outcome=outcome,
+        pain_score=score,
+        evidence_grade="B",
+        evidence_text="Same-day exact quote with role and economics.",
+        eligible_unsold_estimates=10,
+        ticket_value_band="$10k-$25k",
+    )
+    crm_db._validate_outreach_attempt(attempt)
+
+
+@pytest.mark.parametrize("outcome", ["pain_qualified_no_interest", "follow_up_requested", "paid_terms_requested"])
+def test_positive_buyer_movement_requires_evidence_role_and_economics(tmp_path, outcome):
+    base = valid_attempt(
+        disposition="substantive_conversation",
+        human_reached=True,
+        substantive_conversation=True,
+        contact_role="owner",
+        conversation_outcome=outcome,
+        pain_score=2,
+        evidence_grade="B",
+        evidence_text="Same-day exact buyer quote.",
+        eligible_unsold_estimates=10,
+        ticket_value_band="$10k-$25k",
+    )
+    for index, field in enumerate(("evidence_grade", "evidence_text", "contact_role", "eligible_unsold_estimates", "ticket_value_band")):
+        attempt = {**base, "id": f"attempt-missing-{index}"}
+        attempt.pop(field)
+        with crm_db.connect(ROOT, tmp_path / f"crm-{index}.sqlite") as conn:
+            seed_prospect(conn)
+            with pytest.raises(ValueError):
+                crm_db.record_outreach_attempt(conn, attempt)
+            assert conn.execute("SELECT COUNT(*) FROM outreach_attempts").fetchone()[0] == 0
+
+
 def test_attempt_requires_strict_true_dnc_acknowledgement(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
@@ -581,6 +693,7 @@ def test_outreach_metrics_derive_rates_from_persisted_evidence(tmp_path):
                 "conversation_outcome": "paid_terms_requested",
                 "pain_score": 2,
                 "eligible_unsold_estimates": 12,
+                "ticket_value_band": "$10k-$25k",
                 "evidence_grade": "B",
                 "evidence_text": "Buyer described twelve unsold estimates and requested paid terms.",
                 "operator": "Matthew",
@@ -632,7 +745,8 @@ def test_outreach_metrics_count_distinct_businesses_and_emit_diagnostics(tmp_pat
                 conversation_outcome="paid_terms_requested",
                 pain_score=2,
                 contact_role="owner",
-                eligible_unsold_estimates=4,
+                eligible_unsold_estimates=10,
+                ticket_value_band="$10k-$25k",
                 evidence_grade="B",
                 evidence_text="Exact quote about four stale estimates",
             ),
@@ -648,6 +762,7 @@ def test_outreach_metrics_count_distinct_businesses_and_emit_diagnostics(tmp_pat
                 conversation_outcome="paid_terms_requested",
                 pain_score=2,
                 contact_role="owner",
+                eligible_unsold_estimates=10,
                 ticket_value_band="$10k-$25k",
                 evidence_grade="B",
                 evidence_text="Second exact same-day quote",

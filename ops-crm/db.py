@@ -60,8 +60,26 @@ OUTREACH_CHANNELS = frozenset({"phone", "email", "linkedin"})
 ATTEMPT_DISPOSITIONS = frozenset({
     "no_answer", "voicemail_left", "ivr_blocked", "wrong_number",
     "gatekeeper_no_transfer", "human_no_time", "substantive_conversation",
-    "email_sent", "email_replied", "opt_out",
+    "email_sent", "email_replied", "email_bounced",
+    "linkedin_sent", "linkedin_replied", "opt_out",
 })
+# One authoritative disposition/channel/fact contract. Tuple values are:
+# (allowed channels, required human_reached, required substantive_conversation).
+ATTEMPT_CONSISTENCY_MATRIX = {
+    "no_answer": ({"phone"}, False, False),
+    "voicemail_left": ({"phone"}, False, False),
+    "ivr_blocked": ({"phone"}, False, False),
+    "wrong_number": ({"phone"}, False, False),
+    "gatekeeper_no_transfer": ({"phone"}, False, False),
+    "human_no_time": ({"phone"}, True, False),
+    "substantive_conversation": ({"phone", "email", "linkedin"}, True, True),
+    "email_sent": ({"email"}, False, False),
+    "email_replied": ({"email"}, True, False),
+    "email_bounced": ({"email"}, False, False),
+    "linkedin_sent": ({"linkedin"}, False, False),
+    "linkedin_replied": ({"linkedin"}, True, False),
+    "opt_out": ({"phone", "email", "linkedin"}, True, False),
+}
 COMMERCIAL_EVENT_TYPES = frozenset({
     "discovery_scheduled", "discovery_completed", "discovery_no_show",
     "paid_proposal_sent", "paid_pilot_accepted", "paid_pilot_declined",
@@ -81,6 +99,14 @@ CONVERSATION_OUTCOMES = frozenset({
     "no_relevant_pain", "pain_unqualified", "pain_qualified_no_interest",
     "follow_up_requested", "paid_terms_requested",
 })
+# (minimum pain score, maximum pain score, requires qualified economics).
+CONVERSATION_OUTCOME_MATRIX = {
+    "no_relevant_pain": (0, 0, False),
+    "pain_unqualified": (0, 1, False),
+    "pain_qualified_no_interest": (2, 3, True),
+    "follow_up_requested": (2, 3, True),
+    "paid_terms_requested": (2, 3, True),
+}
 EVIDENCE_GRADES = frozenset({"A", "B", "C"})
 MAX_EVIDENCE_TEXT_LENGTH = 4000
 FOUNDING_OFFER_VERSION = "founding-pilot-v1"
@@ -823,6 +849,13 @@ def _validate_outreach_attempt(attempt: dict[str, Any]) -> None:
         raise ValueError("invalid channel")
     if attempt["disposition"] not in ATTEMPT_DISPOSITIONS:
         raise ValueError("invalid disposition")
+    allowed_channels, expected_human, expected_substantive = ATTEMPT_CONSISTENCY_MATRIX[
+        attempt["disposition"]
+    ]
+    if attempt["channel"] not in allowed_channels:
+        raise ValueError(
+            f"disposition {attempt['disposition']!r} is not valid for channel {attempt['channel']!r}"
+        )
     if attempt.get("dnc_checked") is not True:
         raise ValueError("dnc_checked must be true before outreach")
     for field in ("human_reached", "substantive_conversation"):
@@ -831,6 +864,14 @@ def _validate_outreach_attempt(attempt: dict[str, Any]) -> None:
     substantive = attempt.get("substantive_conversation", False)
     human_reached = attempt.get("human_reached", False)
     outcome = attempt.get("conversation_outcome")
+    if human_reached is not expected_human:
+        raise ValueError(
+            f"disposition {attempt['disposition']!r} requires human_reached={expected_human}"
+        )
+    if substantive is not expected_substantive:
+        raise ValueError(
+            f"disposition {attempt['disposition']!r} requires substantive_conversation={expected_substantive}"
+        )
     if substantive and not human_reached:
         raise ValueError("substantive_conversation requires human_reached")
     if substantive and not outcome:
@@ -855,6 +896,24 @@ def _validate_outreach_attempt(attempt: dict[str, Any]) -> None:
     estimate_count = attempt.get("eligible_unsold_estimates")
     if estimate_count is not None and (isinstance(estimate_count, bool) or not isinstance(estimate_count, int) or estimate_count < 0):
         raise ValueError("eligible_unsold_estimates must be a non-negative integer")
+    if outcome:
+        minimum_score, maximum_score, requires_qualified_economics = CONVERSATION_OUTCOME_MATRIX[outcome]
+        if score is None or not minimum_score <= score <= maximum_score:
+            raise ValueError(
+                f"conversation_outcome {outcome!r} requires pain_score {minimum_score}-{maximum_score}"
+            )
+        if requires_qualified_economics:
+            if attempt.get("evidence_grade") not in {"A", "B"}:
+                raise ValueError(f"conversation_outcome {outcome!r} requires grade A or B evidence")
+            if not isinstance(attempt.get("contact_role"), str) or not attempt["contact_role"].strip():
+                raise ValueError(f"conversation_outcome {outcome!r} requires contact_role")
+            if estimate_count is None or estimate_count < 10:
+                raise ValueError(
+                    f"conversation_outcome {outcome!r} requires at least 10 eligible_unsold_estimates"
+                )
+            ticket_band = attempt.get("ticket_value_band")
+            if not isinstance(ticket_band, str) or not ticket_band.strip():
+                raise ValueError(f"conversation_outcome {outcome!r} requires ticket_value_band")
 
 
 def record_outreach_attempt(conn: sqlite3.Connection, attempt: dict[str, Any]) -> str:
