@@ -42,5 +42,5 @@ _Avoid_: metric math in builders or the dashboard; deriving funnel totals from c
 The doc's success criteria — 50 identified / 30 contacted / 5 discovery / 1 pilot — carried as the `target` column on metric rows so the brief and dashboard render progress (`3/30 contacted`).
 
 **Dashboard funnel coverage**:
-The prospect funnel `<select>` only renders where the dashboard has a next-action row to attach it to — today that's the 16/64 prospects who are owner-operated or Vapi-called (`generate.py::build_next_actions`). The other 48 move through the funnel by editing the outreach CSV's status column and re-running `generate.py`, not through the dashboard. This is a transitional implementation gap — ADR 0002 chooses full prospect-list funnel controls for every prospect. Until implemented, use the approved CSV/import/regeneration path for prospects without dashboard controls. Do not create shadow status mechanisms.
-_Avoid_: assuming every prospect has a dashboard funnel control (ADR 0002 will add them)
+The dashboard renders a full prospect-list funnel control for every current prospect, not only prospects with next-action rows. Inline prospect status changes POST to `/api/prospect-status`, which writes through `db.set_prospect_status` and refreshes the SQLite export. The next-action queue remains the prioritization surface; the prospect list is the complete status-control surface. Do not create shadow status mechanisms.
+_Avoid_: assuming the action queue is the only place a prospect can move through the funnel
