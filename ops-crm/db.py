@@ -57,6 +57,10 @@ LEGACY_PROSPECT_STATUS_MAP = {
 # Operator vocabulary for action rows. Must match next_action.schema.json's status enum.
 ACTION_STATUSES = frozenset({"open", "doing", "done", "blocked", "cancelled"})
 OUTREACH_CHANNELS = frozenset({"phone", "email", "linkedin"})
+RELEVANT_BUYER_ROLES = frozenset({
+    "owner", "founder", "general_manager", "office_manager",
+    "sales_manager", "estimator", "marketing_manager",
+})
 ATTEMPT_DISPOSITIONS = frozenset({
     "no_answer", "voicemail_left", "ivr_blocked", "wrong_number",
     "gatekeeper_no_transfer", "human_no_time", "substantive_conversation",
@@ -189,7 +193,13 @@ def init_db(conn: sqlite3.Connection) -> None:
             archived_at TEXT,
             max_stage_rank INTEGER NOT NULL DEFAULT 0,
             contact_suppressed_at TEXT,
-            contact_suppression_reason TEXT
+            contact_suppression_reason TEXT,
+            icp_fit_verified_at TEXT,
+            contact_endpoint_verified_at TEXT,
+            contact_endpoint_type TEXT,
+            sequence_planned_attempts INTEGER,
+            sequence_completed_at TEXT,
+            sequence_completion_reason TEXT
         );
 
         CREATE TABLE IF NOT EXISTS actions (
@@ -330,6 +340,16 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE prospects ADD COLUMN contact_suppressed_at TEXT")
     if "contact_suppression_reason" not in prospect_cols:
         conn.execute("ALTER TABLE prospects ADD COLUMN contact_suppression_reason TEXT")
+    for column, definition in {
+        "icp_fit_verified_at": "TEXT",
+        "contact_endpoint_verified_at": "TEXT",
+        "contact_endpoint_type": "TEXT",
+        "sequence_planned_attempts": "INTEGER",
+        "sequence_completed_at": "TEXT",
+        "sequence_completion_reason": "TEXT",
+    }.items():
+        if column not in prospect_cols:
+            conn.execute(f"ALTER TABLE prospects ADD COLUMN {column} {definition}")
 
     attempt_cols = {row["name"] for row in conn.execute("PRAGMA table_info(outreach_attempts)")}
     if "dnc_checked" not in attempt_cols:
@@ -610,7 +630,7 @@ def compute_metrics(
     return {name: (value, unit, FOURTEEN_DAY_TARGETS.get(name)) for name, (value, unit) in values.items()}
 
 
-def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float, str, float | None]]:
+def _compute_outreach_metrics_legacy(conn: sqlite3.Connection) -> dict[str, tuple[float, str, float | None]]:
     """Compute private Evidence Loop counts plus auditable numerator/denominator rows."""
     def scalar(sql: str, params: tuple[Any, ...] = ()) -> float:
         return float(conn.execute(sql, params).fetchone()[0])
@@ -741,6 +761,132 @@ def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float,
     return metrics
 
 
+def compute_outreach_metrics(conn: sqlite3.Connection) -> dict[str, tuple[float, str, float | None]]:
+    """Compute private gate populations from verified, non-contradictory facts."""
+    def scalar(sql: str, params: tuple[Any, ...] = ()) -> float:
+        return float(conn.execute(sql, params).fetchone()[0])
+
+    verified_join = """JOIN prospects p ON p.id = a.prospect_id
+        AND p.is_current = 1
+        AND p.icp_fit_verified_at IS NOT NULL
+        AND p.contact_endpoint_verified_at IS NOT NULL
+        AND p.contact_endpoint_type = a.channel"""
+    roles = tuple(sorted(RELEVANT_BUYER_ROLES))
+    role_slots = ",".join("?" for _ in roles)
+    counts = {
+        "outreach_attempts_total": scalar("SELECT COUNT(*) FROM outreach_attempts"),
+        "outreach_verified_contactable_businesses_total": scalar(
+            """SELECT COUNT(*) FROM prospects WHERE is_current = 1
+               AND icp_fit_verified_at IS NOT NULL
+               AND contact_endpoint_verified_at IS NOT NULL
+               AND contact_endpoint_type IN ('phone', 'email', 'linkedin')
+               AND contact_suppressed_at IS NULL"""
+        ),
+        "outreach_attempted_businesses_total": scalar(
+            f"SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}"
+        ),
+        "outreach_completed_sequences_total": scalar(
+            """SELECT COUNT(*) FROM prospects WHERE is_current = 1
+               AND sequence_planned_attempts IS NOT NULL AND sequence_completed_at IS NOT NULL
+               AND sequence_completion_reason IS NOT NULL"""
+        ),
+        "outreach_relevant_human_reached_total": scalar(
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+                 WHERE a.human_reached = 1
+                 AND LOWER(TRIM(a.contact_role)) IN ({role_slots})""",
+            roles,
+        ),
+        "outreach_substantive_conversations_total": scalar(
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+                 WHERE a.substantive_conversation = 1 AND a.evidence_grade IN ('A', 'B')
+                 AND LOWER(TRIM(a.contact_role)) IN ({role_slots})""",
+            roles,
+        ),
+        "outreach_pain_qualified_total": scalar(
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+                 WHERE a.substantive_conversation = 1 AND a.pain_score BETWEEN 2 AND 3
+                 AND a.evidence_grade IN ('A', 'B')
+                 AND LOWER(TRIM(a.contact_role)) IN ({role_slots})
+                 AND a.eligible_unsold_estimates >= 10
+                 AND NULLIF(TRIM(a.ticket_value_band), '') IS NOT NULL""",
+            roles,
+        ),
+        "outreach_paid_terms_requested_total": scalar(
+            f"""SELECT COUNT(DISTINCT a.prospect_id) FROM outreach_attempts a {verified_join}
+                 WHERE a.conversation_outcome = 'paid_terms_requested'
+                 AND a.pain_score BETWEEN 2 AND 3 AND a.evidence_grade IN ('A', 'B')
+                 AND LOWER(TRIM(a.contact_role)) IN ({role_slots})
+                 AND a.eligible_unsold_estimates >= 10
+                 AND NULLIF(TRIM(a.ticket_value_band), '') IS NOT NULL""",
+            roles,
+        ),
+        "outreach_discovery_booked_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'discovery_scheduled'"
+        ),
+        "outreach_paid_proposals_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_proposal_sent'"
+        ),
+        "outreach_paid_acceptances_total": scalar(
+            "SELECT COUNT(DISTINCT prospect_id) FROM commercial_events WHERE event_type = 'paid_pilot_accepted'"
+        ),
+        "outreach_payments_total": scalar(
+            """SELECT COUNT(DISTINCT prospect_id) FROM commercial_events
+               WHERE event_type = 'payment_received' AND offer_version = ?
+               AND price_amount = ? AND price_currency = ? AND evidence_grade = 'A'
+               AND NULLIF(TRIM(artifact_ref), '') IS NOT NULL""",
+            (FOUNDING_OFFER_VERSION, FOUNDING_OFFER_PRICE_AMOUNT, FOUNDING_OFFER_PRICE_CURRENCY),
+        ),
+        "outreach_invalid_endpoints_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition IN ('wrong_number', 'email_bounced')"
+        ),
+        "outreach_endpoint_attempts_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE channel IN ('phone', 'email', 'linkedin')"
+        ),
+        "outreach_ivr_blocks_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'ivr_blocked'"
+        ),
+        "outreach_gatekeeper_blocks_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE disposition = 'gatekeeper_no_transfer'"
+        ),
+        "outreach_suppressed_businesses_total": scalar(
+            """SELECT COUNT(*) FROM prospects WHERE is_current = 1
+               AND contact_suppressed_at IS NOT NULL"""
+        ),
+        "outreach_phone_attempts_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone'"
+        ),
+        "outreach_live_call_connects_total": scalar(
+            "SELECT COUNT(*) FROM outreach_attempts WHERE channel = 'phone' AND human_reached = 1"
+        ),
+    }
+    counts["outreach_human_reached_total"] = counts["outreach_relevant_human_reached_total"]
+    counts["outreach_buyer_movement_total"] = max(
+        counts["outreach_paid_terms_requested_total"], counts["outreach_discovery_booked_total"]
+    )
+    metrics: dict[str, tuple[float, str, float | None]] = {
+        name: (value, "count", None) for name, value in counts.items()
+    }
+
+    def add_rate(name: str, numerator: float, denominator: float) -> None:
+        metrics[f"{name}_numerator"] = (numerator, "count", None)
+        metrics[f"{name}_denominator"] = (denominator, "count", None)
+        if denominator:
+            metrics[name] = (round(numerator / denominator, 4), "rate", None)
+
+    add_rate("outreach_human_reach_rate", counts["outreach_relevant_human_reached_total"], counts["outreach_attempted_businesses_total"])
+    add_rate("outreach_substantive_conversation_rate", counts["outreach_substantive_conversations_total"], counts["outreach_relevant_human_reached_total"])
+    add_rate("outreach_pain_qualification_rate", counts["outreach_pain_qualified_total"], counts["outreach_substantive_conversations_total"])
+    add_rate("outreach_discovery_booking_rate", counts["outreach_discovery_booked_total"], counts["outreach_pain_qualified_total"])
+    add_rate("outreach_paid_proposal_rate", counts["outreach_paid_proposals_total"], counts["outreach_discovery_booked_total"])
+    add_rate("outreach_paid_acceptance_rate", counts["outreach_paid_acceptances_total"], counts["outreach_paid_proposals_total"])
+    add_rate("outreach_payment_rate", counts["outreach_payments_total"], counts["outreach_paid_acceptances_total"])
+    add_rate("outreach_invalid_endpoint_rate", counts["outreach_invalid_endpoints_total"], counts["outreach_endpoint_attempts_total"])
+    add_rate("outreach_ivr_block_rate", counts["outreach_ivr_blocks_total"], counts["outreach_phone_attempts_total"])
+    add_rate("outreach_gatekeeper_block_rate", counts["outreach_gatekeeper_blocks_total"], counts["outreach_live_call_connects_total"])
+    add_rate("outreach_suppression_rate", counts["outreach_suppressed_businesses_total"], counts["outreach_attempted_businesses_total"])
+    return metrics
+
+
 def set_action_status(conn: sqlite3.Connection, action_id: str, status: str) -> None:
     """Operator write path for action status — the dashboard posts through this.
 
@@ -809,6 +955,80 @@ def unsuppress_prospect(conn: sqlite3.Connection, prospect_id: str, reason: str)
     )
     if cur.rowcount == 0:
         raise KeyError(f"no actively suppressed current prospect {prospect_id!r}")
+    conn.commit()
+
+
+def verify_prospect_for_outreach(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    *,
+    endpoint_type: str,
+    planned_attempts: int,
+    verified_at: str | None = None,
+) -> None:
+    """Record pre-outreach ICP fit, usable endpoint, and explicit sequence plan."""
+    if endpoint_type not in OUTREACH_CHANNELS:
+        raise ValueError(f"endpoint_type must be one of {sorted(OUTREACH_CHANNELS)}")
+    if isinstance(planned_attempts, bool) or not isinstance(planned_attempts, int) or not 1 <= planned_attempts <= 3:
+        raise ValueError("planned_attempts must be an integer from 1 to 3")
+    at = verified_at or utc_now()
+    _validate_offset_timestamp(at, "verified_at")
+    cur = conn.execute(
+        """UPDATE prospects
+           SET icp_fit_verified_at = ?, contact_endpoint_verified_at = ?,
+               contact_endpoint_type = ?, sequence_planned_attempts = ?,
+               sequence_completed_at = NULL, sequence_completion_reason = NULL,
+               updated_at = ?
+           WHERE id = ? AND is_current = 1 AND contact_suppressed_at IS NULL""",
+        (at, at, endpoint_type, planned_attempts, at, prospect_id),
+    )
+    if cur.rowcount == 0:
+        raise KeyError(f"no unsuppressed current prospect {prospect_id!r}")
+    conn.commit()
+
+
+def complete_outreach_sequence(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    *,
+    reason: str,
+    completed_at: str | None = None,
+) -> None:
+    """Explicitly complete a planned sequence; never infer this from a disposition."""
+    allowed_reasons = {"planned_attempts_completed", "terminal_result"}
+    if reason not in allowed_reasons:
+        raise ValueError(f"sequence completion reason must be one of {sorted(allowed_reasons)}")
+    at = completed_at or utc_now()
+    _validate_offset_timestamp(at, "completed_at")
+    prospect = conn.execute(
+        """SELECT sequence_planned_attempts FROM prospects
+           WHERE id = ? AND is_current = 1""",
+        (prospect_id,),
+    ).fetchone()
+    if prospect is None:
+        raise KeyError(f"no current prospect {prospect_id!r}")
+    planned = prospect["sequence_planned_attempts"]
+    if not planned:
+        raise ValueError("prospect has no explicit planned sequence")
+    attempts = conn.execute(
+        "SELECT COUNT(*) FROM outreach_attempts WHERE prospect_id = ?", (prospect_id,)
+    ).fetchone()[0]
+    if reason == "planned_attempts_completed" and attempts < planned:
+        raise ValueError("planned attempts are not complete")
+    if reason == "terminal_result":
+        terminal = conn.execute(
+            """SELECT 1 FROM outreach_attempts WHERE prospect_id = ?
+               AND disposition IN ('wrong_number', 'email_bounced', 'substantive_conversation', 'opt_out')
+               LIMIT 1""",
+            (prospect_id,),
+        ).fetchone()
+        if terminal is None:
+            raise ValueError("terminal_result requires a terminal disposition")
+    conn.execute(
+        """UPDATE prospects SET sequence_completed_at = ?, sequence_completion_reason = ?,
+           updated_at = ? WHERE id = ? AND is_current = 1""",
+        (at, reason, at, prospect_id),
+    )
     conn.commit()
 
 
@@ -1167,6 +1387,45 @@ def daily_brief(dataset: dict[str, Any]) -> str:
         evidence_rate("Payment rate", "outreach_payment_rate"),
     ]
 
+    def count(name: str) -> int:
+        return int(metrics.get(name, {}).get("metric_value", 0))
+
+    completed = count("outreach_completed_sequences_total")
+    relevant_humans = count("outreach_relevant_human_reached_total")
+    substantive = count("outreach_substantive_conversations_total")
+    qualified = count("outreach_pain_qualified_total")
+    buyer_movement = count("outreach_buyer_movement_total")
+    payments = count("outreach_payments_total")
+    if completed == 0:
+        reach_status = pain_status = buyer_status = payment_status = "NOT ENOUGH EVIDENCE"
+    elif completed < 10:
+        reach_status = pain_status = buyer_status = payment_status = "IN PROGRESS"
+    else:
+        reach_status = "PASS" if relevant_humans >= 5 and substantive >= 3 else "FAIL"
+        pain_status = "PASS" if qualified >= 2 else "FAIL"
+        buyer_status = "PASS" if buyer_movement >= 1 else "FAIL"
+        payment_status = "PASS" if payments >= 1 else "FAIL"
+    recommendation = (
+        "EXPAND"
+        if completed >= 10 and reach_status == pain_status == buyer_status == "PASS"
+        else "STOP" if completed >= 10 else "CONTINUE"
+    )
+    gate_lines = [
+        "## Evidence Loop V1 decision gates",
+        f"- Calibration population: {completed}/10 completed planned sequences",
+        f"- Reach gate: {reach_status} — relevant humans {relevant_humans}/5; substantive conversations {substantive}/3",
+        f"- Pain/economics gate: {pain_status} — qualified businesses {qualified}/2",
+        f"- Buyer-movement gate: {buyer_status} — artifact/evidence-backed buyers {buyer_movement}/1",
+        f"- Payment gate: {payment_status} — exact $500 USD founding-pilot payments {payments}/1",
+        f"- Recommendation: {recommendation}",
+        "",
+    ]
+    private_outreach_lines = (
+        ["## Evidence Loop V1 rates", *outreach_rate_lines, "", *gate_lines]
+        if dataset.get("mode") == "private"
+        else []
+    )
+
     return "\n".join(
         [
             "# MMTVU Daily Operator Brief",
@@ -1182,9 +1441,7 @@ def daily_brief(dataset: dict[str, Any]) -> str:
             f"- Owner-operated prospects in SQLite: {int(owner_targets)}",
             f"- Active loops: {sum(1 for l in loops if l.get('status') == 'active')}",
             "",
-            "## Evidence Loop V1 rates",
-            *outreach_rate_lines,
-            "",
+            *private_outreach_lines,
             "## Next best move",
             f"- {top.get('action', summary.get('next_best_move', 'No next action'))}",
             f"- Owner: {top.get('owner', 'n/a')}",

@@ -678,6 +678,9 @@ def test_outreach_metrics_keep_zero_denominators_and_omit_undefined_rates(tmp_pa
 def test_outreach_metrics_derive_rates_from_persisted_evidence(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
+        crm_db.verify_prospect_for_outreach(
+            conn, "p1", endpoint_type="phone", planned_attempts=1
+        )
         crm_db.record_outreach_attempt(
             conn,
             {
@@ -734,6 +737,12 @@ def test_outreach_metrics_count_distinct_businesses_and_emit_diagnostics(tmp_pat
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn, "p1")
         seed_prospect(conn, "p2")
+        crm_db.verify_prospect_for_outreach(
+            conn, "p1", endpoint_type="phone", planned_attempts=2
+        )
+        crm_db.verify_prospect_for_outreach(
+            conn, "p2", endpoint_type="phone", planned_attempts=1
+        )
         crm_db.record_outreach_attempt(
             conn,
             valid_attempt(
