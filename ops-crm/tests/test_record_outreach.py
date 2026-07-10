@@ -201,26 +201,49 @@ def test_payment_event_requires_direct_artifact_and_advances_to_won(tmp_path):
     assert prospect["max_stage_rank"] == crm_db.STAGE_RANK["won"]
 
 
-@pytest.mark.parametrize("bad_amount", [True, -500, 0, float("inf"), "500"])
-def test_payment_rejects_nonpositive_or_nonfinite_numeric_amount(tmp_path, bad_amount):
+@pytest.mark.parametrize(
+    ("overrides", "message"),
+    [
+        ({"price_amount": 1}, "exactly"),
+        ({"price_amount": 499.99}, "exactly"),
+        ({"price_amount": True}, "exactly"),
+        ({"price_amount": 0}, "exactly"),
+        ({"price_amount": -500}, "exactly"),
+        ({"price_amount": float("nan")}, "exactly"),
+        ({"price_amount": float("inf")}, "exactly"),
+        ({"price_amount": "500"}, "exactly"),
+        ({"price_currency": "EUR"}, "USD"),
+        ({"price_currency": ""}, "USD"),
+        ({"price_currency": None}, "USD"),
+        ({"offer_version": "founding-pilot-v2"}, "offer_version"),
+        ({"offer_version": ""}, "offer_version"),
+        ({"offer_version": None}, "offer_version"),
+    ],
+)
+def test_noncontract_payment_is_rejected_atomically(tmp_path, overrides, message):
+    event = {
+        "id": "event-invalid-payment",
+        "prospect_id": "p1",
+        "event_type": "payment_received",
+        "occurred_at": "2026-07-10T09:00:00-04:00",
+        "offer_version": "founding-pilot-v1",
+        "price_amount": 500,
+        "price_currency": "USD",
+        "evidence_grade": "A",
+        "artifact_ref": "private-receipt-invalid",
+        "operator": "Matthew",
+    }
+    event.update(overrides)
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
-        with pytest.raises(ValueError, match="price_amount"):
-            crm_db.record_commercial_event(
-                conn,
-                {
-                    "id": "event-invalid-payment",
-                    "prospect_id": "p1",
-                    "event_type": "payment_received",
-                    "occurred_at": "2026-07-10T09:00:00-04:00",
-                    "price_amount": bad_amount,
-                    "price_currency": "USD",
-                    "evidence_grade": "A",
-                    "artifact_ref": "private-receipt-invalid",
-                    "operator": "Matthew",
-                },
-            )
-        assert conn.execute("SELECT status FROM prospects WHERE id='p1'").fetchone()[0] == "not_contacted"
+        with pytest.raises(ValueError, match=message):
+            crm_db.record_commercial_event(conn, event)
+        assert conn.execute("SELECT COUNT(*) FROM commercial_events").fetchone()[0] == 0
+        row = conn.execute(
+            "SELECT status, max_stage_rank FROM prospects WHERE id='p1'"
+        ).fetchone()
+        assert row["status"] == "not_contacted"
+        assert row["max_stage_rank"] == 0
 
 
 def test_commercial_event_attempt_must_belong_to_same_prospect(tmp_path):
@@ -311,7 +334,13 @@ def test_commercial_events_have_deterministic_stage_effects(tmp_path, event_type
             "operator": "Matthew",
         }
         if event_type == "payment_received":
-            event.update({"price_amount": 500, "price_currency": "USD"})
+            event.update(
+                {
+                    "offer_version": "founding-pilot-v1",
+                    "price_amount": 500,
+                    "price_currency": "USD",
+                }
+            )
         crm_db.record_commercial_event(conn, event)
         assert conn.execute("SELECT status FROM prospects WHERE id='p1'").fetchone()[0] == expected_status
 
@@ -389,6 +418,7 @@ def test_duplicate_commercial_event_rolls_back_stage_change(tmp_path):
                     "prospect_id": "p1",
                     "event_type": "payment_received",
                     "occurred_at": "2026-07-10T10:00:00-04:00",
+                    "offer_version": "founding-pilot-v1",
                     "price_amount": 500,
                     "price_currency": "USD",
                     "evidence_grade": "A",

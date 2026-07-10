@@ -83,6 +83,9 @@ CONVERSATION_OUTCOMES = frozenset({
 })
 EVIDENCE_GRADES = frozenset({"A", "B", "C"})
 MAX_EVIDENCE_TEXT_LENGTH = 4000
+FOUNDING_OFFER_VERSION = "founding-pilot-v1"
+FOUNDING_OFFER_PRICE_AMOUNT = 500.0
+FOUNDING_OFFER_PRICE_CURRENCY = "USD"
 
 # Rank of the funnel's main progression line (not_contacted -> won). Off-ramps
 # (lost, not_fit, follow_up_later) have no rank of their own: set_prospect_status
@@ -928,16 +931,24 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
     if event["event_type"] == "payment_received":
         if event["evidence_grade"] != "A" or not event.get("artifact_ref"):
             raise ValueError("payment_received requires grade A payment evidence")
+        if event.get("offer_version") != FOUNDING_OFFER_VERSION:
+            raise ValueError(
+                f"payment_received offer_version must be {FOUNDING_OFFER_VERSION!r}"
+            )
         amount = event.get("price_amount")
         if (
             isinstance(amount, bool)
             or not isinstance(amount, (int, float))
             or not math.isfinite(float(amount))
-            or amount <= 0
+            or float(amount) != FOUNDING_OFFER_PRICE_AMOUNT
         ):
-            raise ValueError("payment_received requires a positive finite numeric price_amount")
-        if not isinstance(event.get("price_currency"), str) or not event["price_currency"].strip():
-            raise ValueError("payment_received requires price_amount and price_currency")
+            raise ValueError(
+                f"payment_received price_amount must be exactly {FOUNDING_OFFER_PRICE_AMOUNT:g}"
+            )
+        if event.get("price_currency") != FOUNDING_OFFER_PRICE_CURRENCY:
+            raise ValueError(
+                f"payment_received price_currency must be {FOUNDING_OFFER_PRICE_CURRENCY}"
+            )
 
     prospect = conn.execute(
         "SELECT id, is_current FROM prospects WHERE id = ?", (event["prospect_id"],)
