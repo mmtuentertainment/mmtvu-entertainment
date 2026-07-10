@@ -481,6 +481,190 @@ def test_later_attempt_cannot_regress_evidence_stage(tmp_path):
     assert row["max_stage_rank"] == crm_db.STAGE_RANK["discovery_booked"]
 
 
+def test_weak_attempt_never_reopens_lost_off_ramp(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        crm_db.record_outreach_attempt(conn, valid_attempt(id="attempt-after-lost"))
+        row = conn.execute(
+            "SELECT status, max_stage_rank FROM prospects WHERE id='p1'"
+        ).fetchone()
+    assert row["status"] == "lost"
+    assert row["max_stage_rank"] == 0
+
+
+@pytest.mark.parametrize(
+    ("outcome", "expected_status"),
+    [
+        ("pain_qualified_no_interest", "lost"),
+        ("follow_up_requested", "follow_up_later"),
+        ("confirmed_not_fit", "not_fit"),
+    ],
+)
+def test_typed_conversation_outcomes_derive_each_off_ramp(tmp_path, outcome, expected_status):
+    payload = valid_attempt(
+        disposition="substantive_conversation",
+        human_reached=True,
+        substantive_conversation=True,
+        contact_role="owner",
+        conversation_outcome=outcome,
+        evidence_grade="B",
+        evidence_text="Same-day exact quote supports the typed outcome.",
+    )
+    if outcome != "confirmed_not_fit":
+        payload.update(
+            pain_score=2,
+            eligible_unsold_estimates=10,
+            ticket_value_band="$10k-$25k",
+        )
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.record_outreach_attempt(conn, payload)
+        row = conn.execute(
+            "SELECT status, max_stage_rank FROM prospects WHERE id='p1'"
+        ).fetchone()
+    assert row["status"] == expected_status
+    assert row["max_stage_rank"] == crm_db.STAGE_RANK["replied"]
+
+
+def test_confirmed_not_fit_requires_qualified_evidence_before_write(tmp_path):
+    payload = valid_attempt(
+        id="attempt-evidence-free-not-fit",
+        disposition="substantive_conversation",
+        human_reached=True,
+        substantive_conversation=True,
+        contact_role="owner",
+        conversation_outcome="confirmed_not_fit",
+    )
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        with pytest.raises(ValueError, match="confirmed_not_fit.*grade A or B evidence"):
+            crm_db.record_outreach_attempt(conn, payload)
+        attempt_count = conn.execute("SELECT COUNT(*) FROM outreach_attempts").fetchone()[0]
+        status = conn.execute("SELECT status FROM prospects WHERE id = 'p1'").fetchone()[0]
+
+    assert attempt_count == 0
+    assert status == "not_contacted"
+
+
+def test_explicit_reopening_requires_auditable_grade_a_evidence(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.set_prospect_status(conn, "p1", "pilot_proposed")
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        with pytest.raises(ValueError, match="grade A"):
+            crm_db.reopen_prospect(
+                conn,
+                "p1",
+                reason="buyer asked to restart",
+                evidence_grade="B",
+                artifact_ref="private-email-1",
+                operator="Matthew",
+            )
+        crm_db.reopen_prospect(
+            conn,
+            "p1",
+            reason="buyer asked to restart",
+            evidence_grade="A",
+            artifact_ref="private/email/reopen-1",
+            operator="Matthew",
+            reopened_at="2026-07-10T15:00:00-04:00",
+        )
+        prospect = conn.execute(
+            "SELECT status, max_stage_rank FROM prospects WHERE id='p1'"
+        ).fetchone()
+        audit = conn.execute("SELECT * FROM prospect_reopenings").fetchone()
+
+    assert prospect["status"] == "pilot_proposed"
+    assert prospect["max_stage_rank"] == crm_db.STAGE_RANK["pilot_proposed"]
+    assert audit["from_status"] == "lost"
+    assert audit["to_status"] == "pilot_proposed"
+    assert audit["reason"] == "buyer asked to restart"
+    assert audit["artifact_ref"] == "private/email/reopen-1"
+    assert audit["reopened_at"] == "2026-07-10T15:00:00-04:00"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "UPDATE prospect_reopenings SET reason = 'rewritten'",
+        "DELETE FROM prospect_reopenings",
+    ],
+)
+def test_reopening_audit_rows_are_immutable(tmp_path, mutation):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        crm_db.reopen_prospect(
+            conn,
+            "p1",
+            reason="artifact-backed restart",
+            evidence_grade="A",
+            artifact_ref="private/email/immutable-reopen",
+            operator="Matthew",
+        )
+
+        with pytest.raises(sqlite3.IntegrityError, match="prospect_reopenings are immutable"):
+            conn.execute(mutation)
+
+        rows = conn.execute(
+            "SELECT prospect_id, from_status, reason FROM prospect_reopenings"
+        ).fetchall()
+
+    assert [tuple(row) for row in rows] == [("p1", "lost", "artifact-backed restart")]
+
+
+def test_reopening_rejects_nonintegral_high_water_rank_atomically(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        conn.execute(
+            "UPDATE prospects SET status = 'lost', max_stage_rank = 1.5 WHERE id = 'p1'"
+        )
+        conn.commit()
+        before = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id = 'p1'"
+        ).fetchone()
+
+        with pytest.raises(ValueError, match="invalid max_stage_rank"):
+            crm_db.reopen_prospect(
+                conn,
+                "p1",
+                reason="buyer asked to restart",
+                evidence_grade="A",
+                artifact_ref="private/email/reopen-invalid-rank",
+                operator="Matthew",
+            )
+
+        after = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id = 'p1'"
+        ).fetchone()
+        audit_count = conn.execute("SELECT COUNT(*) FROM prospect_reopenings").fetchone()[0]
+
+    assert tuple(after) == tuple(before)
+    assert audit_count == 0
+
+
+def test_cumulative_funnel_metrics_survive_off_ramp_and_explicit_reopening(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.set_prospect_status(conn, "p1", "pilot_proposed")
+        crm_db.set_prospect_status(conn, "p1", "lost")
+        during = crm_db.export_dataset(conn, "2026-07-10T14:00:00Z")
+        crm_db.reopen_prospect(
+            conn,
+            "p1",
+            reason="artifact-backed re-engagement",
+            evidence_grade="A",
+            artifact_ref="private/email/reopen-2",
+            operator="Matthew",
+        )
+        after = crm_db.export_dataset(conn, "2026-07-10T15:00:00Z")
+    for dataset in (during, after):
+        metrics = {m["metric_name"]: m["metric_value"] for m in dataset["metrics"]}
+        assert metrics["discovery_booked_total"] == 1
+        assert metrics["pilot_proposed_total"] == 1
+
+
 def test_opt_out_preserves_stage_and_only_sets_suppression(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)

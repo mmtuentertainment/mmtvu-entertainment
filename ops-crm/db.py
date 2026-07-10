@@ -101,15 +101,17 @@ GRADE_A_COMMERCIAL_EVENTS = frozenset({
 })
 CONVERSATION_OUTCOMES = frozenset({
     "no_relevant_pain", "pain_unqualified", "pain_qualified_no_interest",
-    "follow_up_requested", "paid_terms_requested",
+    "follow_up_requested", "paid_terms_requested", "confirmed_not_fit",
 })
 # (minimum pain score, maximum pain score, requires qualified economics).
+# None score bounds mean the outcome explicitly carries no pain score.
 CONVERSATION_OUTCOME_MATRIX = {
     "no_relevant_pain": (0, 0, False),
     "pain_unqualified": (0, 1, False),
     "pain_qualified_no_interest": (2, 3, True),
     "follow_up_requested": (2, 3, True),
     "paid_terms_requested": (2, 3, True),
+    "confirmed_not_fit": (None, None, False),
 }
 EVIDENCE_GRADES = frozenset({"A", "B", "C"})
 MAX_EVIDENCE_TEXT_LENGTH = 4000
@@ -308,6 +310,31 @@ def init_db(conn: sqlite3.Connection) -> None:
             operator TEXT NOT NULL,
             created_at TEXT NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS prospect_reopenings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            prospect_id TEXT NOT NULL REFERENCES prospects(id),
+            from_status TEXT NOT NULL,
+            to_status TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            evidence_grade TEXT NOT NULL,
+            artifact_ref TEXT NOT NULL,
+            operator TEXT NOT NULL,
+            reopened_at TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE TRIGGER IF NOT EXISTS prevent_prospect_reopenings_update
+        BEFORE UPDATE ON prospect_reopenings
+        BEGIN
+            SELECT RAISE(ABORT, 'prospect_reopenings are immutable');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS prevent_prospect_reopenings_delete
+        BEFORE DELETE ON prospect_reopenings
+        BEGIN
+            SELECT RAISE(ABORT, 'prospect_reopenings are immutable');
+        END;
 
         CREATE INDEX IF NOT EXISTS idx_outreach_attempts_prospect_at
             ON outreach_attempts(prospect_id, attempted_at);
@@ -925,9 +952,15 @@ def _set_prospect_status_in_transaction(
     else:
         cur = conn.execute(
             """UPDATE prospects
-               SET status = CASE WHEN max_stage_rank <= ? THEN ? ELSE status END,
-                   updated_at = CASE WHEN max_stage_rank <= ? THEN ? ELSE updated_at END,
-                   max_stage_rank = MAX(max_stage_rank, ?)
+               SET status = CASE
+                       WHEN status IN ('lost', 'not_fit', 'follow_up_later') THEN status
+                       WHEN max_stage_rank <= ? THEN ? ELSE status END,
+                   updated_at = CASE
+                       WHEN status IN ('lost', 'not_fit', 'follow_up_later') THEN updated_at
+                       WHEN max_stage_rank <= ? THEN ? ELSE updated_at END,
+                   max_stage_rank = CASE
+                       WHEN status IN ('lost', 'not_fit', 'follow_up_later') THEN max_stage_rank
+                       ELSE MAX(max_stage_rank, ?) END
                WHERE id = ? AND is_current = 1""",
             (rank, status, rank, changed_at, rank, prospect_id),
         )
@@ -939,6 +972,54 @@ def set_prospect_status(conn: sqlite3.Connection, prospect_id: str, status: str)
     """Operator write path for moving a prospect through the outreach funnel."""
     _set_prospect_status_in_transaction(conn, prospect_id, status)
     conn.commit()
+
+
+def reopen_prospect(
+    conn: sqlite3.Connection,
+    prospect_id: str,
+    *,
+    reason: str,
+    evidence_grade: str,
+    artifact_ref: str,
+    operator: str,
+    reopened_at: str | None = None,
+) -> None:
+    """Deliberately reopen an off-ramp with immutable grade-A audit evidence."""
+    init_db(conn)
+    for field, value in (("reason", reason), ("artifact_ref", artifact_ref), ("operator", operator)):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field} is required")
+    if evidence_grade != "A":
+        raise ValueError("explicit reopening requires grade A evidence")
+    at = reopened_at or utc_now()
+    _validate_offset_timestamp(at, "reopened_at")
+    rank_to_status = {rank: status for status, rank in STAGE_RANK.items()}
+    conn.execute("BEGIN IMMEDIATE")
+    with conn:
+        prospect = conn.execute(
+            "SELECT status, max_stage_rank FROM prospects WHERE id = ? AND is_current = 1",
+            (prospect_id,),
+        ).fetchone()
+        if prospect is None:
+            raise KeyError(f"no current prospect {prospect_id!r}")
+        if prospect["status"] not in {"lost", "not_fit", "follow_up_later"}:
+            raise ValueError("prospect is not on a protected off-ramp")
+        rank = prospect["max_stage_rank"]
+        if type(rank) is not int or rank not in rank_to_status:
+            raise ValueError("prospect has invalid max_stage_rank")
+        target = rank_to_status[rank]
+        conn.execute(
+            "UPDATE prospects SET status = ?, updated_at = ? WHERE id = ? AND is_current = 1",
+            (target, at, prospect_id),
+        )
+        conn.execute(
+            """INSERT INTO prospect_reopenings(
+               prospect_id, from_status, to_status, reason, evidence_grade,
+               artifact_ref, operator, reopened_at, created_at
+               ) VALUES(?,?,?,?,?,?,?,?,?)""",
+            (prospect_id, prospect["status"], target, reason.strip(), evidence_grade,
+             artifact_ref.strip(), operator.strip(), at, utc_now()),
+        )
 
 
 def unsuppress_prospect(conn: sqlite3.Connection, prospect_id: str, reason: str) -> None:
@@ -1118,7 +1199,12 @@ def _validate_outreach_attempt(attempt: dict[str, Any]) -> None:
         raise ValueError("eligible_unsold_estimates must be a non-negative integer")
     if outcome:
         minimum_score, maximum_score, requires_qualified_economics = CONVERSATION_OUTCOME_MATRIX[outcome]
-        if score is None or not minimum_score <= score <= maximum_score:
+        if outcome == "confirmed_not_fit" and attempt.get("evidence_grade") not in {"A", "B"}:
+            raise ValueError("conversation_outcome 'confirmed_not_fit' requires grade A or B evidence")
+        if minimum_score is None:
+            if score is not None:
+                raise ValueError(f"conversation_outcome {outcome!r} does not accept pain_score")
+        elif score is None or not minimum_score <= score <= maximum_score:
             raise ValueError(
                 f"conversation_outcome {outcome!r} requires pain_score {minimum_score}-{maximum_score}"
             )
@@ -1173,7 +1259,21 @@ def record_outreach_attempt(conn: sqlite3.Connection, attempt: dict[str, Any]) -
             ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             values,
         )
-        if attempt["disposition"] != "opt_out":
+        off_ramp = {
+            "pain_qualified_no_interest": "lost",
+            "follow_up_requested": "follow_up_later",
+            "confirmed_not_fit": "not_fit",
+        }.get(str(attempt.get("conversation_outcome")))
+        if off_ramp:
+            # Preserve the evidence-derived mainline high-water mark before entering
+            # the protected off-ramp in the same transaction.
+            _set_prospect_status_in_transaction(
+                conn, attempt["prospect_id"], stage, updated_at=attempted_at
+            )
+            _set_prospect_status_in_transaction(
+                conn, attempt["prospect_id"], off_ramp, updated_at=attempted_at
+            )
+        elif attempt["disposition"] != "opt_out":
             _set_prospect_status_in_transaction(
                 conn, attempt["prospect_id"], stage, updated_at=attempted_at
             )
