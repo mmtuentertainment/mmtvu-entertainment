@@ -60,4 +60,4 @@ Run `/sync-gbrain` to force-refresh, `/sync-gbrain --full` for full reindex.
 
 ## Current work pointer (2026-07-09)
 
-All 13 findings from the candidates 3+4 adversarial review are closed out: Tier 1 (security/data-integrity, committed `d294492`) and Tier 2+3 (2 design decisions + 7 mechanical fixes, TDD-verified, 51 tests, live-verified). No open review findings remain. Full history: `ops-crm-candidates-3-4-review-HANDOFF.md` and `ops-crm-tier2-3-HANDOFF.md` at the repo root.
+All 13 findings from the candidates 3+4 adversarial review are closed out: Tier 1 security/data-integrity work and Tier 2+3 design/mechanical fixes are landed, TDD-verified, and live-verified. No open review findings remain. Durable decisions are recorded in `docs/adr/`; implementation history is in Git. Superseded session handoffs are not project source of truth.
