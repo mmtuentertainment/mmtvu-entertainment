@@ -84,21 +84,39 @@ ATTEMPT_CONSISTENCY_MATRIX = {
     "linkedin_replied": ({"linkedin"}, True, False),
     "opt_out": ({"phone", "email", "linkedin"}, True, False),
 }
-COMMERCIAL_EVENT_TYPES = frozenset({
-    "discovery_scheduled", "discovery_completed", "discovery_no_show",
-    "paid_proposal_sent", "paid_pilot_accepted", "paid_pilot_declined",
-    "payment_received",
-})
-COMMERCIAL_EVENT_STAGE = {
-    "discovery_scheduled": "discovery_booked",
-    "paid_proposal_sent": "pilot_proposed",
-    "paid_pilot_accepted": "pilot_proposed",
-    "paid_pilot_declined": "lost",
-    "payment_received": "won",
+COMMERCIAL_EVENT_CONTRACT = {
+    # The canonical model declares originating attempt_id nullable, so each event
+    # explicitly preserves that policy rather than relying on accidental omission.
+    "discovery_scheduled": {
+        "evidence_grades": frozenset({"A"}), "offer_version_required": False,
+        "price_required": False, "stage": "discovery_booked", "attempt_required": False,
+    },
+    "discovery_completed": {
+        "evidence_grades": frozenset({"A", "B"}), "offer_version_required": False,
+        "price_required": False, "stage": None, "attempt_required": False,
+    },
+    "discovery_no_show": {
+        "evidence_grades": frozenset({"A", "B"}), "offer_version_required": False,
+        "price_required": False, "stage": None, "attempt_required": False,
+    },
+    "paid_proposal_sent": {
+        "evidence_grades": frozenset({"A"}), "offer_version_required": True,
+        "price_required": True, "stage": "pilot_proposed", "attempt_required": False,
+    },
+    "paid_pilot_accepted": {
+        "evidence_grades": frozenset({"A"}), "offer_version_required": True,
+        "price_required": True, "stage": "pilot_proposed", "attempt_required": False,
+    },
+    "paid_pilot_declined": {
+        "evidence_grades": frozenset({"A", "B"}), "offer_version_required": True,
+        "price_required": True, "stage": "lost", "attempt_required": False,
+    },
+    "payment_received": {
+        "evidence_grades": frozenset({"A"}), "offer_version_required": True,
+        "price_required": True, "stage": "won", "attempt_required": False,
+    },
 }
-GRADE_A_COMMERCIAL_EVENTS = frozenset({
-    "discovery_scheduled", "paid_proposal_sent", "paid_pilot_accepted", "payment_received",
-})
+COMMERCIAL_EVENT_TYPES = frozenset(COMMERCIAL_EVENT_CONTRACT)
 CONVERSATION_OUTCOMES = frozenset({
     "no_relevant_pain", "pain_unqualified", "pain_qualified_no_interest",
     "follow_up_requested", "paid_terms_requested", "confirmed_not_fit",
@@ -115,6 +133,7 @@ CONVERSATION_OUTCOME_MATRIX = {
 }
 EVIDENCE_GRADES = frozenset({"A", "B", "C"})
 MAX_EVIDENCE_TEXT_LENGTH = 4000
+MAX_PRIVATE_ARTIFACT_REF_LENGTH = 512
 FOUNDING_OFFER_VERSION = "founding-pilot-v1"
 FOUNDING_OFFER_PRICE_AMOUNT = 500.0
 FOUNDING_OFFER_PRICE_CURRENCY = "USD"
@@ -1113,7 +1132,7 @@ def complete_outreach_sequence(
     conn.commit()
 
 
-def _validate_offset_timestamp(value: Any, field: str) -> None:
+def _validate_offset_timestamp(value: Any, field: str) -> datetime:
     if not isinstance(value, str):
         raise ValueError(f"{field} must be an offset-aware ISO timestamp")
     try:
@@ -1122,6 +1141,7 @@ def _validate_offset_timestamp(value: Any, field: str) -> None:
         raise ValueError(f"{field} must be an offset-aware ISO timestamp") from exc
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError(f"{field} must be an offset-aware ISO timestamp")
+    return parsed
 
 
 def _validate_evidence(grade: Any, artifact_ref: Any, evidence_text: Any) -> None:
@@ -1136,6 +1156,31 @@ def _validate_evidence(grade: Any, artifact_ref: Any, evidence_text: Any) -> Non
             raise ValueError("evidence_text must be text")
         if len(evidence_text) > MAX_EVIDENCE_TEXT_LENGTH:
             raise ValueError(f"evidence_text exceeds {MAX_EVIDENCE_TEXT_LENGTH} characters")
+
+
+def _validate_private_artifact_ref(value: Any) -> None:
+    """Validate an opaque local locator without dereferencing private evidence."""
+    if not isinstance(value, str):
+        raise ValueError("artifact_ref must be an opaque private locator string")
+    if not value or value != value.strip():
+        raise ValueError("artifact_ref must be nonblank with no surrounding whitespace")
+    if len(value) > MAX_PRIVATE_ARTIFACT_REF_LENGTH:
+        raise ValueError(f"artifact_ref exceeds {MAX_PRIVATE_ARTIFACT_REF_LENGTH} characters")
+    if any(
+        character.isspace() or ord(character) < 32 or ord(character) == 127
+        for character in value
+    ):
+        raise ValueError("artifact_ref must not contain whitespace or control characters")
+    lowered = value.lower()
+    credential_markers = ("api_key=", "apikey=", "password=", "passwd=", "token=", "secret=")
+    authority = value.split("://", 1)[1].split("/", 1)[0] if "://" in value else ""
+    if (
+        value[0] in "{["
+        or lowered.startswith(("bearer", "sk-"))
+        or any(marker in lowered for marker in credential_markers)
+        or "@" in authority
+    ):
+        raise ValueError("artifact_ref must be an opaque locator, not raw evidence or credentials")
 
 
 def _validate_outreach_attempt(attempt: dict[str, Any]) -> None:
@@ -1298,22 +1343,23 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
         raise ValueError("invalid event_type")
     if "status" in event:
         raise ValueError("status is derived from evidence and cannot be supplied")
-    _validate_offset_timestamp(event["occurred_at"], "occurred_at")
-    if event["evidence_grade"] not in {"A", "B"}:
-        raise ValueError("commercial events require evidence grade A or B")
-    if event["event_type"] in GRADE_A_COMMERCIAL_EVENTS and event["evidence_grade"] != "A":
-        raise ValueError(f"{event['event_type']} requires grade A evidence")
-    if event["evidence_grade"] == "A" and not event.get("artifact_ref"):
-        raise ValueError("artifact_ref is required for grade A evidence")
-    if event["evidence_grade"] == "B" and not event.get("evidence_text"):
-        raise ValueError("evidence_text is required for grade B evidence")
-    if event["event_type"] == "payment_received":
-        if event["evidence_grade"] != "A" or not event.get("artifact_ref"):
-            raise ValueError("payment_received requires grade A payment evidence")
+    occurred_at = _validate_offset_timestamp(event["occurred_at"], "occurred_at")
+    contract = COMMERCIAL_EVENT_CONTRACT[event["event_type"]]
+    if event["evidence_grade"] not in contract["evidence_grades"]:
+        if contract["evidence_grades"] == frozenset({"A"}):
+            raise ValueError(f"{event['event_type']} requires grade A evidence")
+        raise ValueError(f"{event['event_type']} requires evidence grade A or B")
+    _validate_evidence(
+        event["evidence_grade"], event.get("artifact_ref"), event.get("evidence_text")
+    )
+    if event.get("artifact_ref") is not None:
+        _validate_private_artifact_ref(event["artifact_ref"])
+    if contract["offer_version_required"]:
         if event.get("offer_version") != FOUNDING_OFFER_VERSION:
             raise ValueError(
-                f"payment_received offer_version must be {FOUNDING_OFFER_VERSION!r}"
+                f"{event['event_type']} offer_version must be {FOUNDING_OFFER_VERSION!r}"
             )
+    if contract["price_required"]:
         amount = event.get("price_amount")
         if (
             isinstance(amount, bool)
@@ -1322,28 +1368,38 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
             or float(amount) != FOUNDING_OFFER_PRICE_AMOUNT
         ):
             raise ValueError(
-                f"payment_received price_amount must be exactly {FOUNDING_OFFER_PRICE_AMOUNT:g}"
+                f"{event['event_type']} price_amount must be exactly "
+                f"{FOUNDING_OFFER_PRICE_AMOUNT:g}"
             )
         if event.get("price_currency") != FOUNDING_OFFER_PRICE_CURRENCY:
             raise ValueError(
-                f"payment_received price_currency must be {FOUNDING_OFFER_PRICE_CURRENCY}"
+                f"{event['event_type']} price_currency must be {FOUNDING_OFFER_PRICE_CURRENCY}"
             )
 
-    prospect = conn.execute(
-        "SELECT id, is_current FROM prospects WHERE id = ?", (event["prospect_id"],)
-    ).fetchone()
-    if prospect is None or not prospect["is_current"]:
-        raise KeyError(f"no current prospect {event['prospect_id']!r}")
-    if event.get("attempt_id"):
-        attempt_owner = conn.execute(
-            "SELECT prospect_id FROM outreach_attempts WHERE id = ?", (event["attempt_id"],)
-        ).fetchone()
-        if attempt_owner is None:
-            raise KeyError(f"no outreach attempt {event['attempt_id']!r}")
-        if attempt_owner["prospect_id"] != event["prospect_id"]:
-            raise ValueError("attempt_id must belong to the same prospect")
-
+    conn.execute("BEGIN IMMEDIATE")
     with conn:
+        prospect = conn.execute(
+            """SELECT id, is_current, contact_suppressed_at
+               FROM prospects WHERE id = ?""",
+            (event["prospect_id"],),
+        ).fetchone()
+        if prospect is None or not prospect["is_current"]:
+            raise KeyError(f"no current prospect {event['prospect_id']!r}")
+        if prospect["contact_suppressed_at"]:
+            raise ValueError("prospect is contact-suppressed")
+        if event.get("attempt_id"):
+            attempt_owner = conn.execute(
+                "SELECT prospect_id, attempted_at FROM outreach_attempts WHERE id = ?",
+                (event["attempt_id"],),
+            ).fetchone()
+            if attempt_owner is None:
+                raise KeyError(f"no outreach attempt {event['attempt_id']!r}")
+            if attempt_owner["prospect_id"] != event["prospect_id"]:
+                raise ValueError("attempt_id must belong to the same prospect")
+            attempted_at = _validate_offset_timestamp(attempt_owner["attempted_at"], "attempted_at")
+            if occurred_at < attempted_at:
+                raise ValueError("commercial event cannot occur before its originating attempt")
+
         conn.execute(
             """INSERT INTO commercial_events(
                 id, prospect_id, attempt_id, event_type, occurred_at, offer_version,
@@ -1358,7 +1414,7 @@ def record_commercial_event(conn: sqlite3.Connection, event: dict[str, Any]) -> 
                 event.get("evidence_text"), event["operator"], utc_now(),
             ),
         )
-        stage = COMMERCIAL_EVENT_STAGE.get(event["event_type"])
+        stage = contract["stage"]
         if stage:
             _set_prospect_status_in_transaction(
                 conn, event["prospect_id"], stage, updated_at=event["occurred_at"]

@@ -75,6 +75,80 @@ def valid_attempt_for(disposition: str, channel: str) -> dict[str, Any]:
     return attempt
 
 
+def valid_commercial_event(**overrides: Any) -> dict[str, Any]:
+    event: dict[str, Any] = {
+        "id": "event-valid",
+        "prospect_id": "p1",
+        "event_type": "discovery_completed",
+        "occurred_at": "2026-07-10T10:00:00-04:00",
+        "evidence_grade": "B",
+        "evidence_text": "Same-day commercial milestone note.",
+        "operator": "Matthew",
+    }
+    event.update(overrides)
+    return event
+
+
+def commercial_write_state(conn: sqlite3.Connection) -> tuple[int, tuple[Any, ...]]:
+    event_count = conn.execute("SELECT COUNT(*) FROM commercial_events").fetchone()[0]
+    prospect = conn.execute(
+        "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+    ).fetchone()
+    return event_count, tuple(prospect)
+
+
+def assert_commercial_rejection_was_atomic(
+    conn: sqlite3.Connection, before: tuple[int, tuple[Any, ...]]
+) -> None:
+    assert commercial_write_state(conn) == before
+
+
+def test_commercial_event_contract_covers_every_event_type():
+    expected = {
+        "discovery_scheduled": ({"A"}, False, False, "discovery_booked", False),
+        "discovery_completed": ({"A", "B"}, False, False, None, False),
+        "discovery_no_show": ({"A", "B"}, False, False, None, False),
+        "paid_proposal_sent": ({"A"}, True, True, "pilot_proposed", False),
+        "paid_pilot_accepted": ({"A"}, True, True, "pilot_proposed", False),
+        "paid_pilot_declined": ({"A", "B"}, True, True, "lost", False),
+        "payment_received": ({"A"}, True, True, "won", False),
+    }
+    assert set(crm_db.COMMERCIAL_EVENT_CONTRACT) == set(crm_db.COMMERCIAL_EVENT_TYPES)
+    for event_type, contract in crm_db.COMMERCIAL_EVENT_CONTRACT.items():
+        assert (
+            set(contract["evidence_grades"]),
+            contract["offer_version_required"],
+            contract["price_required"],
+            contract["stage"],
+            contract["attempt_required"],
+        ) == expected[event_type]
+
+
+@pytest.mark.parametrize("event_type", sorted(crm_db.COMMERCIAL_EVENT_TYPES))
+def test_each_commercial_event_policy_allows_nullable_originating_attempt(tmp_path, event_type):
+    contract = crm_db.COMMERCIAL_EVENT_CONTRACT[event_type]
+    event = valid_commercial_event(event_type=event_type)
+    if contract["evidence_grades"] == frozenset({"A"}):
+        event.update(
+            evidence_grade="A",
+            evidence_text=None,
+            artifact_ref=f"private/{event_type}/artifact-1",
+        )
+    if contract["offer_version_required"]:
+        event.update(
+            offer_version="founding-pilot-v1",
+            price_amount=500,
+            price_currency="USD",
+        )
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.record_commercial_event(conn, event)
+        row = conn.execute(
+            "SELECT attempt_id FROM commercial_events WHERE id='event-valid'"
+        ).fetchone()
+        assert row["attempt_id"] is None
+
+
 def test_attempt_consistency_matrix_covers_every_disposition_and_channel_pair():
     expected = {
         "phone": {
@@ -261,6 +335,175 @@ def test_unsuppress_requires_reason_before_future_attempt(tmp_path):
 
 
 
+def test_commercial_event_and_concurrent_archive_serialize_without_validation_gap(tmp_path):
+    database = tmp_path / "crm.sqlite"
+    with crm_db.connect(ROOT, database) as conn:
+        seed_prospect(conn)
+
+    prospect_read = threading.Event()
+    archive_started = threading.Event()
+    results: dict[str, Any] = {}
+    errors: list[BaseException] = []
+
+    def record_event() -> None:
+        try:
+            with crm_db.connect(ROOT, database) as conn:
+                def trace(statement: str) -> None:
+                    if "SELECT id, is_current, contact_suppressed_at" in statement:
+                        prospect_read.set()
+                        if not archive_started.wait(2):
+                            raise AssertionError("archiver did not reach the protected boundary")
+
+                conn.set_trace_callback(trace)
+                results["event_id"] = crm_db.record_commercial_event(
+                    conn, valid_commercial_event()
+                )
+        except BaseException as exc:  # surfaced in the main test thread
+            errors.append(exc)
+
+    def archive_prospect() -> None:
+        try:
+            if not prospect_read.wait(2):
+                raise AssertionError("event transaction did not read the prospect")
+            with crm_db.connect(ROOT, database) as conn:
+                archive_started.set()
+                conn.execute("BEGIN IMMEDIATE")
+                results["events_visible_before_archive"] = conn.execute(
+                    "SELECT COUNT(*) FROM commercial_events"
+                ).fetchone()[0]
+                conn.execute("UPDATE prospects SET is_current=0 WHERE id='p1'")
+                conn.commit()
+        except BaseException as exc:  # surfaced in the main test thread
+            errors.append(exc)
+
+    event_thread = threading.Thread(target=record_event)
+    archive_thread = threading.Thread(target=archive_prospect)
+    event_thread.start()
+    archive_thread.start()
+    event_thread.join(6)
+    archive_thread.join(6)
+
+    assert not event_thread.is_alive()
+    assert not archive_thread.is_alive()
+    assert errors == []
+    assert results == {
+        "event_id": "event-valid",
+        "events_visible_before_archive": 1,
+    }
+    with crm_db.connect(ROOT, database) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM commercial_events").fetchone()[0] == 1
+        assert conn.execute("SELECT is_current FROM prospects WHERE id='p1'").fetchone()[0] == 0
+
+
+def test_commercial_event_rejects_missing_prospect_without_writes(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        crm_db.init_db(conn)
+        with pytest.raises(KeyError, match="no current prospect"):
+            crm_db.record_commercial_event(conn, valid_commercial_event())
+        assert conn.execute("SELECT COUNT(*) FROM commercial_events").fetchone()[0] == 0
+
+
+def test_commercial_event_rejects_archived_prospect_atomically(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        conn.execute("UPDATE prospects SET is_current=0 WHERE id='p1'")
+        conn.commit()
+        before = commercial_write_state(conn)
+        with pytest.raises(KeyError, match="no current prospect"):
+            crm_db.record_commercial_event(conn, valid_commercial_event())
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
+def test_commercial_event_rejects_suppressed_prospect_atomically(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        conn.execute(
+            "UPDATE prospects SET contact_suppressed_at=?, contact_suppression_reason=? WHERE id='p1'",
+            ("2026-07-10T09:00:00-04:00", "explicit_opt_out"),
+        )
+        conn.commit()
+        before_updated_at = conn.execute(
+            "SELECT updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()[0]
+
+        with pytest.raises(ValueError, match="contact-suppressed"):
+            crm_db.record_commercial_event(conn, valid_commercial_event())
+
+        assert conn.execute("SELECT COUNT(*) FROM commercial_events").fetchone()[0] == 0
+        row = conn.execute(
+            "SELECT status, max_stage_rank, updated_at FROM prospects WHERE id='p1'"
+        ).fetchone()
+        assert tuple(row) == ("not_contacted", 0, before_updated_at)
+
+
+def test_commercial_event_rejects_artifact_reference_with_surrounding_whitespace(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        before = commercial_write_state(conn)
+        event = valid_commercial_event(
+            event_type="discovery_scheduled",
+            evidence_grade="A",
+            evidence_text=None,
+            artifact_ref=" private/calendar/event-1 ",
+        )
+
+        with pytest.raises(ValueError, match="artifact_ref"):
+            crm_db.record_commercial_event(conn, event)
+
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
+@pytest.mark.parametrize(
+    "artifact_ref",
+    [
+        "",
+        "   ",
+        "private/evidence\nraw",
+        "private/evidence\x00raw",
+        "x" * (crm_db.MAX_PRIVATE_ARTIFACT_REF_LENGTH + 1),
+        123,
+        '{"raw":"evidence"}',
+        "private/evidence?token=abc123",
+    ],
+)
+def test_commercial_event_rejects_malformed_private_artifact_references_atomically(
+    tmp_path, artifact_ref
+):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        before = commercial_write_state(conn)
+        event = valid_commercial_event(
+            event_type="discovery_scheduled",
+            evidence_grade="A",
+            evidence_text=None,
+            artifact_ref=artifact_ref,
+        )
+
+        with pytest.raises(ValueError, match="artifact_ref"):
+            crm_db.record_commercial_event(conn, event)
+
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
+@pytest.mark.parametrize(
+    "evidence_text",
+    [123, "x" * (crm_db.MAX_EVIDENCE_TEXT_LENGTH + 1)],
+)
+def test_grade_b_commercial_event_rejects_malformed_evidence_text_atomically(
+    tmp_path, evidence_text
+):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        before = commercial_write_state(conn)
+
+        with pytest.raises(ValueError, match="evidence_text"):
+            crm_db.record_commercial_event(
+                conn, valid_commercial_event(evidence_text=evidence_text)
+            )
+
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
 def test_gated_commercial_milestone_rejects_grade_b_note(tmp_path):
     with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
         seed_prospect(conn)
@@ -313,6 +556,63 @@ def test_payment_event_requires_direct_artifact_and_advances_to_won(tmp_path):
     assert prospect["max_stage_rank"] == crm_db.STAGE_RANK["won"]
 
 
+def test_paid_proposal_rejects_wrong_offer_version_atomically(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        before = commercial_write_state(conn)
+        event = valid_commercial_event(
+            event_type="paid_proposal_sent",
+            evidence_grade="A",
+            artifact_ref="private/proposal/proposal-1",
+            offer_version="founding-pilot-v2",
+            price_amount=500,
+            price_currency="USD",
+        )
+
+        with pytest.raises(ValueError, match="offer_version"):
+            crm_db.record_commercial_event(conn, event)
+
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
+@pytest.mark.parametrize(
+    "event_type",
+    ["paid_proposal_sent", "paid_pilot_accepted", "paid_pilot_declined"],
+)
+@pytest.mark.parametrize(
+    ("overrides", "message"),
+    [
+        ({"offer_version": None}, "offer_version"),
+        ({"offer_version": "founding-pilot-v2"}, "offer_version"),
+        ({"price_amount": None}, "price_amount"),
+        ({"price_amount": True}, "price_amount"),
+        ({"price_amount": "500"}, "price_amount"),
+        ({"price_amount": float("nan")}, "price_amount"),
+        ({"price_currency": None}, "price_currency"),
+        ({"price_currency": "EUR"}, "price_currency"),
+    ],
+)
+def test_paid_commercial_events_enforce_founding_offer_atomically(
+    tmp_path, event_type, overrides, message
+):
+    event = valid_commercial_event(
+        event_type=event_type,
+        evidence_grade="A",
+        evidence_text=None,
+        artifact_ref=f"private/{event_type}/artifact-1",
+        offer_version="founding-pilot-v1",
+        price_amount=500,
+        price_currency="USD",
+    )
+    event.update(overrides)
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        before = commercial_write_state(conn)
+        with pytest.raises(ValueError, match=message):
+            crm_db.record_commercial_event(conn, event)
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
 @pytest.mark.parametrize(
     ("overrides", "message"),
     [
@@ -356,6 +656,54 @@ def test_noncontract_payment_is_rejected_atomically(tmp_path, overrides, message
         ).fetchone()
         assert row["status"] == "not_contacted"
         assert row["max_stage_rank"] == 0
+
+
+def test_commercial_event_rejects_reversed_attempt_chronology_by_instant(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.record_outreach_attempt(
+            conn,
+            valid_attempt(attempted_at="2026-07-10T10:00:00-04:00"),
+        )
+        before = commercial_write_state(conn)
+        event = valid_commercial_event(
+            attempt_id="attempt-valid",
+            occurred_at="2026-07-10T14:30:00+01:00",
+        )
+
+        with pytest.raises(ValueError, match="before its originating attempt"):
+            crm_db.record_commercial_event(conn, event)
+
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
+def test_commercial_event_rejects_missing_attempt_atomically(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        before = commercial_write_state(conn)
+        with pytest.raises(KeyError, match="no outreach attempt"):
+            crm_db.record_commercial_event(
+                conn, valid_commercial_event(attempt_id="attempt-missing")
+            )
+        assert_commercial_rejection_was_atomic(conn, before)
+
+
+def test_commercial_event_accepts_equal_attempt_and_event_instants(tmp_path):
+    with crm_db.connect(ROOT, tmp_path / "crm.sqlite") as conn:
+        seed_prospect(conn)
+        crm_db.record_outreach_attempt(
+            conn,
+            valid_attempt(attempted_at="2026-07-10T10:00:00-04:00"),
+        )
+        event_id = crm_db.record_commercial_event(
+            conn,
+            valid_commercial_event(
+                attempt_id="attempt-valid",
+                occurred_at="2026-07-10T15:00:00+01:00",
+            ),
+        )
+        assert event_id == "event-valid"
+        assert conn.execute("SELECT COUNT(*) FROM commercial_events").fetchone()[0] == 1
 
 
 def test_commercial_event_attempt_must_belong_to_same_prospect(tmp_path):
@@ -445,7 +793,7 @@ def test_commercial_events_have_deterministic_stage_effects(tmp_path, event_type
             "artifact_ref": f"private-{event_type}-artifact",
             "operator": "Matthew",
         }
-        if event_type == "payment_received":
+        if event_type.startswith("paid_") or event_type == "payment_received":
             event.update(
                 {
                     "offer_version": "founding-pilot-v1",
