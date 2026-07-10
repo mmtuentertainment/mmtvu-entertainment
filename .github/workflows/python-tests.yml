@@ -1,0 +1,91 @@
+name: Python tests
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: python-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: true
+          python-version: "3.12"
+      - name: Install locked dependencies
+        run: uv sync --locked
+      - name: Create synthetic test inputs
+        shell: python
+        run: |
+          import csv
+          import json
+          from pathlib import Path
+
+          outreach = Path("outreach")
+          outreach.mkdir()
+
+          prospects = [
+              {
+                  "name": "Halpin Plumbing Inc",
+                  "city": "Cincinnati, OH",
+                  "niche": "Plumbing",
+                  "priority": "HIGH",
+                  "called_2026_07_08_after_hours": True,
+              },
+              *[
+                  {
+                      "name": f"Synthetic Home Services {index}",
+                      "city": "Example, OH",
+                      "niche": "Home services",
+                      "priority": "MEDIUM",
+                      "called_2026_07_08_after_hours": False,
+                  }
+                  for index in range(1, 5)
+              ],
+          ]
+          (outreach / "owner-operated-vapi-prospects.json").write_text(
+              json.dumps(prospects), encoding="utf-8"
+          )
+
+          with (outreach / "outreach-list-50.csv").open(
+              "w", newline="", encoding="utf-8"
+          ) as handle:
+              writer = csv.DictWriter(
+                  handle,
+                  fieldnames=["name", "niche", "city", "priority", "status"],
+              )
+              writer.writeheader()
+              writer.writerow(
+                  {
+                      "name": "Halpin Plumbing Inc",
+                      "niche": "Plumbing",
+                      "city": "Cincinnati, OH",
+                      "priority": "HIGH",
+                      "status": "Not contacted",
+                  }
+              )
+
+          for relative_path in [
+              "owner-operated-vapi-report.md",
+              "vapi-campaign-report.md",
+              "run-owner-operated-business-hours-calls.sh",
+              "vapi-cost-control-fix.md",
+              "vapi-owner-operator-cost-controlled-config.json",
+          ]:
+              (outreach / relative_path).write_text(
+                  "Synthetic CI fixture; no private or live CRM data.\n",
+                  encoding="utf-8",
+              )
+      - name: Run tests
+        run: uv run --locked pytest -q
