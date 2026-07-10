@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "en-US"
+tone_instructions: >-
+  Be concise and evidence-driven. Prioritize merge-blocking correctness,
+  security, data-integrity, transaction-safety, and test gaps over style.
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: true
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: false
+  poem: false
+
+  path_instructions:
+    - path: "ops-crm/**/*.py"
+      instructions: >-
+        Treat SQLite as authoritative and review fail-closed. Prioritize atomic
+        transactions, rollback behavior, concurrency races, timestamp ordering,
+        prospect suppression and eligibility, originating-attempt provenance,
+        parameterized SQL, deterministic state transitions, and private/public
+        data boundaries. Flag any possibility of leaking credentials, private CRM
+        data, or credential-bearing artifact references.
+    - path: "ops-crm/tests/**/*.py"
+      instructions: >-
+        Require fresh temporary fixtures only; tests must never access live or
+        private CRM databases. Check that rejection paths prove atomic rollback,
+        concurrency tests are deterministic, and contract boundaries include
+        malformed, missing, equal-timestamp, cross-prospect, and suppressed cases.
+    - path: ".github/workflows/**"
+      instructions: >-
+        Review permissions, secret handling, untrusted pull-request execution,
+        dependency pinning, and whether required tests actually gate merges.
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - "master"
+
+chat:
+  auto_reply: true
